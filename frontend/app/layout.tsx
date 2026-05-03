@@ -7,7 +7,7 @@ import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
   subsets: ['latin'],
-   weight: ["300", "400", "500", "600", "700", "800", "900"], 
+   weight: ["200","300", "400", "500", "600", "700", "800", "900"], 
   variable: '--font-noto-serif',
   display: 'swap',
 });

@@ -3,6 +3,9 @@ import Image from "next/image";
 
 import { ROUTES_IMAGES } from "../constants/routes";
 import NavbarComponent from "../../components/layouts/navbarComponent";
+import BannerComponent from "../../components/features/dashboard/bannerComponent";
+
+import { useLang } from "../../lib/i18n/LanguageProvider";
 import { useTranslation } from "../../lib/hooks/useTranslation";
 
 const Page: React.FC = () => {
@@ -14,33 +17,7 @@ const Page: React.FC = () => {
             <NavbarComponent logo={ROUTES_IMAGES.logo} />
 
             {/* NUEVO: Dashboard con imagen de fondo */}
-            <section id="inicio" className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
-                {/* Imagen de fondo (puedes cambiar la URL por una imagen local o de tu preferencia) */}
-                <div className="absolute inset-4 top-0 left-0 w-full h-full z-0">
-                    <Image
-                        src={ROUTES_IMAGES.dashboard}
-                        alt="Programming background"
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                    {/* Overlay oscuro para mejorar legibilidad */}
-                    <div className="absolute inset-0 bg-black/50 bg-opacity-60"></div>
-                </div>
-
-                {/* Contenido del dashboard */}
-                <div className="relative z-10 text-center text-white px-4">
-                    <h2 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg">
-                        {t('dashboardTitle')}
-                    </h2>
-                    <p className="text-2xl md:text-4xl font-light mb-12 drop-shadow-lg">
-                        {t('dashboardSubtitle')}
-                    </p>
-
-
-                </div>
-            </section>
-
+            <BannerComponent srcBanner={ROUTES_IMAGES.dashboard} />
 
             {/* Hero Section */}
             <section id="tecnologias" className="container mx-auto px-4 py-16 text-center">

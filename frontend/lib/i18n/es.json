@@ -1,11 +1,34 @@
 {
   "appName": "Arquitectura Base",
-  "navbar": {
-    "opt1": "INICIO",
-    "opt2": "PAQUETES",
-    "opt3": "GALERIA",
-    "opt4": "NOSOTROS",
-    "opt5": "CONTACTO"
+  "inicio": {
+    "navbar": {
+      "opt1": "INICIO",
+      "opt2": "PAQUETES",
+      "opt3": "GALERIA",
+      "opt4": "NOSOTROS",
+      "opt5": "CONTACTO"
+    },
+    "banner": {
+      "title": "La Palmera",
+      "slogan": "Donde la elegancia se encuentra con la naturaleza.",
+      "button": "Reserva tu fecha"
+    },
+    "espacios": {
+      "title": "Nuestros Espacios",
+      "desc": "Exclisividad",
+      "lvl1": {
+        "title": "Jardin de entrada",
+        "desc": "Un jardín principal te recibe con la icónica palmera que distingue nuestro jardín."
+      },
+      "lvl2": {
+        "title": "Pista de Baile",
+        "desc": "Estancia pincipal amplia en donde se situaran las mesas rodeando la pista de baile."
+      },
+      "lvl3": {
+        "title": "Jardin superior",
+        "desc": "Un espacio íntimo y encantador para la ceremonia, rodeado de naturaleza."
+      }
+    }
   },
   "dashboardTitle": "Subgerencia de Desarrollo",
   "dashboardSubtitle": "Programas Informáticos",
