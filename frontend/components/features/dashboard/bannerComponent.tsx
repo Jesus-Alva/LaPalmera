@@ -4,7 +4,6 @@ import React from "react";
 import Image from "next/image";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
 import { useLang } from "../../../lib/i18n/LanguageProvider";
-import { ROUTES_IMAGES } from "../../../app/constants/routes";
 
 interface ComponentProps {
     srcBanner: string;
