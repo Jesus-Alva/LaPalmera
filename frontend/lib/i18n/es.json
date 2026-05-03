@@ -1,9 +1,12 @@
 {
   "appName": "Arquitectura Base",
-  "inicio": "Inicio",
-  "tecnologias": "Tecnologías",
-  "documentacion": "Documentación"
-  ,
+  "navbar": {
+    "opt1": "INICIO",
+    "opt2": "PAQUETES",
+    "opt3": "GALERIA",
+    "opt4": "NOSOTROS",
+    "opt5": "CONTACTO"
+  },
   "dashboardTitle": "Subgerencia de Desarrollo",
   "dashboardSubtitle": "Programas Informáticos",
   "heroTitle": "Next.js + Tailwind + TypeScript",

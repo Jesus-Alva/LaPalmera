@@ -11,7 +11,7 @@ const Page: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header simple */}
-            <NavbarComponent />
+            <NavbarComponent logo={ROUTES_IMAGES.logo} />
 
             {/* NUEVO: Dashboard con imagen de fondo */}
             <section id="inicio" className="relative h-screen flex items-center justify-center overflow-hidden bg-black">

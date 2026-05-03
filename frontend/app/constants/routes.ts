@@ -1,3 +1,4 @@
 export const ROUTES_IMAGES = {
-    dashboard: "/images/banner_1.jpg",
+    logo: "/images/identidad/Logo.png",
+    dashboard: "/images/identidad/Banner.jpeg",
 } as const;

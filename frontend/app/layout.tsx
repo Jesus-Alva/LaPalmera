@@ -1,10 +1,16 @@
 // app/layout.tsx
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Noto_Serif } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 
 const inter = Inter({ subsets: ['latin'] });
+const notoSerif = Noto_Serif({ 
+  subsets: ['latin'],
+   weight: ["300", "400", "500", "600", "700", "800", "900"], 
+  variable: '--font-noto-serif',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Base Architecture',
@@ -18,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={inter.className}>
+      <body className={`${inter.className} ${notoSerif.variable}`}>
         <LanguageProvider>
           {children}
         </LanguageProvider>

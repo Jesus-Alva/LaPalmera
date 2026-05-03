@@ -1,9 +1,14 @@
 {
   "appName": "Base Architecture",
-  "inicio": "Home",
-  "tecnologias": "Technologies",
-  "documentacion": "Documentation"
-  ,
+  "navbar": {
+    "opt1": "Home",
+    "opt2": "Technologies",
+    "opt3": "Documentation",
+    "submenu": {
+      "opt1": "Option 1",
+      "opt2": "Option 2"
+    }
+  },
   "dashboardTitle": "Development Submanagement",
   "dashboardSubtitle": "Software Programs",
   "heroTitle": "Next.js + Tailwind + TypeScript",
@@ -23,5 +28,5 @@
   "adv_scalability_title": "Scalability",
   "adv_scalability_desc": "Ready to grow with your project.",
   "footer_line1": "© 2025 - Base Architecture with Next.js, Tailwind, TypeScript, Docker and PostgreSQL",
-  "footer_line2": "Designed to kickstart projects the right way."
+  "footer_line2": "Designed to start projects on the right foot."
 }
