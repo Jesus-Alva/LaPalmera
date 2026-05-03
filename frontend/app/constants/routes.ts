@@ -4,14 +4,18 @@ export const ROUTES_IMAGES = {
     inicio: {
         espacios: {
             lvl1: [
-                "/images/espacios/lvl1/garden1.png"
+                "/images/inicio/espacios/lvl1/garden1.png"
             ],
             lvl2: [
-                "/images/espacios/lvl2/pist1.png"
+                "/images/inicio/espacios/lvl2/pist1.png"
             ],
             lvl3: [
-                "/images/espacios/lvl3/garden1.png"
+                "/images/inicio/espacios/lvl3/garden1.png"
             ],
+        },
+        celebrations: {
+            image1: "/images/inicio/celebrations/pista.jpg",
+            image2: "/images/inicio/celebrations/altar.jpg"
         }
     }
 } as const;

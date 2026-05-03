@@ -28,6 +28,24 @@
         "title": "Jardin superior",
         "desc": "Un espacio íntimo y encantador para la ceremonia, rodeado de naturaleza."
       }
+    },
+    "celebrations": {
+      "title": "Celebraciones Inolvidables",
+      "desc": "Momentos de vida",
+      "examples": {
+        "example1": {
+          "title": "Bodas de Ensueño",
+          "desc": "Desde la ceremonia hasta el primer baile, cuidamos cada detalle para que su día sea eterno."
+        },
+        "example2": {
+          "title": "Eventos Corporativos",
+          "desc": "Eleve la imagen de su empresa en un entorno que inspira creatividad y prestigio."
+        },
+        "example3": {
+          "title": "Reuniones Sociales",
+          "desc": "Aniversarios, bautizos o celebraciones privadas en la intimidad de nuestra propiedad."
+        }
+      }
     }
   },
   "dashboardTitle": "Subgerencia de Desarrollo",
