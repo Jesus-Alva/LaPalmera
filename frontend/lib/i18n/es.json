@@ -46,6 +46,23 @@
           "desc": "Aniversarios, bautizos o celebraciones privadas en la intimidad de nuestra propiedad."
         }
       }
+    },
+    "services": {
+      "title": "Servicios Exclusivos",
+      "servicesList": {
+        "service1": {
+          "title": "Catering",
+          "desc": "Gastronomía de autor diseñada para deleitar los paladares más exigentes."
+        },
+        "service2": {
+          "title": "Decoración y Ambientación",
+          "desc": "Diseño floral y ambiental personalizado para cada temática y espacio."
+        },
+        "service3": {
+          "title": "Event Planning",
+          "desc": "Un equipo experto dedicado a coordinar cada fase de su celebración."
+        }
+      }
     }
   },
   "dashboardTitle": "Subgerencia de Desarrollo",

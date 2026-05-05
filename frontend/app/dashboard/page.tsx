@@ -6,6 +6,7 @@ import NavbarComponent from "../../components/layouts/navbarComponent";
 import BannerComponent from "../../components/features/dashboard/bannerComponent";
 import EspaciosComponent from "../../components/features/dashboard/espaciosComponent";
 import CelebrationsComponent from "../../components/features/dashboard/celebrationsComponent";
+import ServiceComponent from "../../components/features/dashboard/serviceComponent";
 
 import { useLang } from "../../lib/i18n/LanguageProvider";
 import { useTranslation } from "../../lib/hooks/useTranslation";
@@ -27,6 +28,7 @@ const Page: React.FC = () => {
             {/* Sección: Celebraciones */}
             <CelebrationsComponent src={ROUTES_IMAGES.inicio.celebrations} />
 
+            <ServiceComponent />
 
             {/* Footer */}
             <footer className="bg-gray-800 text-white py-8">
