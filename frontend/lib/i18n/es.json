@@ -63,6 +63,82 @@
           "desc": "Un equipo experto dedicado a coordinar cada fase de su celebración."
         }
       }
+    },
+    "partyPackage": {
+      "title": "Nuestros Paquetes",
+      "desc": "Planificación",
+      "packageList": {
+        "package1": {
+          "title": "Paquete Con Taquiza",
+          "desc": "Incluye alquiler del espacio, mobiliario básico y coordinación del evento.",
+          "services": {
+            "hrs":"Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
+            "food":"Taquiza de guisados a elegir (aguas de sabor y guarniciones)",
+            "drinks": ["Refrescos/Hielo ilimitado"],
+            "carpa": "Carpa de acuerdo al número de invitados",
+            "mobiliario":["Mesas imperial"],
+            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros"],
+            "ambiente": "DJ e Iluminacion para batucada",
+            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+          }
+        },
+        "package2": {
+          "title": "Paquete Palma Real",
+          "desc": "Todo lo del paquete esencial más catering gourmet y decoración personalizada.",
+          "services": {
+            "hrs":"Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
+            "food":"Menú de 3 tiempos",
+            "drinks":"Refrescos/Hielo ilimitado",
+            "carpa":"Carpa o sombrillas (a elegir)",
+            "mobiliario":["Mesa Imperial y sillas Tiffany.","Inluye loza, vasos y srvilletas de tela."],
+            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros"],
+            "ambiente": "DJ e Iluminacion para batucada",
+            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+          }
+        },
+        "package3": {
+          "title": "Paquete Palma Palace",
+          "desc": "La experiencia completa con servicios VIP, entretenimiento y más.",
+          "services": {
+            "hrs":"Renta de jardin por 6 1/2 hrs. (5 1/2 efectivas con 30 min de entrada y 30 min de salida)",
+            "food":"Menú de 3 tiempos",
+            "drinks": ["Refrescos/Hielo ilimitado"],
+            "carpa":"Carpa o sombrillas (a elegir)",
+            "mobiliario":["Mesa Vintage y sillas Tiffany.","Inluye loza, cubiertos, vasos y srvilletas de tela."],
+            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros", "Personal en recepcion"],
+            "ambiente": "DJ e Iluminacion para batucada",
+            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+          }
+        },
+        "package4": {
+          "title": "Paquete Palma Imperial",
+          "desc": "La experiencia completa con servicios VIP, entretenimiento y más.",
+          "services": {
+            "hrs":"Renta de jardin por 7 hrs. (6 efectivas con 30 min de entrada y 30 min de salida)",
+            "food":"Menú de 3 tiempos",
+            "drinks": ["Refrescos/Hielo ilimitado."," Vino tinto o blanco (a elegir)"],
+            "carpa":"Carpa o sombrillas (a elegir)",
+            "mobiliario":["Mesa con centro de mesas y sillas Vintage.","Inluye loza, cubiertos, copas, vasos y srvilletas de tela."],
+            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros", "Maestro de ceremonias"],
+            "ambiente": "Musica en Vivo (Grupo versatil)",
+            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+          }
+        },
+        "package5": {
+          "title": "Paquete Boda Civil",
+          "desc": "La experiencia completa con servicios VIP, entretenimiento y más.",
+          "services": {
+            "hrs":"Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
+            "food":"Menú de 3 tiempos",
+            "drinks": ["Refrescos/Hielo ilimitado."," Vino tinto o blanco (a elegir)"],
+            "carpa":"Carpa o sombrillas (a elegir)",
+            "mobiliario":["Mesa con centro de mesas y sillas Vintage.","Inluye loza, cubiertos, copas, vasos y srvilletas de tela."],
+            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros", "Maestro de ceremonias"],
+            "ambiente": "Musica en Vivo (Grupo versatil)",
+            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+          }
+        }
+      }
     }
   },
   "dashboardTitle": "Subgerencia de Desarrollo",

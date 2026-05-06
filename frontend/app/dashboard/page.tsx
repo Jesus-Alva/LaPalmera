@@ -7,6 +7,7 @@ import BannerComponent from "../../components/features/dashboard/bannerComponent
 import EspaciosComponent from "../../components/features/dashboard/espaciosComponent";
 import CelebrationsComponent from "../../components/features/dashboard/celebrationsComponent";
 import ServiceComponent from "../../components/features/dashboard/serviceComponent";
+import PartyPackageComponent from "../../components/features/dashboard/partyPackageComponent";
 
 import { useLang } from "../../lib/i18n/LanguageProvider";
 import { useTranslation } from "../../lib/hooks/useTranslation";
@@ -29,6 +30,8 @@ const Page: React.FC = () => {
             <CelebrationsComponent src={ROUTES_IMAGES.inicio.celebrations} />
 
             <ServiceComponent />
+
+            <PartyPackageComponent />
 
             {/* Footer */}
             <footer className="bg-gray-800 text-white py-8">

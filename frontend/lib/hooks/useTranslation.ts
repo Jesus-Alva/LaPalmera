@@ -6,12 +6,16 @@ import es from '../i18n/es.json';
 
 const translations = { en, es };
 
-export const useTranslation = () => {
+export function useTranslation() {
   const { locale } = useLang();
   const dict = translations[locale] || translations.en;
 
-  const t = (key: string): string => {
-    // Función para acceder a propiedades anidadas
+  // Sobrecarga: sin returnObjects -> string
+  function t(key: string): string;
+  // Sobrecarga: con returnObjects -> unknown
+  function t(key: string, options: { returnObjects: true }): unknown;
+  // Implementación
+  function t(key: string, options?: { returnObjects?: boolean }): unknown {
     const keys = key.split('.');
     let result: any = dict;
     for (const k of keys) {
@@ -19,11 +23,15 @@ export const useTranslation = () => {
         result = result[k];
       } else {
         console.warn(`Translation missing for key: ${key}`);
-        return key; // o devuelve una cadena vacía
+        return key;
       }
     }
+
+    if (options?.returnObjects) {
+      return result;
+    }
     return typeof result === 'string' ? result : key;
-  };
+  }
 
   return { t };
-};
+}

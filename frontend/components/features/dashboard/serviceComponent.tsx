@@ -5,9 +5,7 @@ import { BsStars } from "react-icons/bs";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
 
-interface ComponentProps {
-
-}
+interface ComponentProps {}
 
 const ServiceComponent: React.FC<ComponentProps> = () => {
     const { t } = useTranslation();
