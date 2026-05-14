@@ -8,6 +8,7 @@ import EspaciosComponent from "../../components/features/dashboard/espaciosCompo
 import CelebrationsComponent from "../../components/features/dashboard/celebrationsComponent";
 import ServiceComponent from "../../components/features/dashboard/serviceComponent";
 import PartyPackageComponent from "../../components/features/dashboard/partyPackageComponent";
+import LocationComponent from "../../components/features/dashboard/locationComponent";
 
 import { useLang } from "../../lib/i18n/LanguageProvider";
 import { useTranslation } from "../../lib/hooks/useTranslation";
@@ -32,6 +33,8 @@ const Page: React.FC = () => {
             <ServiceComponent />
 
             <PartyPackageComponent />
+            
+            <LocationComponent />
 
             {/* Footer */}
             <footer className="bg-gray-800 text-white py-8">

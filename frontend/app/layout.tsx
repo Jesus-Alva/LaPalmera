@@ -20,8 +20,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: 'Base Architecture',
-  description: 'Proyecto que incluye la arquitectura basica para reutilización en los aplicativos',
+  title: 'La Palmera',
+  description: 'Jardín de Eventos La Palmera',
 }
 
 export default function RootLayout({

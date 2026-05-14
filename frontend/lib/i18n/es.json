@@ -139,6 +139,12 @@
           }
         }
       }
+    },
+    "location": {
+      "title": "Nuestra Ubicación",
+      "desc": "Encuentranos",
+      "address": "Vicente Guerrero 23, Coacalco, 55700 San Francisco Coacalco, Méx.",
+      "phone": "+123 456 7890"
     }
   },
   "dashboardTitle": "Subgerencia de Desarrollo",
