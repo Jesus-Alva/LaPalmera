@@ -1,17 +1,55 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslation } from "../../lib/hooks/useTranslation";
 import { useLang } from "../../lib/i18n/LanguageProvider";
+import { ROUTES_PAGE } from "../../app/constants/routes";
 
 interface ComponentProps {
   logo: string;
- }
+}
+
+interface NavLink {
+  href: string;
+  labelKey: string;
+  isAnchor?: boolean;
+}
 
 const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
   const { t } = useTranslation();
   const { locale, setLocale } = useLang();
+  const pathname = usePathname();
+  const [currentHash, setCurrentHash] = useState<string>("");
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash.slice(1));
+    };
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  const navLinks: NavLink[] = [
+    { href: ROUTES_PAGE.inicio, labelKey: "inicio.navbar.opt1" },
+    { href: ROUTES_PAGE.paquetes, labelKey: "inicio.navbar.opt2" },
+    { href: "#galeria", labelKey: "inicio.navbar.opt3", isAnchor: true },
+    { href: "#nosotros", labelKey: "inicio.navbar.opt4", isAnchor: true },
+    { href: "#contacto", labelKey: "inicio.navbar.opt5", isAnchor: true },
+  ];
+
+  const isActive = (link: NavLink): boolean => {
+    if (link.isAnchor) {
+      return currentHash === link.href.slice(1);
+    } else {
+      const normalizedPathname = pathname?.replace(/\/$/, "");
+      const normalizedHref = link.href.replace(/\/$/, "");
+      return normalizedPathname === normalizedHref;
+    }
+  };
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 backdrop-blur-sm bg-black/40 h-18.75">
@@ -21,14 +59,19 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
         </div>
         <div className="flex items-center space-x-6">
           <nav className="space-x-20 text-white font-noto-serif font-light">
-            <a href="#inicio" className="hover:text-primary hover:scale-105 tracking-widest hover:transition duration-75">{t('inicio.navbar.opt1')}</a>
-            <a href="#tecnologias" className="hover:text-primary hover:scale-105 tracking-widest hover:transition duration-75">{t('inicio.navbar.opt2')}</a>
-            <a href="#galeria" className="hover:text-primary hover:scale-105 tracking-widest hover:transition duration-75">{t('inicio.navbar.opt3')}</a>
-            <a href="#nosotros" className="hover:text-primary hover:scale-105 tracking-widest hover:transition duration-75">{t('inicio.navbar.opt4')}</a>
-            <a href="#contacto" className="hover:text-primary hover:scale-105 tracking-widest hover:transition duration-75">{t('inicio.navbar.opt5')}</a>
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`
+                  nav-link hover:text-primary hover:scale-105 tracking-widest transition duration-75
+                  ${isActive(link) ? "active text-primary" : ""}
+                `}
+              >
+                {t(link.labelKey)}
+              </Link>
+            ))}
           </nav>
-
-
         </div>
         <select
           aria-label="Select language"
@@ -41,7 +84,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
         </select>
       </div>
     </header>
-  )
-}
+  );
+};
 
 export default NavbarComponent;

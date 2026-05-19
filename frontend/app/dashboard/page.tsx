@@ -1,7 +1,7 @@
 'use client';
 import Image from "next/image";
 
-import { ROUTES_IMAGES } from "../constants/routes";
+import { ROUTES_IMAGES, ROUTES_PAGE } from "../constants/routes";
 import NavbarComponent from "../../components/layouts/navbarComponent";
 import BannerComponent from "../../components/features/dashboard/bannerComponent";
 import EspaciosComponent from "../../components/features/dashboard/espaciosComponent";
@@ -19,7 +19,7 @@ const Page: React.FC = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br ">
             {/* Header simple */}
-            <NavbarComponent logo={ROUTES_IMAGES.logo} />
+            <NavbarComponent logo={ROUTES_IMAGES.logo}/>
 
             {/* Seccion: Banner */}
             <BannerComponent srcBanner={ROUTES_IMAGES.dashboard} />

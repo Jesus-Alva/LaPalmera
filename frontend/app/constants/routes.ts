@@ -2,6 +2,7 @@ export const ROUTES_IMAGES = {
     logo: "/images/identidad/Logo.png",
     dashboard: "/images/identidad/Banner.jpeg",
     inicio: {
+        url: "/",
         espacios: {
             lvl1: [
                 "/images/inicio/espacios/lvl1/garden1.png"
@@ -17,5 +18,15 @@ export const ROUTES_IMAGES = {
             image1: "/images/inicio/celebrations/pista.jpg",
             image2: "/images/inicio/celebrations/altar.jpg"
         }
+    },
+    paquetes: {
+        url: "/package",
+        src_banner: "/images/package/banner-mesas.png"
     }
+    
+} as const;
+
+export const ROUTES_PAGE = {
+    inicio: "/",
+    paquetes: "/package"
 } as const;

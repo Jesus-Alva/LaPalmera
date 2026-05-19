@@ -147,6 +147,13 @@
       "phone": "+123 456 7890"
     }
   },
+  "package": {
+    "banner": {
+      "title": "Nuestros Paquetes",
+      "slogan": "Descubre el escenario perfecto para tu celebración. Desde reuniones íntimas hasta grandes fiestas, nuestros espacios están diseñados para ofrecer un lujo incomparable y una ejecución impecable.",
+      "button": "Reserva tu fecha"
+    }
+  },
   "dashboardTitle": "Subgerencia de Desarrollo",
   "dashboardSubtitle": "Programas Informáticos",
   "heroTitle": "Next.js + Tailwind + TypeScript",
