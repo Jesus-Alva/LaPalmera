@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { Inter, Noto_Serif, Manrope } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '../lib/i18n/LanguageProvider';
+import NavbarComponent from '../components/layouts/navbarComponent';
+import { ROUTES_IMAGES } from './constants/routes';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
@@ -32,7 +34,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`}>
+
         <LanguageProvider>
+          <NavbarComponent logo={ROUTES_IMAGES.logo}/>
           {children}
         </LanguageProvider>
       </body>

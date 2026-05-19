@@ -25,7 +25,7 @@ const BannerComponent: React.FC<ComponentProps> = ({ srcBanner }) => {
                         priority
                     />
                     {/* Overlay oscuro para mejorar legibilidad */}
-                    <div className="absolute inset-0 bg-black/30"></div>
+                    {/* <div className="absolute inset-0 bg-black/30"></div> */}
                 </div>
 
                 {/* Contenido del dashboard */}
@@ -33,7 +33,7 @@ const BannerComponent: React.FC<ComponentProps> = ({ srcBanner }) => {
                     <h2 className="text-4xl md:text-7xl font-noto-serif font-normal mb-6 drop-shadow-lg">
                         {t('package.banner.title')}
                     </h2>
-                    <p className="w-3/4 mx-auto text-2xl md:text-4xl font-noto-serif font-extralight drop-shadow-lg ">
+                    <p className="w-3/4 mx-auto text-2xl md:text-4xl font-noto-serif font-extralight drop-shadow-lg  bg-black/50 rounded-xl p-4">
                         {t('package.banner.slogan')}
                     </p>
 

@@ -18,9 +18,6 @@ const Page: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br ">
-            {/* Header simple */}
-            <NavbarComponent logo={ROUTES_IMAGES.logo}/>
-
             {/* Seccion: Banner */}
             <BannerComponent srcBanner={ROUTES_IMAGES.dashboard} />
 
