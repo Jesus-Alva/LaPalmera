@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
-import { useLang } from "../../../lib/i18n/LanguageProvider";
 
 interface ComponentProps {
     srcBanner: string;
@@ -11,7 +10,6 @@ interface ComponentProps {
 
 const BannerComponent: React.FC<ComponentProps> = ({ srcBanner }) => {
     const {t} = useTranslation();
-    const { locale, setLocale } = useLang();
 
     return (
         <section id="inicio" className="relative h-screen flex items-center justify-center overflow-hidden bg-black">

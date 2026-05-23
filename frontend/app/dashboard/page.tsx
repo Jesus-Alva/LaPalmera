@@ -2,13 +2,12 @@
 import Image from "next/image";
 
 import { ROUTES_IMAGES, ROUTES_PAGE } from "../constants/routes";
-import NavbarComponent from "../../components/layouts/navbarComponent";
-import BannerComponent from "../../components/features/dashboard/bannerComponent";
-import EspaciosComponent from "../../components/features/dashboard/espaciosComponent";
-import CelebrationsComponent from "../../components/features/dashboard/celebrationsComponent";
-import ServiceComponent from "../../components/features/dashboard/serviceComponent";
-import PartyPackageComponent from "../../components/features/dashboard/partyPackageComponent";
-import LocationComponent from "../../components/features/dashboard/locationComponent";
+import BannerComponent from "../../components/features/dashboard/BannerComponent";
+import EspaciosComponent from "../../components/features/dashboard/EspaciosComponent";
+import CelebrationsComponent from "../../components/features/dashboard/CelebrationsComponent";
+import ServiceComponent from "../../components/features/dashboard/ServiceComponent";
+import PartyPackageComponent from "../../components/features/dashboard/PartyPackageComponent";
+import LocationComponent from "../../components/features/dashboard/LocationComponent";
 
 import { useLang } from "../../lib/i18n/LanguageProvider";
 import { useTranslation } from "../../lib/hooks/useTranslation";

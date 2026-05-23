@@ -5,9 +5,7 @@ import { BsStars } from "react-icons/bs";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
 
-interface ComponentProps {}
-
-const ServiceComponent: React.FC<ComponentProps> = () => {
+const ServiceComponent: React.FC = () => {
     const { t } = useTranslation();
     return (
         <section className="py-16 my-18.75">
