@@ -1,13 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Configuración de Turbopack (NUEVA sintaxis en Next.js 16)
-  turbopack: {
-    watchOptions: {
-      usePolling: true,   // Habilita polling para Docker
-      interval: 400,      // Intervalo en ms (opcional)
-    },
-  },
+  // Eliminada la sección turbopack con watchOptions
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
