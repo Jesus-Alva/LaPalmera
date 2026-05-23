@@ -2,8 +2,8 @@
 'use client';
 
 import { useTranslation } from "../../../lib/hooks/useTranslation";
-import MapComponent from "../../ui/MapComponent";
-// Ajusta la ruta si es necesario
+// import MapComponent from "../../ui/MapComponent";
+
 
 const LocationComponent: React.FC = () => {
   const { t } = useTranslation();
@@ -40,7 +40,8 @@ const LocationComponent: React.FC = () => {
 
           {/* Columna derecha con el mapa de Leaflet */}
           <div className="md:col-span-4">
-            <MapComponent position={coordinates} />
+            <span>Mapa proximamante</span>
+            {/* <MapComponent position={coordinates} /> */}
           </div>
         </div>
       </div>
