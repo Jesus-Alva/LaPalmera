@@ -25,6 +25,7 @@ const BannerComponent: React.FC<ComponentProps> = ({ srcBanner }) => {
                     {/* Overlay oscuro para mejorar legibilidad */}
                     {/* <div className="absolute inset-0 bg-black/50 bg-opacity-60"></div> */}
                 </div>
+                
 
                 {/* Contenido del dashboard */}
                 <div className="relative z-10 text-center text-white px-4">
