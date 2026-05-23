@@ -189,15 +189,15 @@ const PackagesComponent: React.FC = () => {
             </div>
 
             {selectedPackage && (
-                <div className="mt-16 rounded-2xl overflow-hidden border border-yellow-800/20 transition-all duration-300">
+                <div className="mt-16 overflow-hidden transition-all duration-300">
                     {/* Cabecera mejorada con gradiente */}
-                    <div className=" text-secondary px-8 py-5 flex justify-between items-center">
+                    <div className=" text-secondary px-8 py-5 flex justify-between items-center border-b border-yellow-800/20">
                         <h2 className="text-2xl md:text-3xl font-noto-serif font-bold tracking-tight">
-                            Detalles del Paquete: <span className="text-yellow-800 font-light font-noto-serif tracking-wide">{selectedPackage.title}</span>
+                            Detalles del Servicio
                         </h2>
                         <button
                             onClick={clearSelection}
-                            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-200 flex items-center justify-center text-gray-400 hover:scale-105"
+                            className="w-10 h-10 rounded-full bg-white/20 hover:bg-white hover:shadow transition-all duration-200 flex items-center justify-center text-gray-400 hover:scale-105"
                             aria-label="Cerrar"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -207,6 +207,9 @@ const PackagesComponent: React.FC = () => {
                     </div>
 
                     <div className="p-6 md:p-8">
+                        <div className="w-full text-center mb-5">
+                            <span className="w-full text-2xl text-yellow-800 font-semibold font-noto-serif tracking-wide">{selectedPackage.title}</span>
+                        </div>
                         <div className="grid md:grid-cols-2 gap-8">
                             {/* Columna izquierda: imagen y descripción */}
                             <div>

@@ -158,7 +158,28 @@
       "slogan": "Descubre el escenario perfecto para tu celebración. Desde reuniones íntimas hasta grandes fiestas, nuestros espacios están diseñados para ofrecer un lujo incomparable y una ejecución impecable.",
       "button": "Reserva tu fecha"
     },
-    "packages": {}
+    "packages": {},
+    "question": {
+      "title": "Preguntas Frecuentes",
+      "desc": "Resuelve tus dudas",
+      "questions": [
+        {
+            "id": 1,
+            "question": "¿Qué es Flowbite?",
+            "answer": "Flowbite es una librería de componentes interactivos construida sobre Tailwind CSS que incluye botones, dropdowns, modales, barras de navegación y más."
+        },
+        {
+            "id": 2,
+            "question": "¿Hay un archivo de Figma disponible?",
+            "answer": "Sí, Flowbite está diseñado en Figma, y puedes acceder al sistema de diseño basado en las clases de Tailwind CSS y los componentes de Flowbite."
+        },
+        {
+            "id": 3,
+            "question": "¿Cuáles son las diferencias entre Flowbite y Tailwind UI?",
+            "answer": "La principal diferencia es que los componentes de Flowbite son de código abierto (licencia MIT), mientras que Tailwind UI es un producto de pago. Flowbite se enfoca en componentes pequeños e independientes, Tailwind UI ofrece secciones completas de páginas."
+        }
+      ]
+    }
   },
   "dashboardTitle": "Subgerencia de Desarrollo",
   "dashboardSubtitle": "Programas Informáticos",

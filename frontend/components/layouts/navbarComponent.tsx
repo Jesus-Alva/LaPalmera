@@ -36,7 +36,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
   const navLinks: NavLink[] = [
     { href: ROUTES_PAGE.inicio, labelKey: "inicio.navbar.opt1" },
     { href: ROUTES_PAGE.paquetes, labelKey: "inicio.navbar.opt2" },
-    { href: "#galeria", labelKey: "inicio.navbar.opt3", isAnchor: true },
+    { href: ROUTES_PAGE.galeria, labelKey: "inicio.navbar.opt3" },
     { href: "#nosotros", labelKey: "inicio.navbar.opt4", isAnchor: true },
     { href: "#contacto", labelKey: "inicio.navbar.opt5", isAnchor: true },
   ];
