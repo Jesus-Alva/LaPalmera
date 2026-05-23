@@ -1,16 +1,31 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copiar solo archivos de dependencias
-COPY package.json package-lock.json ./
-COPY next.config.ts tsconfig.json ./
+# Copiar archivos de dependencias
+COPY package*.json ./
+RUN npm ci
 
-RUN npm install
+# Copiar el resto del código y construir
+COPY . .
+RUN npm run build
 
-# Copiar el resto del código fuente (sin node_modules gracias a .dockerignore)
-COPY app/ ./app/
-COPY public/ ./public/
-# Si hay otros archivos necesarios (ej. .env, middleware), cópialos explícitamente
+# Etapa runner (imagen final ligera)
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Crear usuario no root por seguridad
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copiar el servidor standalone generado por Next.js
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
 
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+CMD ["node", "server.js"]
