@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Inter, Noto_Serif, Manrope } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '../lib/i18n/LanguageProvider';
-import NavbarComponent from '../components/layouts/navbarComponent';
+import NavbarComponent from '../components/layouts/NavbarComponent';
 import { ROUTES_IMAGES } from './constants/routes';
 
 const inter = Inter({ subsets: ['latin'] });

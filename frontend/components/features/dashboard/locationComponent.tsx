@@ -2,7 +2,7 @@
 'use client';
 
 import { useTranslation } from "../../../lib/hooks/useTranslation";
-import MapComponent from "../../ui/mapComponent";
+import MapComponent from "../../ui/MapComponent";
 // Ajusta la ruta si es necesario
 
 const LocationComponent: React.FC = () => {

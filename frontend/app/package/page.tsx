@@ -1,8 +1,8 @@
 'use client';
 
-import BannerComponent from "../../components/features/package/bannerComponent";
-import PackagesComponent from "../../components/features/package/packagesComponent";
-import QuestionsComponent from "../../components/features/package/questionsComponent";
+import BannerComponent from "../../components/features/package/BannerComponent";
+import PackagesComponent from "../../components/features/package/PackagesComponent";
+import QuestionsComponent from "../../components/features/package/QuestionsComponent";
 
 import { ROUTES_IMAGES } from "../constants/routes";
 

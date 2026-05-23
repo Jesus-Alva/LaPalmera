@@ -6,7 +6,7 @@ import es from "./es.json";
 
 type Locale = "es" | "en";
 
-const messages: Record<Locale, Record<string, string>> = {
+const messages: Record<Locale, any> = {
   en,
   es,
 };
