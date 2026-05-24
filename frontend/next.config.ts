@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.unsplash.com" },
     ],
   },
+  experimental: {
+    useLightningcss: false
+  }
 };
 
 export default nextConfig;
