@@ -1,0 +1,19 @@
+FROM node:20-alpine AS dev
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar dependencias (incluyendo next)
+RUN npm install
+
+# Asegurar que next está disponible globalmente (opcional)
+RUN npx next --version
+
+ENV NODE_ENV=development
+ENV CHOKIDAR_USEPOLLING=true
+ENV WATCHPACK_POLLING=true
+
+EXPOSE 3000
+CMD ["npm", "run", "dev"]

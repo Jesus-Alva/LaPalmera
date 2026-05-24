@@ -1,0 +1,67 @@
+services:
+  # Backend Services
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile   # Puedes usar el mismo Dockerfile (ya tiene --reload)
+    container_name: fastapi-la-palmera-dev
+    env_file: .env.dev   # Opcional: archivo específico para desarrollo
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
+    # Sin restart policy en desarrollo para que los errores sean visibles
+    networks:
+      - app-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev   # Usa el archivo específico para desarrollo
+    container_name: frontend-la-palmera-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+    command: npm run dev   # Sin --webpack para usar Turbopack (más rápido)
+    networks:
+      - app-network
+
+  # Database & Infrastructure Services
+  postgres:
+    image: postgres:15
+    container_name: postgres-palmera-dev
+    env_file: .env.dev
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - app-network
+    # Sin healthcheck en desarrollo
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  app-network:
+    driver: bridge

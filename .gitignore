@@ -12,6 +12,7 @@ venv.bak/
 
 # Archivos de entorno
 .env
+.env.dev
 .env.local
 .env.*.local
 
