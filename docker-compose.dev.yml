@@ -37,7 +37,8 @@ services:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app:delegated
+      - /app/node_modules
     command: npm run dev   # Sin --webpack para usar Turbopack (más rápido)
     networks:
       - app-network

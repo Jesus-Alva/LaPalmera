@@ -230,7 +230,7 @@ cd ..
 
 docker compose up --build
 ```
-# Levantar el proyecto
+# Levantar el proyecto para Desarrollo
 
 ## 1. Levantar el entorno
 docker compose -f docker-compose.dev.yml up -d
@@ -242,7 +242,15 @@ docker compose -f docker-compose.dev.yml logs -f
 # El navegador recargará automáticamente (hot reload)
 
 ## 4. Detener el entorno
-docker compose -f docker-compose.dev.yml down
+docker compose -f docker-compose.dev.yml stop
+
+## 5. Dar de baja los servicios
+docker compose -f docker-compose.dev.yml down -v
+
+## 6. Construir y levantar servicios
+docker compose -f docker-compose.dev.yml up --build
+
+
 
 ## Errores comunes
 # Error de instalación de next-intl

@@ -1,6 +1,6 @@
 export const ROUTES_IMAGES = {
     logo: "/images/identidad/Logo.png",
-    dashboard: "/images/identidad/Banner.jpeg",
+    dashboard: "/images/identidad/Banner.png",
     inicio: {
         url: "/",
         espacios: {
