@@ -49,7 +49,7 @@ const CelebrationsComponent: React.FC<ComponentProps> = ({ src }) => {
                             <p className="font-manrope font-bold uppercase tracking-widest text-yellow-800 mb-3 text-sm md:text-base">
                                 {t("inicio.celebrations.desc")}
                             </p>
-                            <h3 className="font-noto-serif text-3xl md:text-4xl lg:text-5xl font-light text-black w-full lg:w-3/4">
+                            <h3 className="font-noto-serif text-3xl md:text-4xl lg:text-5xl font-normal text-black w-full lg:w-3/4">
                                 {t("inicio.celebrations.title")}
                             </h3>
                         </div>

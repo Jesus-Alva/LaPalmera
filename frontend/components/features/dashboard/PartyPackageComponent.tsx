@@ -10,6 +10,11 @@ const PartyPackageComponent: React.FC = () => {
   const [itemWidth, setItemWidth] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Estado para el swipe táctil
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const packageList = t("inicio.partyPackage.packageList", { returnObjects: true }) as Record<string, any>;
   if (!packageList || typeof packageList !== "object") return null;
@@ -18,8 +23,8 @@ const PartyPackageComponent: React.FC = () => {
   const totalPackages = packages.length;
   const maxIndex = Math.max(0, totalPackages - itemsPerView);
 
-  // Índice seguro: nunca excede el máximo permitido
   const safeIndex = Math.min(currentIndex, maxIndex);
+  // Durante el arrastre, desactivamos la transición para que sea más fluido
   const translateX = -safeIndex * itemWidth;
 
   const canPrev = safeIndex > 0;
@@ -32,7 +37,41 @@ const PartyPackageComponent: React.FC = () => {
     if (canNext) setCurrentIndex(safeIndex + 1);
   };
 
-  // Efecto para detectar cambios de tamaño y actualizar itemsPerView / itemWidth
+  // Manejo de eventos táctiles (solo habilitado si itemsPerView === 1, es decir móvil)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (itemsPerView !== 1) return; // Solo en móvil (1 tarjeta)
+    setTouchStart(e.targetTouches[0].clientX);
+    setTouchEnd(null);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (itemsPerView !== 1 || touchStart === null) return;
+    setTouchEnd(e.targetTouches[0].clientX);
+    // Pequeño feedback: podríamos mover el carrusel ligeramente, pero no es necesario
+  };
+
+  const handleTouchEnd = () => {
+    if (itemsPerView !== 1 || touchStart === null || touchEnd === null) {
+      setIsDragging(false);
+      setTouchStart(null);
+      return;
+    }
+    const distance = touchEnd - touchStart;
+    const minSwipeDistance = 50; // umbral mínimo en px
+    if (Math.abs(distance) > minSwipeDistance) {
+      if (distance > 0 && canPrev) {
+        goPrev(); // deslizar derecha -> anterior
+      } else if (distance < 0 && canNext) {
+        goNext(); // deslizar izquierda -> siguiente
+      }
+    }
+    setTouchStart(null);
+    setTouchEnd(null);
+    setIsDragging(false);
+  };
+
+  // Efecto para detectar cambios de tamaño
   useEffect(() => {
     const updateLayout = () => {
       if (containerRef.current) {
@@ -51,7 +90,6 @@ const PartyPackageComponent: React.FC = () => {
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
-  // Funciones auxiliares
   const getStringValue = (value: string | string[] | undefined): string => {
     if (!value) return "";
     if (Array.isArray(value)) return value.join(", ");
@@ -72,10 +110,15 @@ const PartyPackageComponent: React.FC = () => {
         {t("inicio.partyPackage.title")}
       </h2>
 
-      {/* Carrusel */}
-      <div className="relative overflow-hidden" ref={containerRef}>
+      <div 
+        className="relative overflow-hidden" 
+        ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className={`flex transition-transform duration-500 ease-in-out ${isDragging ? 'duration-0' : ''}`}
           style={{ transform: `translateX(${translateX}px)` }}
         >
           {packages.map((pkgData, idx) => {
@@ -98,61 +141,61 @@ const PartyPackageComponent: React.FC = () => {
                 style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
               >
                 <div className="bg-white border border-gray-200 shadow-md p-4 md:p-6 flex flex-col h-full rounded-xl hover:shadow-lg transition-shadow">
-                  <div className="w-full h-full mx-auto">
-                    <h5 className="text-center md:text-center lg:text-left mb-2 text-2xl md:text-3xl font-noto-serif tracking-wider font-semibold text-secondary">
-                      {title}
-                    </h5>
-                    <p className="text-body font-noto-serif text-sm md:text-base">{desc}</p>
+                  <h5 className="text-center md:text-center lg:text-left mb-2 text-2xl md:text-3xl font-noto-serif tracking-wider font-semibold text-secondary">
+                    {title}
+                  </h5>
+                  <p className="text-body font-noto-serif text-sm md:text-base">
+                    {desc}
+                  </p>
 
-                    <ul className="mt-4 lg:space-y-2 font-manrope text-sm md:text-base grow">
-                      {hrs && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{hrs}</span>
-                        </li>
-                      )}
-                      {food && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{food}</span>
-                        </li>
-                      )}
-                      {carpa && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{carpa}</span>
-                        </li>
-                      )}
-                      {mobiliario.map((item, i) => (
-                        <li key={`mob-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                      {staff.map((item, i) => (
-                        <li key={`staff-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                      {ambiente && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{ambiente}</span>
-                        </li>
-                      )}
-                      {parking && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{parking}</span>
-                        </li>
-                      )}
-                    </ul>
+                  <ul className="mt-4 space-y-2 font-manrope text-sm md:text-base flex-grow">
+                    {hrs && (
+                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{hrs}</span>
+                      </li>
+                    )}
+                    {food && (
+                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{food}</span>
+                      </li>
+                    )}
+                    {carpa && (
+                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{carpa}</span>
+                      </li>
+                    )}
+                    {mobiliario.map((item, i) => (
+                      <li key={`mob-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                    {staff.map((item, i) => (
+                      <li key={`staff-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                    {ambiente && (
+                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{ambiente}</span>
+                      </li>
+                    )}
+                    {parking && (
+                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{parking}</span>
+                      </li>
+                    )}
+                  </ul>
 
-                    <button className="w-full mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
-                      Más Detalles
-                    </button>
-                  </div>
+                  <button className="w-full mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
+                    Más Detalles
+                  </button>
                 </div>
               </div>
             );
@@ -160,7 +203,6 @@ const PartyPackageComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* Botones de navegación */}
       {totalPackages > itemsPerView && (
         <div className="flex justify-center mt-8 gap-4">
           <button
