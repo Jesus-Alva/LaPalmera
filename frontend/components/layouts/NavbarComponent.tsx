@@ -82,7 +82,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
 
   return (
     <>
-      <header className="fixed top-0 right-0 left-0 z-50 h-16 md:h-20 bg-black/40 backdrop-blur-md shadow-md border-b border-white/10">
+      <header className="fixed top-0 right-0 left-0 z-50 h-16 md:h-20 bg-linear-to-r from-black/80 via-black/60 to-black/40 backdrop-blur-md shadow-md border-b border-white/10">
         <div className="container mx-auto h-full px-4 flex items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex h-full items-center justify-center">
