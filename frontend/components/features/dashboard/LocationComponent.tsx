@@ -11,7 +11,7 @@ const LocationComponent: React.FC = () => {
   const coordinates: [number, number] = [19.628822086036738, -99.10634857502177];
 
   return (
-    <section className="px-4 py-12 mt-18.75 bg-gray-100">
+    <section className="px-4 py-12 mt-18.75 ">
       <div className="container mx-auto">
         {/* Cambiamos el grid para que sea responsivo */}
         <div className="grid grid-cols-1 md:grid-cols-6 gap-8">

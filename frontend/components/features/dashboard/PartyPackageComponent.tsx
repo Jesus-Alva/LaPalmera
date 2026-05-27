@@ -10,7 +10,7 @@ const PartyPackageComponent: React.FC = () => {
   const [itemWidth, setItemWidth] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Estado para el swipe táctil
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -102,133 +102,133 @@ const PartyPackageComponent: React.FC = () => {
   };
 
   return (
-    <section className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
-      <p className="font-manrope font-bold uppercase tracking-widest text-center text-yellow-800 mb-4 text-sm md:text-base">
-        {t("inicio.partyPackage.desc")}
-      </p>
-      <h2 className="font-noto-serif text-3xl md:text-4xl lg:text-5xl font-normal text-center text-gray-800 mb-8 md:mb-12">
-        {t("inicio.partyPackage.title")}
-      </h2>
+    <section className="bg-gray-100 px-4 py-12 md:py-16 my-12 md:my-18.75">
+      <div className="container mx-auto">
+        <p className="font-manrope font-bold uppercase tracking-widest text-center text-yellow-800 mb-4 text-sm md:text-base">
+          {t("inicio.partyPackage.desc")}
+        </p>
+        <h2 className="font-noto-serif text-3xl md:text-4xl lg:text-5xl font-normal text-center text-gray-800 mb-8 md:mb-12">
+          {t("inicio.partyPackage.title")}
+        </h2>
 
-      <div 
-        className="relative overflow-hidden" 
-        ref={containerRef}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
         <div
-          className={`flex transition-transform duration-500 ease-in-out ${isDragging ? 'duration-0' : ''}`}
-          style={{ transform: `translateX(${translateX}px)` }}
+          className="relative overflow-hidden"
+          ref={containerRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
-          {packages.map((pkgData, idx) => {
-            const title = pkgData.title;
-            const desc = pkgData.desc;
-            const services = pkgData.services as Record<string, string | string[]>;
+          <div
+            className={`flex transition-transform duration-500 ease-in-out ${isDragging ? 'duration-0' : ''}`}
+            style={{ transform: `translateX(${translateX}px)` }}
+          >
+            {packages.map((pkgData, idx) => {
+              const title = pkgData.title;
+              const desc = pkgData.desc;
+              const services = pkgData.services as Record<string, string | string[]>;
 
-            const hrs = getStringValue(services.hrs);
-            const food = getStringValue(services.food);
-            const carpa = getStringValue(services.carpa);
-            const ambiente = getStringValue(services.ambiente);
-            const parking = getStringValue(services.parking);
-            const mobiliario = normalizeArray(services.mobiliario);
-            const staff = normalizeArray(services.staff);
+              const hrs = getStringValue(services.hrs);
+              const food = getStringValue(services.food);
+              const carpa = getStringValue(services.carpa);
+              const ambiente = getStringValue(services.ambiente);
+              const parking = getStringValue(services.parking);
+              const mobiliario = normalizeArray(services.mobiliario);
+              const staff = normalizeArray(services.staff);
 
-            return (
-              <div
-                key={idx}
-                className="shrink-0 p-3 md:p-4"
-                style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
-              >
-                <div className="bg-white border border-gray-200 shadow-md p-4 md:p-6 flex flex-col h-full rounded-xl hover:shadow-lg transition-shadow">
-                  <h5 className="text-center md:text-center lg:text-left mb-2 text-2xl md:text-3xl font-noto-serif tracking-wider font-semibold text-secondary">
-                    {title}
-                  </h5>
-                  <p className="text-body font-noto-serif text-sm md:text-base">
-                    {desc}
-                  </p>
+              return (
+                <div
+                  key={idx}
+                  className="shrink-0 p-3 md:p-4 "
+                  style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
+                >
+                  <div className="bg-white border border-gray-200 shadow-md p-4 md:p-6 flex flex-col h-full rounded-xl hover:shadow-lg transition-shadow">
+                    <h5 className="text-center md:text-center lg:text-left mb-2 text-2xl md:text-3xl font-noto-serif tracking-wider font-semibold text-secondary">
+                      {title}
+                    </h5>
+                    <p className="text-body font-noto-serif text-sm md:text-base">
+                      {desc}
+                    </p>
 
-                  <ul className="mt-4 space-y-2 font-manrope text-sm md:text-base flex-grow">
-                    {hrs && (
-                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{hrs}</span>
-                      </li>
-                    )}
-                    {food && (
-                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{food}</span>
-                      </li>
-                    )}
-                    {carpa && (
-                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{carpa}</span>
-                      </li>
-                    )}
-                    {mobiliario.map((item, i) => (
-                      <li key={`mob-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                    {staff.map((item, i) => (
-                      <li key={`staff-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                    {ambiente && (
-                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{ambiente}</span>
-                      </li>
-                    )}
-                    {parking && (
-                      <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                        <span>{parking}</span>
-                      </li>
-                    )}
-                  </ul>
+                    <ul className="mt-4 space-y-2 font-manrope text-sm md:text-base flex-grow">
+                      {hrs && (
+                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{hrs}</span>
+                        </li>
+                      )}
+                      {food && (
+                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{food}</span>
+                        </li>
+                      )}
+                      {carpa && (
+                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{carpa}</span>
+                        </li>
+                      )}
+                      {mobiliario.map((item, i) => (
+                        <li key={`mob-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                      {staff.map((item, i) => (
+                        <li key={`staff-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                      {ambiente && (
+                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{ambiente}</span>
+                        </li>
+                      )}
+                      {parking && (
+                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                          <span>{parking}</span>
+                        </li>
+                      )}
+                    </ul>
 
-                  <button className="w-full mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
-                    Más Detalles
-                  </button>
+                    <button className="w-full mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
+                      Más Detalles
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {totalPackages > itemsPerView && (
-        <div className="flex justify-center mt-8 gap-4">
-          <button
-            onClick={goPrev}
-            disabled={!canPrev}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base ${
-              canPrev
-                ? "bg-yellow-800 text-white hover:bg-yellow-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            ← Anterior
-          </button>
-          <button
-            onClick={goNext}
-            disabled={!canNext}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base ${
-              canNext
-                ? "bg-yellow-800 text-white hover:bg-yellow-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            Siguiente →
-          </button>
-        </div>
-      )}
+        {totalPackages > itemsPerView && (
+          <div className="flex justify-center mt-8 gap-4">
+            <button
+              onClick={goPrev}
+              disabled={!canPrev}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base ${canPrev
+                  ? "bg-yellow-800 text-white hover:bg-yellow-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+            >
+              ← Anterior
+            </button>
+            <button
+              onClick={goNext}
+              disabled={!canNext}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base ${canNext
+                  ? "bg-yellow-800 text-white hover:bg-yellow-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+            >
+              Siguiente →
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   );
 };

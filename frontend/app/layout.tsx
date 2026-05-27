@@ -4,6 +4,7 @@ import { Inter, Noto_Serif, Manrope } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 import NavbarComponent from '../components/layouts/NavbarComponent';
+import FooterComponent from '../components/layouts/FooterComponent';
 import { ROUTES_IMAGES } from './constants/routes';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -38,6 +39,7 @@ export default function RootLayout({
         <LanguageProvider>
           <NavbarComponent logo={ROUTES_IMAGES.logo}/>
           {children}
+          <FooterComponent />
         </LanguageProvider>
       </body>
     </html>

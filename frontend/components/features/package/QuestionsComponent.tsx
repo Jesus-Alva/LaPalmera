@@ -21,12 +21,12 @@ const { t } = useTranslation();
     };
 
     return (
-        <section className="container mx-auto py-16 my-18.5 px-4">
-            <h2 className="w-full text-secondary text-center lg:text-5xl md:text-3xl font-noto-serif font-normal tracking-tight mb-12">
+        <section className="container mx-auto md:py-10 lg:py-16 my-18.5 px-4">
+            <h2 className="w-full text-secondary text-center text-3xl lg:text-5xl md:text-3xl font-noto-serif font-normal tracking-tight mb-12">
                 Preguntas Frecuentes
             </h2>
 
-            <div className="w-2/3 mx-auto space-y-5">
+            <div className="w-full md:w-5/6 lg:w-2/3 mx-auto space-y-5">
                 {faqs.map((faq) => (
                     <div
                         key={faq.id}

@@ -73,14 +73,22 @@
           "desc": "Incluye alquiler del espacio, mobiliario básico y coordinación del evento.",
           "srcImage": "/images/package/paquete_1.jpeg",
           "services": {
-            "hrs":"Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
-            "food":"Taquiza de guisados a elegir (aguas de sabor y guarniciones)",
-            "drinks": ["Refrescos/Hielo ilimitado"],
+            "hrs": "Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
+            "food": "Taquiza de guisados a elegir (aguas de sabor y guarniciones)",
+            "drinks": [
+              "Refrescos/Hielo ilimitado"
+            ],
             "carpa": "Carpa de acuerdo al número de invitados",
-            "mobiliario":["Mesas imperial"],
-            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros"],
+            "mobiliario": [
+              "Mesas imperial"
+            ],
+            "staff": [
+              "2 coordinadores de evento ",
+              "1 para limpieza de baños",
+              "Meseros"
+            ],
             "ambiente": "DJ e Iluminacion para batucada",
-            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+            "parking": "Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
           }
         },
         "package2": {
@@ -88,14 +96,21 @@
           "desc": "Todo lo del paquete esencial más catering gourmet y decoración personalizada.",
           "srcImage": "/images/package/paquete_2.jpeg",
           "services": {
-            "hrs":"Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
-            "food":"Menú de 3 tiempos",
-            "drinks":"Refrescos/Hielo ilimitado",
-            "carpa":"Carpa o sombrillas (a elegir)",
-            "mobiliario":["Mesa Imperial y sillas Tiffany.","Incluye loza, vasos y srvilletas de tela."],
-            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros"],
+            "hrs": "Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
+            "food": "Menú de 3 tiempos",
+            "drinks": "Refrescos/Hielo ilimitado",
+            "carpa": "Carpa o sombrillas (a elegir)",
+            "mobiliario": [
+              "Mesa Imperial y sillas Tiffany.",
+              "Incluye loza, vasos y srvilletas de tela."
+            ],
+            "staff": [
+              "2 coordinadores de evento ",
+              "1 para limpieza de baños",
+              "Meseros"
+            ],
             "ambiente": "DJ e Iluminacion para batucada",
-            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+            "parking": "Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
           }
         },
         "package3": {
@@ -103,14 +118,24 @@
           "desc": "La experiencia completa con servicios VIP, entretenimiento y más.",
           "srcImage": "/images/package/paquete_3.jpeg",
           "services": {
-            "hrs":"Renta de jardin por 6 1/2 hrs. (5 1/2 efectivas con 30 min de entrada y 30 min de salida)",
-            "food":"Menú de 3 tiempos",
-            "drinks": ["Refrescos/Hielo ilimitado"],
-            "carpa":"Carpa o sombrillas (a elegir)",
-            "mobiliario":["Mesa Vintage y sillas Tiffany.","Incluye loza, cubiertos, vasos y srvilletas de tela."],
-            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros", "Personal en recepcion"],
+            "hrs": "Renta de jardin por 6 1/2 hrs. (5 1/2 efectivas con 30 min de entrada y 30 min de salida)",
+            "food": "Menú de 3 tiempos",
+            "drinks": [
+              "Refrescos/Hielo ilimitado"
+            ],
+            "carpa": "Carpa o sombrillas (a elegir)",
+            "mobiliario": [
+              "Mesa Vintage y sillas Tiffany.",
+              "Incluye loza, cubiertos, vasos y srvilletas de tela."
+            ],
+            "staff": [
+              "2 coordinadores de evento ",
+              "1 para limpieza de baños",
+              "Meseros",
+              "Personal en recepcion"
+            ],
             "ambiente": "DJ e Iluminacion para batucada",
-            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+            "parking": "Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
           }
         },
         "package4": {
@@ -118,14 +143,25 @@
           "desc": "La experiencia completa con servicios VIP, entretenimiento y más.",
           "srcImage": "/images/package/paquete_4.jpeg",
           "services": {
-            "hrs":"Renta de jardin por 7 hrs. (6 efectivas con 30 min de entrada y 30 min de salida)",
-            "food":"Menú de 3 tiempos",
-            "drinks": ["Refrescos/Hielo ilimitado."," Vino tinto o blanco (a elegir)"],
-            "carpa":"Carpa o sombrillas (a elegir)",
-            "mobiliario":["Mesa con centro de mesas y sillas Vintage.","Incluye loza, cubiertos, copas, vasos y srvilletas de tela."],
-            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros", "Maestro de ceremonias"],
+            "hrs": "Renta de jardin por 7 hrs. (6 efectivas con 30 min de entrada y 30 min de salida)",
+            "food": "Menú de 3 tiempos",
+            "drinks": [
+              "Refrescos/Hielo ilimitado.",
+              " Vino tinto o blanco (a elegir)"
+            ],
+            "carpa": "Carpa o sombrillas (a elegir)",
+            "mobiliario": [
+              "Mesa con centro de mesas y sillas Vintage.",
+              "Incluye loza, cubiertos, copas, vasos y srvilletas de tela."
+            ],
+            "staff": [
+              "2 coordinadores de evento ",
+              "1 para limpieza de baños",
+              "Meseros",
+              "Maestro de ceremonias"
+            ],
             "ambiente": "Musica en Vivo (Grupo versatil)",
-            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+            "parking": "Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
           }
         },
         "package5": {
@@ -133,14 +169,25 @@
           "desc": "La experiencia completa con servicios VIP, entretenimiento y más.",
           "srcImage": "/images/package/paquete_boda_civil.jpeg",
           "services": {
-            "hrs":"Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
-            "food":"Menú de 3 tiempos",
-            "drinks": ["Refrescos/Hielo ilimitado."," Vino tinto o blanco (a elegir)"],
-            "carpa":"Carpa o sombrillas (a elegir)",
-            "mobiliario":["Mesa con centro de mesas y sillas Vintage.","Incluye loza, cubiertos, copas, vasos y srvilletas de tela."],
-            "staff": ["2 coordinadores de evento ", "1 para limpieza de baños", "Meseros", "Maestro de ceremonias"],
+            "hrs": "Renta de jardin por 6 hrs. (5 efectivas con 30 min de entrada y 30 min de salida)",
+            "food": "Menú de 3 tiempos",
+            "drinks": [
+              "Refrescos/Hielo ilimitado.",
+              " Vino tinto o blanco (a elegir)"
+            ],
+            "carpa": "Carpa o sombrillas (a elegir)",
+            "mobiliario": [
+              "Mesa con centro de mesas y sillas Vintage.",
+              "Incluye loza, cubiertos, copas, vasos y srvilletas de tela."
+            ],
+            "staff": [
+              "2 coordinadores de evento ",
+              "1 para limpieza de baños",
+              "Meseros",
+              "Maestro de ceremonias"
+            ],
             "ambiente": "Musica en Vivo (Grupo versatil)",
-            "parking":"Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
+            "parking": "Servicio de Estacionamiento (Costo de 50$ por auto, no incluido en el paquete)"
           }
         }
       }
@@ -164,22 +211,44 @@
       "desc": "Resuelve tus dudas",
       "questions": [
         {
-            "id": 1,
-            "question": "¿Qué es Flowbite?",
-            "answer": "Flowbite es una librería de componentes interactivos construida sobre Tailwind CSS que incluye botones, dropdowns, modales, barras de navegación y más."
+          "id": 1,
+          "question": "¿Los Paquetes se pueden personalizar?",
+          "answer": "Si, todos los paquetes son personalizables a gusto y presupuesto de cada cliente."
         },
         {
-            "id": 2,
-            "question": "¿Hay un archivo de Figma disponible?",
-            "answer": "Sí, Flowbite está diseñado en Figma, y puedes acceder al sistema de diseño basado en las clases de Tailwind CSS y los componentes de Flowbite."
+          "id": 2,
+          "question": "¿Puedo llevar proveedores externos?",
+          "answer": "Por supuesto que si, si nuestra extensa lista de proveedores no te satisface, puedes recurrir a algun servicio externo a nosotros."
         },
         {
-            "id": 3,
-            "question": "¿Cuáles son las diferencias entre Flowbite y Tailwind UI?",
-            "answer": "La principal diferencia es que los componentes de Flowbite son de código abierto (licencia MIT), mientras que Tailwind UI es un producto de pago. Flowbite se enfoca en componentes pequeños e independientes, Tailwind UI ofrece secciones completas de páginas."
+          "id": 3,
+          "question": "¿Son Pet Friendly?",
+          "answer": "Claro, en La Palmera Jardín de Eventos creemos que las mascotas son parte de la familia, por lo que son bien recibidas para celebrar en conjunto de sus seres queridos."
         }
       ]
     }
+  },
+  "footer": {
+    "copyright": {
+      "title": "Derechos Reservados",
+      "text": "Todos los derechos reservados. La Palmera Jardín de Eventos Coacalco.",
+      "extra": "Diseño y desarrollo: JAB Development"
+    },
+    "location": {
+      "title": "Ubicación",
+      "link": "Ver en Google Maps",
+      "address":"Vicente Guerrero 23, Coacalco, 55700 San Francisco Coacalco, Méx.",
+      "href": "https://www.google.com/maps/place/La+Palmera+-+Jard%C3%ADn+de+eventos+Coacalco/@19.6287575,-99.1061957,117m/data=!3m1!1e3!4m12!1m5!3m4!2zMTnCsDM3JzQzLjgiTiA5OcKwMDYnMjIuOSJX!8m2!3d19.6288221!4d-99.1063486!3m5!1s0x85d1f50002077d9d:0x11d220b479a0566d!8m2!3d19.628645!4d-99.106267!16s%2Fg%2F11w9k1bhlk?entry=ttu&g_ep=EgoyMDI2MDUxMS4wIKXMDSoASAFQAw%3D%3D"
+    },
+    "social": {
+      "title": "Redes Sociales",
+      "follow": "Síguenos en nuestras redes",
+      "facebook": "https://www.facebook.com/profile.php?id=61563419831448",
+      "instagram": "https://www.instagram.com/la_palmera_jardin_de_eventos_/",
+      "whatsapp": "WhatsApp",
+      "tikTok": "https://www.tiktok.com/@vg.eventos_jlpalmera"
+    },
+    "extra": "Hecho con ❤️ para eventos inolvidables"
   },
   "dashboardTitle": "Subgerencia de Desarrollo",
   "dashboardSubtitle": "Programas Informáticos",
