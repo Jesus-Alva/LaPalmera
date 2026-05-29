@@ -96,7 +96,6 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
               />
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-12 text-white font-noto-serif font-light">
             {navLinks.map((link) => (
               <Link
@@ -110,7 +109,6 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
                 aria-current={isActive(link) ? "page" : undefined}
               >
                 {t(link.labelKey)}
-                {/* Línea decorativa en enlace activo (opcional) */}
                 {isActive(link) && (
                   <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary rounded-full" />
                 )}
@@ -118,9 +116,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
             ))}
           </nav>
 
-          {/* Right side: Language selector + Hamburger */}
           <div className="flex items-center gap-3 md:gap-4">
-            {/* Selector de idioma personalizado */}
             <div className="relative">
               <select
                 aria-label="Select language"
@@ -135,7 +131,6 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
                   EN
                 </option>
               </select>
-              {/* Flecha personalizada */}
               <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
                 <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -143,7 +138,6 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
               </div>
             </div>
 
-            {/* Botón hamburguesa (solo móvil) */}
             <button
               onClick={toggleMenu}
               className="md:hidden flex flex-col items-center justify-center w-9 h-9 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors hover:bg-white/10"

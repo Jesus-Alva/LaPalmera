@@ -1,12 +1,14 @@
 'use client';
 
-const GalleryPage: React.FC = () => {
+import TitleGalleryComponent from "../../components/features/gallery/TitleGalleryComponent";
+import GalleryImageComponent from "../../components/features/gallery/GalleryImageComponent";
+const Page: React.FC = () => {
     return (
-        <div className="container mx-auto py-16 my-18.5">
-            <h1 className="text-3xl font-bold text-center mb-8">Galería</h1>
-            <p className="text-center mb-8">Explora nuestras imágenes</p>
-        </div>
+        <section className="min-h-screen">
+            <TitleGalleryComponent />
+            <GalleryImageComponent />
+        </section>
     )
 }
 
-export default GalleryPage;
+export default Page;

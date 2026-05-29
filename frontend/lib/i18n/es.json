@@ -228,6 +228,82 @@
       ]
     }
   },
+  "gallery": {
+    "title": "Un Tapiz de Momentos Inolvidables",
+    "subtitle": "Narrativas Visuales",
+    "desc": "En La Palmera, cada paso revela un detalle pensado para emocionar. La elegancia natural de nuestros senderos empedrados, creamos el marco perfecto donde su evento se convierte en poesía. Un espacio donde la naturaleza y la convivencia se unen para dar vida a sus momentos más preciados.",
+    "images": [
+      {
+        "category": "Bodas",
+        "images": [
+          "/images/gallery/wedding/altar_2_H.jpg",
+          "/images/gallery/wedding/altar_H.jpg",
+          "/images/gallery/wedding/altar_V.jpg",
+          "/images/gallery/wedding/mesa_01_V.jpg",
+          "/images/gallery/wedding/mesa_02_V.jpg",
+          "/images/gallery/wedding/mesa_boda_V.jpg",
+          "/images/gallery/wedding/wedding_w01_01.jpg",
+          "/images/gallery/wedding/wedding_w01_02.jpg",
+          "/images/gallery/wedding/wedding_w01_03.jpg"
+        ]
+      },
+      {
+        "category": "Cumpleaños",
+        "images": [
+          "/images/gallery/birthday/birthday_bd01_01.jpg",
+          "/images/gallery/birthday/birthday_bd01_02.jpg",
+          "/images/gallery/birthday/birthday_bd01_03.jpg",
+          "/images/gallery/birthday/photo_4913984697856101574_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101576_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101577_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101585_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101590_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101592_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101594_y.jpg",
+          "/images/gallery/birthday/photo_4913984697856101595_y.jpg"
+        ]
+      },
+      {
+        "category": "Bautizos",
+        "images": [
+          "/images/gallery/christening/bautizo_b1_01.jpg",
+          "/images/gallery/christening/bautizo_b1_02.jpg",
+          "/images/gallery/christening/bautizo_b2_01.jpg",
+          "/images/gallery/christening/bautizo_b2_02.jpg",
+          "/images/gallery/christening/bautizo_b2_03.jpg",
+          "/images/gallery/christening/bautizo_b3_01.jpg",
+          "/images/gallery/christening/bautizo_b3_02.jpg",
+          "/images/gallery/christening/bautizo_b3_03.jpg",
+          "/images/gallery/christening/photo_4913984697856101571_y.jpg",
+          "/images/gallery/christening/photo_4913984697856101573_y.jpg",
+          "/images/gallery/christening/photo_4913984697856101586_y.jpg",
+          "/images/gallery/christening/photo_4913984697856101588_y.jpg",
+          "/images/gallery/christening/photo_4913984697856101589_y.jpg"
+        ]
+      },
+      {
+        "category": "Comunión/Confirmación",
+        "images": []
+      },
+      {
+        "category": "Baby Shower",
+        "images": [
+          "/images/gallery/baby_shower/baby_shower_bs01_01.jpg",
+          "/images/gallery/baby_shower/baby_shower_bs01_02.jpg",
+          "/images/gallery/baby_shower/baby_shower_bs01_03.jpg",
+          "/images/gallery/baby_shower/baby_shower_bs01_04.jpg"
+        ]
+      },
+      {
+        "category": "Graduaciones",
+        "images": []
+      },
+      {
+        "category": "Eventos Corporativos",
+        "images": []
+      }
+    ]
+  },
   "footer": {
     "copyright": {
       "title": "Derechos Reservados",
@@ -249,25 +325,5 @@
       "tikTok": "https://www.tiktok.com/@vg.eventos_jlpalmera"
     },
     "extra": "Hecho con ❤️ para eventos inolvidables"
-  },
-  "dashboardTitle": "Subgerencia de Desarrollo",
-  "dashboardSubtitle": "Programas Informáticos",
-  "heroTitle": "Next.js + Tailwind + TypeScript",
-  "heroSubtitle": "+ Docker + PostgreSQL",
-  "heroDescription": "Arquitectura base para inicializar proyectos modernos con las mejores herramientas del ecosistema.",
-  "badgeFrontend": "Frontend",
-  "badgeBackend": "Backend",
-  "badgeDevops": "DevOps",
-  "technologiesHeading": "Tecnologías Utilizadas",
-  "whyHeading": "¿Por qué esta arquitectura?",
-  "adv_performance_title": "Rendimiento",
-  "adv_performance_desc": "Next.js y FastAPI ofrecen velocidad y optimización.",
-  "adv_security_title": "Seguridad",
-  "adv_security_desc": "TypeScript, autenticación JWT y rate limiting.",
-  "adv_portability_title": "Portabilidad",
-  "adv_portability_desc": "Docker garantiza entornos consistentes.",
-  "adv_scalability_title": "Escalabilidad",
-  "adv_scalability_desc": "Preparado para crecer con tu proyecto.",
-  "footer_line1": "© 2025 - Arquitectura Base con Next.js, Tailwind, TypeScript, Docker y PostgreSQL",
-  "footer_line2": "Diseñado para iniciar proyectos con el pie derecho."
+  }
 }
