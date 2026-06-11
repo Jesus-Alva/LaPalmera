@@ -232,33 +232,45 @@ docker compose up --build
 ```
 # Levantar el proyecto para Desarrollo
 
-## 1. Levantar el entorno
+### 1. Levantar el entorno
 ```
 docker compose -f docker-compose.dev.yml up -d
 ```
-## 2. Ver logs en tiempo real
+### 2. Ver logs en tiempo real
 ```
 docker compose -f docker-compose.dev.yml logs -f
 ```
 
-## 3. Hacer cambios en tu código (ej. editar un componente React)
-# El navegador recargará automáticamente (hot reload)
+### 3. Hacer cambios en tu código (ej. editar un componente React)
+### El navegador recargará automáticamente (hot reload)
 
-## 4. Detener el entorno
+### 4. Detener el entorno
 ```
 docker compose -f docker-compose.dev.yml stop
 ```
-## 5. Dar de baja los servicios
+### 5. Dar de baja los servicios
 ```
 docker compose -f docker-compose.dev.yml down -v
 ```
 
-## 6. Construir y levantar servicios
+### 6. Construir y levantar servicios
 ```
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-
+# Nota: Al actualizar o instalar dependencias:
+>Los archivos package se desincronizan por lo que hay que eliminar la carpeta node modules y el archivo package-lock.json, asi como ejecutar dentro de la carpeta /frontend los comandos:
+En windows
+```bash
+Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
+Remove-Item -Force package-lock.json -ErrorAction SilentlyContinue
+npm install
+```
+En linux 
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
 
 ## Errores comunes
 # Error de instalación de next-intl
