@@ -40,7 +40,7 @@ const LocationComponent: React.FC = () => {
 
           {/* Columna derecha con el mapa de Leaflet */}
           <div className="md:col-span-4">
-            <MapComponent position={coordinates} />
+            <MapComponent />
           </div>
         </div>
       </div>
