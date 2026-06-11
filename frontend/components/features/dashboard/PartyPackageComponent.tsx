@@ -16,6 +16,26 @@ const PartyPackageComponent: React.FC = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+
+  // Efecto para detectar cambios de tamaño
+  useEffect(() => {
+    const updateLayout = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        let columns = 1;
+        if (window.matchMedia("(min-width: 1024px)").matches) columns = 3;
+        else if (window.matchMedia("(min-width: 768px)").matches) columns = 2;
+        else columns = 1;
+
+        setItemsPerView(columns);
+        setItemWidth(containerWidth / columns);
+      }
+    };
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
+  }, []);
+
   const packageList = t("inicio.partyPackage.packageList", { returnObjects: true }) as Record<string, any>;
   if (!packageList || typeof packageList !== "object") return null;
 
@@ -70,25 +90,6 @@ const PartyPackageComponent: React.FC = () => {
     setTouchEnd(null);
     setIsDragging(false);
   };
-
-  // Efecto para detectar cambios de tamaño
-  useEffect(() => {
-    const updateLayout = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth;
-        let columns = 1;
-        if (window.matchMedia("(min-width: 1024px)").matches) columns = 3;
-        else if (window.matchMedia("(min-width: 768px)").matches) columns = 2;
-        else columns = 1;
-
-        setItemsPerView(columns);
-        setItemWidth(containerWidth / columns);
-      }
-    };
-    updateLayout();
-    window.addEventListener("resize", updateLayout);
-    return () => window.removeEventListener("resize", updateLayout);
-  }, []);
 
   const getStringValue = (value: string | string[] | undefined): string => {
     if (!value) return "";
