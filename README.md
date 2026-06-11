@@ -233,22 +233,30 @@ docker compose up --build
 # Levantar el proyecto para Desarrollo
 
 ## 1. Levantar el entorno
+```
 docker compose -f docker-compose.dev.yml up -d
-
+```
 ## 2. Ver logs en tiempo real
+```
 docker compose -f docker-compose.dev.yml logs -f
+```
 
 ## 3. Hacer cambios en tu código (ej. editar un componente React)
 # El navegador recargará automáticamente (hot reload)
 
 ## 4. Detener el entorno
+```
 docker compose -f docker-compose.dev.yml stop
-
+```
 ## 5. Dar de baja los servicios
+```
 docker compose -f docker-compose.dev.yml down -v
+```
 
 ## 6. Construir y levantar servicios
+```
 docker compose -f docker-compose.dev.yml up --build
+```
 
 
 

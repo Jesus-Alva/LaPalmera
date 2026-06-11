@@ -4,6 +4,23 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
 import { IoClose, IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Variantes de animación
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -300 : 300,
+    opacity: 0,
+  }),
+};
 
 interface GalleryCategory {
   category: string;
@@ -26,10 +43,12 @@ const GalleryImageComponent: React.FC = () => {
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // 1: siguiente, -1: anterior
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
+    setDirection(0); // sin animación al abrir
   };
 
   const closeLightbox = () => {
@@ -37,10 +56,12 @@ const GalleryImageComponent: React.FC = () => {
   };
 
   const goToPrevious = useCallback(() => {
+    setDirection(-1);
     setCurrentImageIndex((prev) => (prev === 0 ? imagesToShow.length - 1 : prev - 1));
   }, [imagesToShow.length]);
 
   const goToNext = useCallback(() => {
+    setDirection(1);
     setCurrentImageIndex((prev) => (prev === imagesToShow.length - 1 ? 0 : prev + 1));
   }, [imagesToShow.length]);
 
@@ -145,16 +166,29 @@ const GalleryImageComponent: React.FC = () => {
             className="relative w-full max-w-5xl mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Imagen actual */}
-            <div className="relative aspect-video max-h-[100vh] w-full">
-              <Image
-                src={imagesToShow[currentImageIndex]}
-                alt={`Imagen ${currentImageIndex + 1} de ${selectedCategory}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 90vw, 80vw"
-                priority
-              />
+            {/* Imagen actual con animación */}
+            <div className="relative aspect-video h-[150vh] w-full overflow-hidden">
+              <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                  key={currentImageIndex}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={imagesToShow[currentImageIndex]}
+                    alt={`Imagen ${currentImageIndex + 1} de ${selectedCategory}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 90vw, 80vw"
+                    priority
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* Botón anterior */}

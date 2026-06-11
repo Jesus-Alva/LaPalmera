@@ -29,5 +29,6 @@ export const ROUTES_IMAGES = {
 export const ROUTES_PAGE = {
     inicio: "/",
     paquetes: "/package",
-    galeria: "/gallery"
+    galeria: "/gallery",
+    nosotros: "/aboutus"
 } as const;
