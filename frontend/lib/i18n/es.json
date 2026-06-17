@@ -228,6 +228,50 @@
       ]
     }
   },
+  "aboutus": {
+    "banner": {
+      "title": "Sobre Nosotros"
+    },
+    "origin": {
+      "title": "El Origen de la Elegancia",
+      "subtitle": "Herencia & Naturaleza",
+      "description": [
+        "Nacida de la visión de preservar la biodiversidad local mientras se ofrece un escenario de sofisticación inigualable, La Palmera ha evolucionado de un espacio de descanmso privado a la propiedad más distinguida de la región.",
+        "Cada rincón de nuestra finca cuenta una historia de transformación, donde la arquitectura clásica se entrelaza con el crecimiento orgánico de especies centenarias, creando un santuario donde el tiempo parece detenerse."
+      ],
+      "image1": {
+        "src": "/images/aboutus/distribucion-5.jpg",
+        "alt": "Imagen banner"
+      },
+      "image2": {
+        "src": "/images/aboutus/distribucion-5.jpg",
+        "alt": "Imagen banner"
+      }
+    },
+    "team": {
+      "title": "El Alma de la Palmera",
+      "subtitle": "Conocenos",
+      "teamList": [
+        {
+          "name": "Hugo Vega",
+          "rol": "Director de Eventos",
+          "photo": {
+            "src": "/images/aboutus/avatar-man.png",
+            "alt": "Imagen del equipo"
+          }
+        },
+        {
+          "name": "Monica Galvan",
+          "rol": "Director de Eventos",
+          "photo": {
+            "src": "/images/aboutus/avatar-woman.png",
+            "alt": "Imagen del equipo"
+          }
+        }
+      ]
+    }
+
+  },
   "gallery": {
     "title": "Un Tapiz de Momentos Inolvidables",
     "subtitle": "Narrativas Visuales",

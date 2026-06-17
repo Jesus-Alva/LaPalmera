@@ -22,6 +22,9 @@ export const ROUTES_IMAGES = {
     paquetes: {
         url: "/package",
         src_banner: "/images/package/banner-mesas.png"
+    },
+    nosotros: {
+        src_banner: "/images/identidad/inicios.jpg"
     }
     
 } as const;
