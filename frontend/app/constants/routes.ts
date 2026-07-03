@@ -33,5 +33,6 @@ export const ROUTES_PAGE = {
     inicio: "/",
     paquetes: "/package",
     galeria: "/gallery",
-    nosotros: "/aboutus"
+    nosotros: "/aboutus",
+    contacto: "/contact"
 } as const;

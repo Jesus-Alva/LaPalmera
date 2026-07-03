@@ -64,7 +64,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
     { href: ROUTES_PAGE.paquetes, labelKey: "inicio.navbar.opt2" },
     { href: ROUTES_PAGE.galeria, labelKey: "inicio.navbar.opt3" },
     { href: ROUTES_PAGE.nosotros, labelKey: "inicio.navbar.opt4" },
-    { href: "#contacto", labelKey: "inicio.navbar.opt5", isAnchor: true },
+    { href: ROUTES_PAGE.contacto, labelKey: "inicio.navbar.opt5" },
   ];
 
   const isActive = (link: NavLink): boolean => {
