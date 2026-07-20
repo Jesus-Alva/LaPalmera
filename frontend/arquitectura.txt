@@ -1,51 +1,109 @@
 .
-├── app
-│   ├── constants
-│   │   ├── content.txt
-│   │   └── routes.ts
-│   ├── dashboard
-│   │   └── page.tsx
-│   ├── favicon.ico
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── arquitectura.txt
-├── components
-│   ├── features
+├── backend
+│   ├── app
+│   │   ├── api
+│   │   │   ├── endpoint
+│   │   │   │   ├── __init__.py
+│   │   │   └── route
+│   │   │       └── __init__.py
+│   │   ├── crud
+│   │   │   └── __init__.py
+│   │   ├── db
+│   │   │   └── __init__.py
+│   │   ├── enum
+│   │   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── model
+│   │   │   └── __init__.py
+│   │   ├── schedulers
+│   │   │   ├── _pycache_
+│   │   │   └──main.py
+│   │   ├── schemas
+│   │   │   └── __init__.py
+│   │   ├── utils
+│   │   │   ├── db_utils.py
+│   │   │   ├── __init__.py
+│   │   │   └── utils.py
+│   │   ├── validation
+│   │   │   ├── check_validation.py
+│   │   │   └── __init__.py
+│   │   ├──_init_.py
+│   │   ├──celery_app.py
+│   │   ├──main.py
+│   │   └──tasks.py
+│   ├── migrations
+│   │   ├──env.py
+│   │   ├──script.py.mako
+│   ├── Dockerfile
+│   ├── alembic.ini
+│   └── requirements.txt
+├── docker-compose.yml
+├── estructura.txt
+├── frontend
+│   ├── app
+│   │   ├── constants
+│   │   │   └── routes.ts
+│   │   ├── dashboard
+│   │   │   └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── paquetes
+│   │   │   └── page.tsx
+        ├── scripts
+│   │   │   └── convert-images.js
+│   │   ├── promociones
+│   │   │   └── page.tsx
+│   │   └── styles
+│   │       └── global.css
+│   ├── components
+│   │   ├── AOSInit.tsx
+│   │   ├── features
+│   │   │   ├── content.txt
+│   │   │   ├── dashboard
+│   │   │   │   ├── additionalInformationComponent.tsx
+│   │   │   │   ├── carouselComponent.tsx
+│   │   │   │   ├── ourPackageComponent.tsx
+│   │   │   │   ├── reservationComponent.tsx
+│   │   │   │   └── videoBandComponent.tsx
+│   │   │   ├── package
+│   │   │   │   └── packageComponent.tsx
+│   │   │   └── promotions
+│   │   │       └── promotionCardComponent.tsx
+│   │   ├── forms
+│   │   │   └── content.txt
+│   │   ├── layouts
+│   │   │   ├── content.txt
+│   │   │   └── dashboard
+│   │   │       ├── footerComponent.tsx
+│   │   │       └── navbarComponent.tsx
+│   │   └── ui
+│   │       ├── buttons
+│   │       │   └── dropdownButtonComponent.tsx
+│   │       ├── conent.txt
+│   │       └── images
+│   │           └── textOverImageComponent.tsx
+│   ├── Dockerfile
+│   ├── estructura.txt
+│   ├── lib
+│   │   ├── schemas
+│   │   │   └── user.ts
+│   │   └── services
+│   │       └── authService.ts
+│   ├── next.config.mjs
+│   ├── next-env.d.ts
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── pages
 │   │   └── content.txt
-│   ├── forms
-│   │   └── content.txt
-│   ├── layouts
-│   │   ├── content.txt
-│   │   └── navbarComponent.tsx
-│   └── ui
-│       └── conent.txt
-├── Dockerfile
-├── Dockerfile-production
-├── eslint.config.mjs
-├── lib
-│   ├── schemas
-│   │   └── user.ts
-│   └── services
-│       └── authService.ts
-├── next.config.ts
-├── next-env.d.ts
+│   ├── postcss.config.mjs
+│   ├── public
+│   │   ├── images
+│   │   ├── next.svg
+│   │   └── vercel.svg
+│   ├── README.md
+│   ├── tailwind.config.ts
+│   └── tsconfig.json
 ├── package.json
-├── package-lock.json
-├── pages
-│   └── content.txt
-├── postcss.config.mjs
-├── public
-│   ├── content.txt
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── images
-│   │   └── banner_1.jpg
-│   ├── next.svg
-│   ├── vercel.svg
-│   └── window.svg
-├── README.md
-├── tailwind.config.ts
-└── tsconfig.json
-
-15 directories, 34 files
+└── README.md
