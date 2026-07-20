@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.route.api import api_router
+from app.core.config import settings
+
 app = FastAPI(title="FastAPI Backend")
 
 # Configurar CORS
@@ -28,3 +31,5 @@ def test_celery():
         return {"task_id": result.id}
     except Exception as e:
         return {"error": str(e)}
+    
+app.include_router(api_router, prefix=settings.API_V1_STR)

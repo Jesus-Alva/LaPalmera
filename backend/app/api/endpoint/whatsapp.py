@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/whatsapp", tags=["WhatsApp"])
+router = APIRouter()
 
 @router.post("/send", response_model=WhatsAppMessageResponse)
 async def send_whatsapp(request: WhatsAppMessageRequest):
