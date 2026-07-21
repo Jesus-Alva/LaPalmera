@@ -15,6 +15,9 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+      - REDIS_URL=redis://redis:6379/0
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
@@ -36,6 +39,9 @@ services:
       - FAST_REFRESH=true
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_BACKEND_API_URL=http://localhost:8000/api/v1
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
       - ./frontend:/app:delegated
       - /app/node_modules
@@ -59,6 +65,63 @@ services:
     networks:
       - app-network
     # Sin healthcheck en desarrollo
+  
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache-palmera
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-broker-palmera
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  celery_worker:
+    build: ./backend
+    command: celery -A app.celery_app worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - app-network
+    depends_on:
+      - redis
+      - rabbitmq
+  flower:
+    image: mher/flower:latest
+    container_name: flower-monitor
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery flower --broker=amqp://guest:guest@rabbitmq:5672// --port=5555
+    ports:
+      - "5555:5555"
+    networks:
+      - app-network
+    depends_on:
+      - rabbitmq
+      - redis
+    restart: unless-stopped
 
 volumes:
   postgres_data_dev:

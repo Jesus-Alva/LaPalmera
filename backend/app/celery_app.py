@@ -4,7 +4,8 @@ import os
 celery_app = Celery(
     'worker',
     broker=os.getenv('CELERY_BROKER_URL', 'amqp://guest:guest@rabbitmq:5672//'),
-    backend=os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+    backend=os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0'),
+    include=["app.tasks"]
 )
 
 celery_app.conf.update(

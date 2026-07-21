@@ -1,29 +1,29 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { reservation } from "@/src/types/contact";
-
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import { sendWhatsAppMessage } from "@/lib/services/whatsappService";
 
 interface ComponentProps {
-    data: reservation
+    data: reservation;
 }
 
 const FormComponent: React.FC<ComponentProps> = ({ data }) => {
-
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
         eventType: "",
         fecha: "",
         guests: 0,
-        message: ""
+        message: "",
     });
 
-    const WhatsAppMessage = useMemo(() => {
-        const {name, phone, eventType, fecha, guests, message} = formData;
+    const [isLoading, setIsLoading] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
-        const lines = [
+    const WhatsAppMessage = useMemo(() => {
+        const { name, phone, eventType, fecha, guests, message } = formData;
+        return [
             `Hola, estoy interesado en reservar.`,
             "",
             "*Mis Datos de Contacto*",
@@ -33,10 +33,54 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
             `Fecha estimada de mi evento: ${fecha}`,
             `Número de invitados: ${guests}`,
             "",
-            `Mensaje o dudas que tengo: ${message || "No tengo dudas al momento"}`
-        ];
-        return lines.join("\n");
+            `Mensaje o dudas que tengo: ${message || "No tengo dudas al momento"}`,
+        ].join("\n");
     }, [formData]);
+
+    const handleSendWhatsApp = async () => {
+        // Validación básica
+        if (!formData.name || !formData.phone || !formData.eventType || !formData.fecha) {
+            setStatusMessage({
+                type: 'error',
+                text: 'Por favor, completa todos los campos obligatorios.'
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        setStatusMessage(null);
+
+        try {
+            const destinationPhone = "5215646133614"; // Reemplaza con tu número
+
+            const response = await sendWhatsAppMessage({
+                to: destinationPhone,
+                message: WhatsAppMessage,
+            });
+
+            if (response.success) {
+                setStatusMessage({
+                    type: 'success',
+                    text: '¡Mensaje enviado con éxito! Nos pondremos en contacto pronto.'
+                });
+                // Opcional: resetear el formulario
+                // setFormData({ name: "", phone: "", eventType: "", fecha: "", guests: 0, message: "" });
+            } else {
+                setStatusMessage({
+                    type: 'error',
+                    text: `Error: ${response.error || 'Intenta de nuevo más tarde'}`
+                });
+            }
+        } catch (error: any) {
+            console.error('Error:', error);
+            setStatusMessage({
+                type: 'error',
+                text: error.message || 'Error de conexión. Verifica tu internet e intenta de nuevo.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <section className="bg-gray-100 py-12 md:py-16 mt-8 md:mt-16">
@@ -50,7 +94,9 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
                     </span>
                 </div>
                 <div className="w-3/4">
-                    <form className="w-2/3 grid grid-cols-2 gap-4 mx-auto">
+                    <form className="w-2/3 grid grid-cols-2 gap-4 mx-auto" onSubmit={(e) => e.preventDefault()}>
+                        {/* Tus campos de formulario (name, phone, eventType, fecha, guests, message) */}
+                        {/* Ejemplo de un campo: */}
                         <div className="relative z-0 w-full mb-5 group">
                             <input
                                 type="text"
@@ -132,19 +178,29 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
                                 Mensaje o dudas
                             </label>
                         </div>
+                        {/* ... resto de campos ... */}
 
-                        <WhatsAppButton
-                            message={WhatsAppMessage}
-                            className="col-span-2 text-center w-1/2 text-white bg-secondary hover:scale-105 active:scale-100 transform duration-300 rounded box-border border border-transparent font-noto-serif font-extralight tracking-widest uppercase hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
-                        >
-                            Enviar WhatsApp
-                        </WhatsAppButton>
+                        <div className="col-span-2">
+                            {statusMessage && (
+                                <div className={`mb-4 p-3 rounded ${statusMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                    {statusMessage.text}
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                onClick={handleSendWhatsApp}
+                                disabled={isLoading}
+                                className="text-center w-1/2 text-white bg-secondary hover:scale-105 active:scale-100 transform duration-300 rounded border border-transparent font-noto-serif font-extralight tracking-widest uppercase hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium text-sm px-4 py-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? 'Enviando...' : 'Enviar WhatsApp'}
+                            </button>
+                        </div>
                     </form>
-
                 </div>
             </div>
         </section>
-    )
-}
+    );
+};
 
 export default FormComponent;
