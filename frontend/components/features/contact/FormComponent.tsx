@@ -39,7 +39,7 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
     }, [formData]);
 
     return (
-        <section className="bg-gray-100 py-12 md:py-16 mt-8 md:mt-16">
+        <section id="formulario" className="bg-gray-100 py-12 md:py-16 mt-8 md:mt-16">
             <div className="container mx-auto px-4 flex align-middle gap-4">
                 <div className="h-full my-auto w-1/4 space-y-5">
                     <span className="flex flex-col w-2/3 text-4xl text-secondary font-noto-serif">

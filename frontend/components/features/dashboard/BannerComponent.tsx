@@ -35,7 +35,7 @@ const BannerComponent: React.FC<ComponentProps> = ({ srcBanner }) => {
                     <p className="w-3/4 mx-auto text-2xl md:text-4xl font-noto-serif font-extralight mb-12 drop-shadow-lg">
                         {t('inicio.banner.slogan')}
                     </p>
-                    <a href="#tecnologias" className="inline-block bg-primary uppercase text-black rounded font-noto-serif font-light px-6 py-3 hover:bg-secondary hover:text-primary transition duration-500">
+                    <a href="/contact#formulario" className="inline-block bg-primary uppercase text-black rounded font-noto-serif font-light px-6 py-3 hover:bg-secondary hover:text-primary transition duration-500">
                         {t('inicio.banner.button')}
                     </a>
 

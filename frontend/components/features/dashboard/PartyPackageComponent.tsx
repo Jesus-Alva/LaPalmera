@@ -195,9 +195,9 @@ const PartyPackageComponent: React.FC = () => {
                       )}
                     </ul>
 
-                    <button className="w-full mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
+                    <a href="/package#description" className="w-full text-center mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
                       Más Detalles
-                    </button>
+                    </a>
                   </div>
                 </div>
               );

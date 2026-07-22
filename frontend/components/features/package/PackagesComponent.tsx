@@ -154,7 +154,7 @@ const PackagesComponent: React.FC = () => {
   const handleMouseLeave = () => startAutoPlay();
 
   return (
-    <section className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
+    <section id="description" className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
       <div
         ref={carouselRef}
         className="relative"
