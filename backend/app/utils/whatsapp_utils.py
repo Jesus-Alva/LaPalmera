@@ -7,8 +7,10 @@ logger = logging.getLogger(__name__)
 WHATSAPP_ACCESS_TOKEN = os.getenv("WHATSAPP_ACCESS_TOKEN")
 WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 
-if not WHATSAPP_ACCESS_TOKEN or not WHATSAPP_PHONE_NUMBER_ID:
-    logger.warning("Faltan variables de entorno para WhatsApp")
+if not WHATSAPP_ACCESS_TOKEN:
+    logger.error("WHATSAPP_ACCESS_TOKEN no está configurado")
+else:
+    logger.info(f"WHATSAPP_ACCESS_TOKEN cargado (primeros 10 caracteres): {WHATSAPP_ACCESS_TOKEN[:10]}...")
 
 WHATSAPP_API_URL = f"https://graph.facebook.com/v25.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
 
