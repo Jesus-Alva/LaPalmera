@@ -5,16 +5,14 @@ services:
       context: ./backend
       dockerfile: Dockerfile   # Puedes usar el mismo Dockerfile (ya tiene --reload)
     container_name: fastapi-la-palmera-dev
-    env_file: .env.dev   # Opcional: archivo específico para desarrollo
+    # env_file: .env.dev   # Opcional: archivo específico para desarrollo
     ports:
       - "8000:8000"
     depends_on:
       - postgres
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - DATABASE_URL=postgresql://lapalmera:palmera@postgres:5432/lapalmera
+      - ENV=container
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
@@ -36,6 +34,7 @@ services:
       - FAST_REFRESH=true
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - ENV=container
     volumes:
       - ./frontend:/app:delegated
       - /app/node_modules
@@ -49,9 +48,9 @@ services:
     container_name: postgres-palmera-dev
     env_file: .env.dev
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=lapalmera
+      - POSTGRES_PASSWORD=palmera
+      - POSTGRES_DB=lapalmera
     ports:
       - "5433:5432"
     volumes:
@@ -59,7 +58,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U lapalmera -d lapalmera"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -68,6 +67,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin-palmera-dev
+    env_file: .env.dev
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -76,7 +76,7 @@ services:
     networks:
       - app-network
     depends_on:
-    - postgres
+      - postgres
 
 volumes:
   postgres_data_dev:
