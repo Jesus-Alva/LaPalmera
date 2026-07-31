@@ -2,7 +2,7 @@
 
 import MapComponent from "../../ui/MapComponent";
 
-import { information } from "@/types/contact";
+import { information } from "@/src/types/contact";
 
 interface ComponentProps {
     data: information
@@ -10,8 +10,8 @@ interface ComponentProps {
 const InformationComponent: React.FC<ComponentProps> = ({ data }) => {
     return (
         <section className="">
-            <div className="container mx-auto px-4 flex align-middle gap-4">
-                <div className="h-full my-auto w-1/3 space-y-5">
+            <div className="container mx-auto px-4 flex flex-wrap-reverse lg:align-middle gap-4">
+                <div className="h-full my-auto w-full lg:w-1/3 space-y-5">
                     <div className="bg-white px-5 py-4 rounded shadow-md">
                         <div className="mx-5">
                             <span className="text-3xl text-secondary font-noto-serif">
@@ -40,7 +40,7 @@ const InformationComponent: React.FC<ComponentProps> = ({ data }) => {
                         ))}
                     </div>
                 </div>
-                <div className="w-2/3">
+                <div className="w-full lg:w-2/3">
                     <MapComponent />
                 </div>
             </div>

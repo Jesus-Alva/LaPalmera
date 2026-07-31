@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 
-import { origin } from "@/types/aboutus";
+import { origin } from "@/src/types/aboutus";
 
 interface ComponentProps {
     data: origin;

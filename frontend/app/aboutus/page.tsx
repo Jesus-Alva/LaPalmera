@@ -7,7 +7,7 @@ import TeamComponent from "../../components/features/aboutus/TeamComponent";
 import { useTranslation } from "../../lib/hooks/useTranslation";
 import { ROUTES_IMAGES } from "../constants/routes";
 
-import { origin, team } from "@/types/aboutus";
+import { origin, team } from "@/src/types/aboutus";
 
 const Page: React.FC = () => {
     const {t} = useTranslation()

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { reservation } from "@/src/types/contact";
 
 import WhatsAppButton from "@/components/ui/WhatsAppButton";

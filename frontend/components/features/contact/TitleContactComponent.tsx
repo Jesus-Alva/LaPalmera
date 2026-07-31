@@ -1,6 +1,6 @@
 "use client";
 
-import { contact } from "@/types/contact";
+import { contact } from "@/src/types/contact";
 
 interface ComponentProps {
     data: contact
