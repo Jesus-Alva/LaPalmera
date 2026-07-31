@@ -16,190 +16,6 @@
 - [📦 Instalación local](#📦-instalación-local)
 - [📁 Estructura de Carpetas Recomendada](#📁-estructura-de-carpetas-recomendada)
 
-## 🏗️ 1. Componente de Página (App Router)
-
-Archivo: app/page.tsx o app/[ruta]/page.tsx
-
-
-```bash
-import React from 'react';
-import Head from 'next/head';
-
-// Tipos para las props
-interface PageProps {
-  params?: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-// Componente principal
-export default function PageName({ params, searchParams }: PageProps) {
-  const title = "Mi Página";
-
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content="Descripción" />
-      </Head>
-
-      <main className="min-h-screen p-4">
-        <h1 className="text-3xl font-bold">{title}</h1>
-        <section>
-          <p>Contenido aquí</p>
-        </section>
-      </main>
-    </>
-  );
-}
-
-// Metadata dinámica (opcional)
-export async function generateMetadata({ params }: PageProps) {
-  return {
-    title: 'Título dinámico',
-  };
-}
-
-// Generación estática de rutas (opcional)
-export async function generateStaticParams() {
-  return [{ id: '1' }, { id: '2' }];
-}
-```
-
-## 🔧 2. Componente Reutilizable
-
-Archivo: components/ComponentName.tsx
-
-```bash
-import React, { useState, useEffect } from 'react';
-
-interface ComponentProps {
-  title: string;
-  count?: number;
-  onAction?: () => void;
-}
-
-const ComponentName: React.FC<ComponentProps> = ({ 
-  title, 
-  count = 0,
-  onAction 
-}) => {
-  const [state, setState] = useState<string>('');
-
-  useEffect(() => {
-    // Lógica de efecto
-  }, []);
-
-  const handleClick = () => {
-    onAction?.();
-  };
-
-  return (
-    <div className="container mx-auto p-4">
-      <h2>{title}</h2>
-      <button onClick={handleClick}>
-        Click me (Count: {count})
-      </button>
-    </div>
-  );
-};
-
-export default ComponentName;
-```
-
-## 📦 3. Estructura Completa con Data Fetching
-
-```bash
-// Importaciones organizadas
-import React from 'react';
-import type { Metadata } from 'next';
-import { GetServerSideProps, GetStaticProps } from 'next';
-
-// Componentes y utilidades
-import ComponentA from '@/components/ComponentA';
-import { formatDate } from '@/lib/utils';
-import { User } from '@/types/user';
-
-// Tipos
-interface PageProps {
-  users: User[];
-  timestamp: string;
-}
-
-// Componente principal
-export default async function Page({ users, timestamp }: PageProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  
-  if (isLoading) return <div>Loading...</div>;
-
-  return (
-    <div className="layout">
-      <ComponentA data={users} />
-      {users.map((user) => (
-        <div key={user.id}>{user.name}</div>
-      ))}
-    </div>
-  );
-}
-
-// Data Fetching (ISR - Incremental Static Regeneration)
-export const getStaticProps: GetStaticProps = async () => {
-  const res = await fetch('https://api.example.com/data');
-  const data = await res.json();
-
-  return {
-    props: {
-      users: data,
-      timestamp: new Date().toISOString(),
-    },
-    revalidate: 60, // Regenera cada 60 segundos
-  };
-};
-
-// O Server-Side Rendering
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  return {
-    props: { /* datos del servidor */ },
-  };
-};
-```
-
-## 🎯 4. Client Component con Contexto
-
-```bash
-'use client'; // Marcador para Client Components en App Router
-
-import React, { createContext, useContext, useState } from 'react';
-
-interface ContextType {
-  theme: string;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ContextType | undefined>(undefined);
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState('light');
-
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
-}
-```
-
 ## 📋 Consejos de Estructuración
 ```
 Sección	        Orden Recomendada
@@ -257,6 +73,22 @@ docker compose -f docker-compose.dev.yml down -v
 ```
 docker compose -f docker-compose.dev.yml up --build
 ```
+
+## Migraciones de Base de Datos
+
+Las migraciones se gestionan con Alembic. Los scripts de migración se encuentran en `backend/migrations/versions/`.
+
+**Nota:** Todos los archivos de migración están versionados en el repositorio, excepto `alembic.ini` (para evitar exponer credenciales). Cada entorno debe configurar su propia URL de base de datos a través de variables de entorno o un archivo `.env`.
+
+Para generar una nueva migración:
+```bash
+docker compose -f docker-compose.dev.yml exec web python -m alembic revision --autogenerate -m "Descripción del cambio"
+```
+Aplicar migraciones
+```bash
+docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
+```
+
 
 # Nota: Al actualizar o instalar dependencias:
 >Los archivos package se desincronizan por lo que hay que eliminar la carpeta node modules y el archivo package-lock.json, asi como ejecutar dentro de la carpeta /frontend los comandos:

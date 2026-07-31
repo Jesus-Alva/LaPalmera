@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
 import { FaRegCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 
 const PackagesComponent: React.FC = () => {
   const { t } = useTranslation();
@@ -153,6 +154,37 @@ const PackagesComponent: React.FC = () => {
   const handleMouseEnter = () => stopAutoPlay();
   const handleMouseLeave = () => startAutoPlay();
 
+  const WhatsAppMessage = useMemo(() => {
+    if (!selectedPackage) return "";
+
+    const { title, desc, services } = selectedPackage;
+    const hrs = getStringValue(services?.hrs);
+    const food = getStringValue(services?.food);
+    const drinks = services?.drinks ? normalizeArray(services.drinks) : [];
+    const carpa = getStringValue(services?.carpa);
+    const mobiliario = services?.mobiliario ? normalizeArray(services.mobiliario) : [];
+    const staff = services?.staff ? normalizeArray(services.staff) : [];
+    const ambiente = getStringValue(services?.ambiente);
+    const parking = getStringValue(services?.parking);
+
+    const lines = [
+      `Hola, estoy interesado en el paquete "${title}"`,
+      "",
+      "*Detalles del paquete:*",
+      ...(hrs ? [`Duración: ${hrs}`] : []),
+      ...(food ? [`Alimentación: ${food}`] : []),
+      ...(drinks.length ? [`Bebidas: ${drinks.join(", ")}`] : []),
+      ...(carpa ? [`Carpa / Techo: ${carpa}`] : []),
+      ...(mobiliario.length ? [`Mobiliario: ${mobiliario.join(", ")}`] : []),
+      ...(staff.length ? [`Personal: ${staff.join(", ")}`] : []),
+      ...(ambiente ? [`Ambiente: ${ambiente}`] : []),
+      ...(parking ? [`Estacionamiento: ${parking}`] : []),
+      "",
+      "Quedo atento a su respuesta.",
+    ];
+    return lines.join("\n");
+  }, [selectedPackage]);
+
   return (
     <section id="description" className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
       <div
@@ -203,9 +235,8 @@ const PackagesComponent: React.FC = () => {
                       />
                     </div>
                     <div
-                      className={`p-5 md:p-8 lg:p-10 flex flex-col flex-grow ${
-                        isSelected ? "bg-secondary text-white rounded-b-2xl" : ""
-                      }`}
+                      className={`p-5 md:p-8 lg:p-10 flex flex-col flex-grow ${isSelected ? "bg-secondary text-white rounded-b-2xl" : ""
+                        }`}
                     >
                       <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
                         {title}
@@ -217,9 +248,8 @@ const PackagesComponent: React.FC = () => {
                         {hrs && (
                           <li className="flex items-start gap-2">
                             <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${
-                                isSelected ? "text-yellow-500" : "text-gray-700"
-                              }`}
+                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
+                                }`}
                             />
                             <span>{hrs}</span>
                           </li>
@@ -227,9 +257,8 @@ const PackagesComponent: React.FC = () => {
                         {food && (
                           <li className="flex items-start gap-2">
                             <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${
-                                isSelected ? "text-yellow-500" : "text-gray-700"
-                              }`}
+                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
+                                }`}
                             />
                             <span>{food}</span>
                           </li>
@@ -237,20 +266,18 @@ const PackagesComponent: React.FC = () => {
                         {drinks.map((item, i) => (
                           <li key={`drink-${idx}-${i}`} className="flex items-start gap-2">
                             <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${
-                                isSelected ? "text-yellow-500" : "text-gray-700"
-                              }`}
+                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
+                                }`}
                             />
                             <span>{item}</span>
                           </li>
                         ))}
                       </ul>
                       <button
-                        className={`w-full mt-6 font-noto-serif uppercase py-2 md:py-3 px-4 border transition-colors duration-300 rounded-lg text-sm md:text-base ${
-                          isSelected
-                            ? "bg-primary text-secondary border-primary hover:bg-opacity-90"
-                            : "border-gray-800 text-gray-800 hover:bg-secondary hover:text-primary"
-                        }`}
+                        className={`w-full mt-6 font-noto-serif uppercase py-2 md:py-3 px-4 border transition-colors duration-300 rounded-lg text-sm md:text-base ${isSelected
+                          ? "bg-primary text-secondary border-primary hover:bg-opacity-90"
+                          : "border-gray-800 text-gray-800 hover:bg-secondary hover:text-primary"
+                          }`}
                       >
                         Más Detalles
                       </button>
@@ -367,12 +394,12 @@ const PackagesComponent: React.FC = () => {
             </div>
 
             <div className="px-5 md:px-8 pb-6 flex justify-end">
-              <button className="bg-secondary hover:bg-secondary/90 text-white font-noto-serif py-2 px-5 md:py-2.5 md:px-7 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm md:text-base">
-                <span>Solicitar este paquete</span>
+              <WhatsAppButton message={WhatsAppMessage} className="bg-secondary hover:bg-secondary/90 text-white font-noto-serif py-2 px-5 md:py-2.5 md:px-7 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm md:text-base">
+                <span>Solicitar más información sobre este paquete</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
-              </button>
+              </WhatsAppButton>
             </div>
           </div>
         </div>

@@ -12,7 +12,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   phone = "525646133614", 
   message, 
   children, 
-  className = "" 
+  className = "inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" 
 }) => {
   const encodedMessage = encodeURIComponent(message);
   const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
@@ -22,7 +22,7 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition ${className}`}
+      className={className}
     >
       {children || "Enviar WhatsApp"}
     </a>
