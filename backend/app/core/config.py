@@ -1,6 +1,15 @@
-from dotenv import load_dotenv
-from pathlib import Path
+# app/core/config.py
+import os
+from pydantic_settings import BaseSettings
 
-# Carga .env.dev desde la raíz del proyecto
-BASE_DIR = Path(__file__).resolve().parent.parent.parent  # ajusta según tu estructura
-load_dotenv(BASE_DIR / ".env.dev")
+class Settings(BaseSettings):
+    API_V1_STR: str = "/api/v1"
+    DATABASE_URL: str = os.getenv("DATABASE_URL")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+    class Config:
+        env_file = ".env.dev"
+
+settings = Settings()

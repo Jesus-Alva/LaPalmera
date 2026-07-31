@@ -49,11 +49,11 @@ docker compose up --build
 # Levantar el proyecto para Desarrollo
 
 ### 1. Levantar el entorno
-```
+```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 ### 2. Ver logs en tiempo real
-```
+```bash
 docker compose -f docker-compose.dev.yml logs -f
 ```
 
@@ -61,16 +61,16 @@ docker compose -f docker-compose.dev.yml logs -f
 ### El navegador recargará automáticamente (hot reload)
 
 ### 4. Detener el entorno
-```
+```bash
 docker compose -f docker-compose.dev.yml stop
 ```
 ### 5. Dar de baja los servicios
-```
+```bash
 docker compose -f docker-compose.dev.yml down -v
 ```
 
 ### 6. Construir y levantar servicios
-```
+```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
 
@@ -88,7 +88,8 @@ Aplicar migraciones
 ```bash
 docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
 ```
-
+# Nota: Despues de ejecutar las migraciones
+> Una vez que ya se ejecutaron las migraciones, recuerda que si aplicas un DOWN y despues reconstruyes todo, tienes que volver a ejecutar las migraciones
 
 # Nota: Al actualizar o instalar dependencias:
 >Los archivos package se desincronizan por lo que hay que eliminar la carpeta node modules y el archivo package-lock.json, asi como ejecutar dentro de la carpeta /frontend los comandos:
@@ -102,6 +103,14 @@ En linux
 ```bash
 rm -rf node_modules package-lock.json
 npm install
+```
+
+# Configuración (.env)
+
+### Asegurate de tener una SECRET_KEY
+Ejecuta en la terminal para generar un token aleatorio
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
 ## Errores comunes

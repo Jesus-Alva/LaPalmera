@@ -5,7 +5,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile   # Puedes usar el mismo Dockerfile (ya tiene --reload)
     container_name: fastapi-la-palmera-dev
-    # env_file: .env.dev   # Opcional: archivo específico para desarrollo
+    env_file: .env.dev   # Opcional: archivo específico para desarrollo
     ports:
       - "8000:8000"
     depends_on:
