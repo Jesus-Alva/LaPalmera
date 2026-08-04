@@ -8,6 +8,6 @@ class Banner(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=False)
     title = Column(String(255), nullable=False)
     subtitle = Column(String(255), nullable=False)
-    description = Column(String(255), nullable=False)  # nombre corregido (era 'descrption')
+    description = Column(String(255), nullable=False)
 
     images_catalogs = relationship('ImagesCatalog', back_populates='banner')
