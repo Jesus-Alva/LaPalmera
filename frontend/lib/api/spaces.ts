@@ -1,12 +1,15 @@
 import { Space, SpaceCreate, SpaceUpdate } from '@/src/types/services';
 import { getApiBaseUrl } from './client';
 
-export async function getSpaces(params?: {
-  skip?: number;
-  limit?: number;
-  is_active?: boolean;
-  search?: string;
-}): Promise<Space[]> {
+export async function getSpaces(
+  params?: {
+    skip?: number;
+    limit?: number;
+    is_active?: boolean;
+    search?: string;
+  },
+  token?: string
+): Promise<Space[]> {
   const baseUrl = getApiBaseUrl();
   const query = new URLSearchParams();
   if (params?.skip) query.append('skip', params.skip.toString());
@@ -14,10 +17,22 @@ export async function getSpaces(params?: {
   if (params?.is_active !== undefined) query.append('is_active', params.is_active.toString());
   if (params?.search) query.append('search', params.search);
 
+  const headers: HeadersInit = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${baseUrl}/spaces?${query.toString()}`, {
-    credentials: 'include',
+    headers,
+    credentials: token ? undefined : 'include', // si usamos token en header, no necesitamos credentials
   });
-  if (!res.ok) throw new Error('Error al cargar espacios');
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Error status:', res.status);
+    console.error('Error body:', errorText);
+    throw new Error(`Error al cargar espacios: ${res.status} - ${errorText}`);
+  }
   return res.json();
 }
 

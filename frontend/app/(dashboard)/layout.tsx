@@ -17,7 +17,7 @@ export default function DashboardLayout({
 
   return (
     <div>
-      <header className="flex justify-between items-center p-4 bg-gray-100">
+      <header className="mt-20 flex justify-between items-center p-4 bg-gray-100">
         <h1 className="text-xl font-bold">Dashboard</h1>
         <button
           onClick={handleLogout}
