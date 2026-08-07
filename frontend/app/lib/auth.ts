@@ -2,9 +2,13 @@
 import { cookies } from 'next/headers';
 
 // ✅ Corregido: ahora es async y usa await
-export async function getServerToken(): Promise<string | undefined> {
+export async function getServerToken() {
   const cookieStore = await cookies();
-  return cookieStore.get('access_token')?.value;
+  const token = cookieStore.get('access_token')?.value;
+  if (!token) {
+    console.warn('No se encontró token en cookies del servidor');
+  }
+  return token;
 }
 
 // ✅ Función para hacer fetch con token (también async)
