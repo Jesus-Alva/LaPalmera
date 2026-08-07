@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.db.session import get_db
@@ -7,7 +7,16 @@ from app.schemas.space import SpaceCreate, SpaceUpdate, SpaceOut
 from app.dependencies.auth import get_current_user
 from app.model.user import User
 
+from app.schemas.image import ImageOut
+from app.model.image import Image
+from app.model.images_catalog import ImagesCatalog
+import shutil
+import os
+from pathlib import Path
+
 router = APIRouter()
+UPLOAD_DIR = Path("static/uploads/spaces")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 @router.get("/", response_model=list[SpaceOut])
 def list_spaces(
@@ -115,4 +124,120 @@ def delete_space(
         )
     
     db.delete(space)
+    db.commit()
+    
+    
+@router.get("/{space_id}/images", response_model=list[ImageOut])
+def get_space_images(
+    space_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Obtener todas las imágenes de un espacio"""
+    # Verificar que el espacio existe
+    space = db.query(Space).filter(Space.id == space_id).first()
+    if not space:
+        raise HTTPException(status_code=404, detail="Espacio no encontrado")
+
+    # Buscar el catálogo de imágenes del espacio
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.space_id == space_id).first()
+    if not catalog:
+        return []  # Si no hay catálogo, devolver lista vacía
+
+    images = db.query(Image).filter(Image.catalog_id == catalog.id).all()
+    return images
+
+@router.post("/{space_id}/images", response_model=ImageOut, status_code=status.HTTP_201_CREATED)
+def upload_space_image(
+    space_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Subir una imagen para un espacio"""
+    # Verificar permisos
+    if current_user.role not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="No tienes permiso para subir imágenes")
+
+    # Verificar que el espacio existe
+    space = db.query(Space).filter(Space.id == space_id).first()
+    if not space:
+        raise HTTPException(status_code=404, detail="Espacio no encontrado")
+
+    # Validar tipo de archivo
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
+
+    # Validar tamaño (5MB)
+    file.file.seek(0, 2)
+    size = file.file.tell()
+    file.file.seek(0)
+    if size > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="La imagen no debe superar 5MB")
+
+    # Crear nombre único para el archivo
+    file_extension = file.filename.split(".")[-1]
+    unique_filename = f"space_{space_id}_{uuid.uuid4().hex[:8]}.{file_extension}"
+    file_path = UPLOAD_DIR / unique_filename
+
+    # Guardar archivo
+    try:
+        with file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error al guardar la imagen")
+
+    # Buscar o crear catálogo de imágenes del espacio
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.space_id == space_id).first()
+    if not catalog:
+        catalog = ImagesCatalog(
+            package_id=1,  # Temporal, esto se ajustará después
+            space_id=space_id,
+            banner_id=1,   # Temporal
+        )
+        db.add(catalog)
+        db.commit()
+        db.refresh(catalog)
+
+    # Crear registro de imagen
+    image = Image(
+        catalog_id=catalog.id,
+        image_path=f"/static/uploads/spaces/{unique_filename}",
+        alt_text=file.filename,
+    )
+    db.add(image)
+    db.commit()
+    db.refresh(image)
+
+    return image
+
+@router.delete("/{space_id}/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_space_image(
+    space_id: int,
+    image_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Eliminar una imagen de un espacio"""
+    # Verificar permisos
+    if current_user.role not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="No tienes permiso para eliminar imágenes")
+
+    # Buscar la imagen
+    image = db.query(Image).filter(Image.id == image_id).first()
+    if not image:
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")
+
+    # Verificar que la imagen pertenece al espacio
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.id == image.catalog_id).first()
+    if not catalog or catalog.space_id != space_id:
+        raise HTTPException(status_code=403, detail="La imagen no pertenece a este espacio")
+
+    # Eliminar archivo físico
+    file_path = Path("static") / image.image_path.lstrip("/")
+    if file_path.exists():
+        file_path.unlink()
+
+    # Eliminar registro de la base de datos
+    db.delete(image)
     db.commit()
