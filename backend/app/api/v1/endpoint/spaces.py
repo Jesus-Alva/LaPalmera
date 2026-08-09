@@ -10,6 +10,7 @@ from app.model.user import User
 from app.schemas.image import ImageOut
 from app.model.image import Image
 from app.model.images_catalog import ImagesCatalog
+import uuid
 import shutil
 import os
 from pathlib import Path

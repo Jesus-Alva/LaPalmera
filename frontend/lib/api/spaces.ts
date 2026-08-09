@@ -1,4 +1,5 @@
 import { Space, SpaceCreate, SpaceUpdate } from '@/src/types/services';
+import { ImageType } from '@/src/types/images';
 import { getApiBaseUrl } from './client';
 
 const API_URL = getApiBaseUrl();
@@ -99,4 +100,42 @@ export async function deleteSpace(id: number): Promise<void> {
     const error = await res.json();
     throw new Error(error.detail || 'Error al eliminar espacio');
   }
+}
+
+export async function uploadSpaceImage(spaceId: number, formData: FormData): Promise<ImageType> {
+  const res = await fetch(`${API_URL}/spaces/${spaceId}/images`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al subir imagen');
+  }
+  return res.json();
+}
+
+export async function deleteSpaceImage(spaceId: number, imageId: number): Promise<void> {
+  const res = await fetch(`${API_URL}/spaces/${spaceId}/images/${imageId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al eliminar imagen');
+  }
+}
+
+export async function getSpaceImages(spaceId: number): Promise<ImageType[]> {
+  const res = await fetch(`${API_URL}/spaces/${spaceId}/images`, {
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al cargar imágenes');
+  }
+  return res.json();
 }

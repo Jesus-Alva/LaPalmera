@@ -80,6 +80,8 @@ Las migraciones se gestionan con Alembic. Los scripts de migración se encuentra
 
 **Nota:** Todos los archivos de migración están versionados en el repositorio, excepto `alembic.ini` (para evitar exponer credenciales). Cada entorno debe configurar su propia URL de base de datos a través de variables de entorno o un archivo `.env`.
 
+> Las migraciones se aplican en raiz
+
 Para generar una nueva migración:
 ```bash
 docker compose -f docker-compose.dev.yml exec web python -m alembic revision --autogenerate -m "Descripción del cambio"
@@ -90,6 +92,19 @@ docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
 ```
 # Nota: Despues de ejecutar las migraciones
 > Una vez que ya se ejecutaron las migraciones, recuerda que si aplicas un DOWN y despues reconstruyes todo, tienes que volver a ejecutar las migraciones
+
+## --------------Coneccion a PgAdmin
+``` 
+Host: (POSTGRES_SERVER)
+
+Port: ((pero este es el puerto mapeado en el host, el interno es 5432))
+
+Username: (POSTGRES_USER)
+
+Password: (POSTGRES_PASSWORD)
+
+Database: (POSTGRES_DB)
+``` 
 
 # Nota: Al actualizar o instalar dependencias:
 >Los archivos package se desincronizan por lo que hay que eliminar la carpeta node modules y el archivo package-lock.json, asi como ejecutar dentro de la carpeta /frontend los comandos:
@@ -112,44 +127,6 @@ Ejecuta en la terminal para generar un token aleatorio
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
-
-## Errores comunes
-# Error de instalación de next-intl
->En algunos casos, next-intl puede tener error de permisos para su instalacion, debido a que el usuario que creo el proyecto no es el mismo, no cuenta con los mismos permisos de creacion, para solucionarlo, debemos asignar los permisos al usuario actual meidante el comando:
-``` 
-sudo chown -R $(whoami):$(whoami) /home/user/Architecture-FastAPI/frontend
-``` 
-seguido de la instalación de next-intl
-```
-npm install next-intl
-```
-
-## 📁 Estructura de Carpetas Recomendada
-
-
-```
-my-next-app/
-├── app/                    # App Router (Next.js 13+)
-│   ├── layout.tsx         # Layout principal
-│   ├── page.tsx           # Homepage
-│   ├── globals.css        # Estilos globales
-│   └── [ruta]/
-│       ├── layout.tsx     # Layout específico
-│       ├── page.tsx       # Página dinámica
-│       └── loading.tsx    # Estado de carga
-│
-├── components/            # Componentes reutilizables
-│   ├── ui/               # Botones, inputs, etc.
-│   ├── layout/           # Componentes de layout
-│   └── features/         # Componentes específicos
-│
-├── lib/                  # Utilidades y configuraciones
-├── hooks/                # Custom hooks
-├── types/                # Tipos TypeScript
-├── styles/               # Estilos adicionales
-└── public/               # Assets estáticos
-```
-
 
 
 
