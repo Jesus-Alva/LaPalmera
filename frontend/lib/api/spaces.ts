@@ -1,4 +1,4 @@
-import { Space, SpaceCreate, SpaceUpdate } from '@/src/types/services';
+import { Space, SpaceCreate, SpaceUpdate } from '@/src/types/space';
 import { ImageType } from '@/src/types/images';
 import { getApiBaseUrl } from './client';
 
@@ -38,7 +38,8 @@ export async function getSpaces(
     console.error('Error body:', errorText);
     throw new Error(`Error al cargar espacios: ${res.status} - ${errorText}`);
   }
-  return res.json();
+  const data = await res.json();
+  return data as Space[];
 }
 
 export async function getSpace(id: number, token: string): Promise<Space> {

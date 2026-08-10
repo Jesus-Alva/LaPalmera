@@ -16,6 +16,7 @@ class SpaceUpdate(BaseModel):
 
 class SpaceOut(SpaceBase):
     id: int
+    image_url: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import Optional
 from app.db.session import get_db
 from app.model.space import Space
@@ -26,22 +27,60 @@ def list_spaces(
     limit: int = Query(100, ge=1, le=100),
     is_active: Optional[bool] = None,
     search: Optional[str] = None,
-    current_user: User = Depends(get_current_user),  # solo autenticados
+    current_user: User = Depends(get_current_user),
 ):
-    """
-    Listar espacios con paginación y filtros opcionales.
-    """
+    # 1. Construir consulta base para espacios
     query = db.query(Space)
 
     if is_active is not None:
         query = query.filter(Space.is_active == is_active)
-    
     if search:
         query = query.filter(Space.title.ilike(f"%{search}%"))
 
-    total = query.count()
-    items = query.offset(skip).limit(limit).all()
-    return items
+    # 2. Obtener espacios (con paginación)
+    spaces = query.offset(skip).limit(limit).all()
+
+    if not spaces:
+        return []
+
+    # 3. Obtener IDs de los espacios
+    space_ids = [s.id for s in spaces]
+
+    # 4. Obtener la primera imagen de cada espacio
+    #    Usamos una subconsulta con ROW_NUMBER para obtener la primera (la de menor ID)
+    subq = (
+        db.query(
+            ImagesCatalog.space_id,
+            Image.image_path,
+            func.row_number().over(
+                partition_by=ImagesCatalog.space_id,
+                order_by=Image.id  # la primera imagen (menor ID)
+            ).label("rn")
+        )
+        .join(Image, Image.catalog_id == ImagesCatalog.id)
+        .filter(ImagesCatalog.space_id.in_(space_ids))
+        .subquery()
+    )
+
+    # Filtramos solo la primera imagen (rn = 1)
+    first_images = db.query(subq).filter(subq.c.rn == 1).all()
+
+    # Crear un diccionario {space_id: image_path}
+    image_map = {row.space_id: row.image_path for row in first_images}
+
+    # 5. Construir respuesta
+    result = []
+    for space in spaces:
+        space_out = SpaceOut(
+            id=space.id,
+            title=space.title,
+            description=space.description,
+            is_active=space.is_active,
+            image_url=image_map.get(space.id)  # None si no tiene imagen
+        )
+        result.append(space_out)
+
+    return result
 
 @router.post("/", response_model=SpaceOut, status_code=status.HTTP_201_CREATED)
 def create_space(
@@ -126,7 +165,6 @@ def delete_space(
     
     db.delete(space)
     db.commit()
-    
     
 @router.get("/{space_id}/images", response_model=list[ImageOut])
 def get_space_images(

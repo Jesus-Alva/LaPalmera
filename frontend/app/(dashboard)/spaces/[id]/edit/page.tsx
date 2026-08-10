@@ -1,6 +1,6 @@
 import { getServerToken } from '@/app/lib/auth';
 import { getSpace } from '@/lib/api/spaces';
-import SpaceForm from '@/components/forms/SpaceForm';
+import SpaceForm from '@/components/forms/SpaceForms/SpaceForm';
 import { redirect } from 'next/navigation';
 
 export default async function EditSpacePage({
