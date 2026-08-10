@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Page: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -23,13 +24,11 @@ const Page: React.FC = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      // Intentar leer el cuerpo como texto primero
       const text = await res.text();
       let data;
       try {
         data = JSON.parse(text);
       } catch {
-        // Si no es JSON, usar el texto como mensaje de error
         data = { detail: text || 'Error sin mensaje' };
       }
 
@@ -37,7 +36,6 @@ const Page: React.FC = () => {
         throw new Error(data.detail || `Error ${res.status}`);
       }
 
-      // Si todo ok, redirigir
       router.push('/spaces');
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
@@ -46,49 +44,134 @@ const Page: React.FC = () => {
     }
   };
 
+  // Variants para animación escalonada de los hijos
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: 'spring', damping: 12, stiffness: 100 },
+    },
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <h2 className="text-2xl font-bold text-center">Iniciar Sesión</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Correo electrónico
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-          >
-            {loading ? 'Cargando...' : 'Entrar'}
-          </button>
-        </form>
-      </div>
+    <div className="min-h-screen flex items-center justify-center lg:p-4 mt-10">
+      {/* Tarjeta con glassmorphism */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="w-full max-w-md p-8 rounded-2xl backdrop-blur-xs bg-black/50 shadow-xl shadow-black/50 border border-white/20"
+      >
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8"
+        >
+          {/* Título y subtítulo */}
+          <motion.div variants={itemVariants} className="text-center">
+            <h2 className="text-4xl font-noto-serif font-bold text-gray-800 dark:text-white tracking-tight">
+              Bienvenido
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              Inicia sesión para continuar
+            </p>
+          </motion.div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Campo email */}
+            <motion.div variants={itemVariants} className="relative">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Correo electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 bg-white/50  backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300"
+                placeholder="tu@email.com"
+              />
+              {/* Línea animada al focus (se puede hacer con pseudo-elementos en CSS, pero aquí no es necesario) */}
+            </motion.div>
+
+            {/* Campo contraseña */}
+            <motion.div variants={itemVariants} className="relative">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300"
+                placeholder="••••••••"
+              />
+            </motion.div>
+
+            {/* Mensaje de error con animación de shake */}
+            <AnimatePresence>
+              {error && (
+                <motion.p
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 20, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 10 }}
+                  className="text-red-600 dark:text-red-400 text-sm bg-red-100/50 dark:bg-red-900/30 backdrop-blur-sm p-3 rounded-xl"
+                >
+                  {error}
+                </motion.p>
+              )}
+            </AnimatePresence>
+
+            {/* Botón de envío */}
+            <motion.div variants={itemVariants}>
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-medium font-noto-serif text-primary bg-secondary hover:bg-primary hover:text-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300"
+              >
+                {loading ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+                    className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                  />
+                ) : (
+                  'Entrar'
+                )}
+              </motion.button>
+            </motion.div>
+          </form>
+
+          {/* Enlace a registro (opcional) */}
+          <motion.div variants={itemVariants} className="text-center text-sm">
+            <span className="text-gray-600 dark:text-gray-300">¿No tienes cuenta? </span>
+            <a href="/register" className="font-medium text-primary hover:underline">
+              Regístrate
+            </a>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   );
-}
+};
 
 export default Page;
