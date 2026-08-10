@@ -90,6 +90,9 @@ Aplicar migraciones
 ```bash
 docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
 ```
+
+### Ingresa a PostgresSQL con el comando: docker exec -it postgres-palmera-dev psql -U lapalmera -d lapalmera
+
 # Nota: Despues de ejecutar las migraciones
 > Una vez que ya se ejecutaron las migraciones, recuerda que si aplicas un DOWN y despues reconstruyes todo, tienes que volver a ejecutar las migraciones
 
