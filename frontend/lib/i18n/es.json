@@ -411,6 +411,11 @@
       "whatsapp": "WhatsApp",
       "tikTok": "https://www.tiktok.com/@vg.eventos_jlpalmera"
     },
+    "account":{
+      "title": "Cuenta",
+      "login": "Iniciar Sesión",
+      "register": "Registrarse"
+    },
     "extra": "Hecho con ❤️ para eventos inolvidables"
   }
 }

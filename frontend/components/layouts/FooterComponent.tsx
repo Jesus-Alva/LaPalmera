@@ -116,7 +116,7 @@ const FooterComponent: React.FC = () => {
                 className="group w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wider rounded-full border-2 border-primary text-white hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-300"
               >
                 <FaUser className="text-base group-hover:rotate-6 transition-transform" />
-                {t("footer.login") || "Iniciar Sesión"}
+                {t("footer.account.login") || "Iniciar Sesión"}
               </Link>
 
               <Link
@@ -124,7 +124,7 @@ const FooterComponent: React.FC = () => {
                 className="group w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wider rounded-full border-2 border-primary text-white hover:bg-primary hover:text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
               >
                 <FaUserPlus className="text-base group-hover:rotate-6 transition-transform" />
-                {t("footer.register") || "Registrarse"}
+                {t("footer.account.register") || "Registrarse"}
               </Link>
             </div>
 
