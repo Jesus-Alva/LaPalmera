@@ -1,6 +1,7 @@
 import { Image, ImagesCatalog } from '@/src/types/images';
+import { getApiBaseUrl } from './client';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_URL = getApiBaseUrl();
 
 export async function getCatalogBySpace(spaceId: number): Promise<ImagesCatalog | null> {
   const res = await fetch(`${API_URL}/images/catalogs/space/${spaceId}`, {
