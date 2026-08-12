@@ -1,32 +1,48 @@
-// app/(dashboard)/layout.tsx
-'use client';
+import { redirect } from 'next/navigation';
+import { getServerToken } from '@/app/lib/auth';
+import Sidebar from '@/components/layouts/SideMenu/Sidebar';
 
-import { useRouter } from 'next/navigation';
+// Función que decodifica el token para obtener los datos del usuario (solo email y rol)
+async function getUserFromToken() {
+  const token = await getServerToken();
+  if (!token) return undefined;
 
-export default function DashboardLayout({
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    return {
+      email: payload.sub || 'usuario',
+      display_name: payload.display_name || payload.sub,
+      role: payload.role || 'editor',
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
+  const token = await getServerToken();
+  if (!token) redirect('/login');
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
-  };
+  const user = await getUserFromToken();
 
   return (
-    <div>
-      <header className="mt-20 flex justify-between items-center p-4 bg-gray-100">
-        <h1 className="text-xl font-bold">Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          Cerrar sesión
-        </button>
-      </header>
-      <main className="p-6">{children}</main>
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar user={user} />
+      <main className="flex-1 overflow-y-auto lg:ml-64 transition-all duration-300">
+        <div className="p-6">{children}</div>
+      </main>
     </div>
   );
 }

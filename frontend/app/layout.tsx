@@ -6,6 +6,7 @@ import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 import NavbarComponent from '../components/layouts/NavbarComponent';
 import FooterComponent from '../components/layouts/FooterComponent';
 import { ROUTES_IMAGES } from './constants/routes';
+import AuthCheck from '@/components/ui/AuthCheck';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
@@ -35,11 +36,15 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`}>
-
         <LanguageProvider>
-          <NavbarComponent logo={ROUTES_IMAGES.logo}/>
+          {/* Navbar solo visible en rutas públicas */}
+          <AuthCheck>
+            <NavbarComponent logo={ROUTES_IMAGES.logo} />
+          </AuthCheck>
           {children}
-          <FooterComponent />
+          <AuthCheck>
+            <FooterComponent />
+          </AuthCheck>
         </LanguageProvider>
       </body>
     </html>

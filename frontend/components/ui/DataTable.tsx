@@ -123,7 +123,7 @@ export default function DataTable<T extends Record<string, any>>({
             <p className="text-gray-500 text-lg">{emptyMessage}</p>
             {newItemLink && (
               <Link href={newItemLink} className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium">
-                Crear el primer {resourceName} →
+                Generar {resourceName} →
               </Link>
             )}
           </div>
