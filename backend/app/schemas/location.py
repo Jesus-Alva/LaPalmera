@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 from decimal import Decimal
+from datetime import datetime as DateTime
 
 class LocationBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=150)
