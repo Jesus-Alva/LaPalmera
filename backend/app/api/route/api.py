@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoint import auth, users, spaces, spaces_images, images, celebrations, locations, team_members
+from app.api.v1.endpoint import auth, users, spaces, spaces_images, images, celebrations, locations, team_members, banners
 
 api_router = APIRouter()
 
@@ -11,3 +11,4 @@ api_router.include_router(images.router, prefix="/images", tags=["Images"])
 api_router.include_router(celebrations.router, prefix="/celebrations", tags=["Celebrations"])
 api_router.include_router(locations.router, prefix="/locations", tags=["Locations"])
 api_router.include_router(team_members.router, prefix="/team-members", tags=["Team Members"])
+api_router.include_router(banners.router, prefix="/banners", tags=["Banners"])
