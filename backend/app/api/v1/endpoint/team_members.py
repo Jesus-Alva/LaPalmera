@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from app.db.session import get_db
 from app.model.team_member import TeamMember
-from app.schemas.team_member import TeamMemberCreate, TeamMemberUpdate, TeamMemberOut
+from app.schemas.team_members import TeamMemberCreate, TeamMemberUpdate, TeamMemberOut
 from app.dependencies.auth import get_current_user
 from app.model.user import User
 
