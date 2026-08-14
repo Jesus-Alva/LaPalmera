@@ -1,0 +1,10 @@
+// new/page.tsx
+import { getServerToken } from '@/app/lib/auth';
+import BannerForm from '@/components/forms/Banners/BannerForm';
+import { redirect } from 'next/dist/client/components/navigation';
+
+export default async function NewBannerPage() {
+  const token = await getServerToken();
+  if (!token) redirect('/login');
+  return <BannerForm token={token} />;
+}

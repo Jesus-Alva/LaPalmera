@@ -20,21 +20,30 @@ export async function getOrCreateCatalog(spaceId: number): Promise<ImagesCatalog
   return res.json();
 }
 
-export async function uploadImage(
-  catalogId: number,
-  file: File,
-  altText?: string
-): Promise<Image> {
+export async function uploadImage(catalogId: number, file: File, altText?: string): Promise<Image> {
+  if (!catalogId || isNaN(catalogId)) {
+    throw new Error('catalogId no es válido');
+  }
+
   const formData = new FormData();
-  formData.append('catalog_id', catalogId.toString());
-  formData.append('file', file);
-  if (altText) formData.append('alt_text', altText);
+  // IMPORTANTE: usar string para catalog_id y append con nombre exacto
+  formData.append('catalog_id', String(catalogId));
+  formData.append('file', file, file.name);
+  if (altText) {
+    formData.append('alt_text', altText);
+  }
+
+  // Debug: ver qué contiene el FormData
+  for (const pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
 
   const res = await fetch(`${API_URL}/images/upload`, {
     method: 'POST',
     body: formData,
     credentials: 'include',
   });
+
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error.detail || 'Error al subir imagen');
@@ -51,4 +60,19 @@ export async function deleteImage(imageId: number): Promise<void> {
     const error = await res.json();
     throw new Error(error.detail || 'Error al eliminar imagen');
   }
+}
+
+export async function getOrCreateCatalogForBanner(bannerId: number): Promise<ImagesCatalog> {
+  const res = await fetch(`${API_URL}/images/catalogs/banner/${bannerId}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al obtener/crear catálogo para banner');
+  }
+  return res.json();
 }

@@ -2,37 +2,61 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { uploadImage, deleteImage, getOrCreateCatalog, getCatalogBySpace } from '@/lib/api/images';
+import { uploadImage, deleteImage } from '@/lib/api/images';
+import { getOrCreateCatalog } from '@/lib/api/images';
+import { getOrCreateCatalogForBanner } from '@/lib/api/banners'; // Nueva función para banners
 import { Image } from '@/src/types/images';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 
 interface ImageUploadProps {
-  spaceId: number;
+  entityId: number;
+  entityType: 'space' | 'banner' | 'package'; // Ampliable
 }
 
-export default function ImageUpload({ spaceId }: ImageUploadProps) {
+export default function ImageUpload({ entityId, entityType }: ImageUploadProps) {
   const [images, setImages] = useState<Image[]>([]);
   const [catalogId, setCatalogId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Función para obtener/crear catálogo según el tipo de entidad
+  const getCatalog = useCallback(async (id: number) => {
+    switch (entityType) {
+      case 'space':
+        return await getOrCreateCatalog(id);
+      case 'banner':
+        return await getOrCreateCatalogForBanner(id);
+      default:
+        throw new Error(`Tipo de entidad no soportado: ${entityType}`);
+    }
+  }, [entityType]);
 
   // Cargar catálogo e imágenes al montar
   useEffect(() => {
     const loadCatalog = async () => {
       try {
-        const catalog = await getCatalogBySpace(spaceId);
+        setLoading(true);
+        const catalog = await getCatalog(entityId);
         if (catalog) {
+          console.log('✅ Catálogo cargado:', catalog.id); // Debug
           setCatalogId(catalog.id);
           setImages(catalog.images || []);
+        } else {
+          console.warn('⚠️ No se encontró catálogo para la entidad', entityId);
         }
       } catch (error) {
-        console.error('Error cargando catálogo:', error);
+        console.error('❌ Error cargando catálogo:', error);
+        setError('Error al cargar el catálogo de imágenes');
+      } finally {
+        setLoading(false);
       }
     };
     loadCatalog();
-  }, [spaceId]);
+  }, [entityId, getCatalog]);
 
+  // Manejar drag & drop
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -47,7 +71,6 @@ export default function ImageUpload({ spaceId }: ImageUploadProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       await handleUpload(files);
@@ -63,24 +86,19 @@ export default function ImageUpload({ spaceId }: ImageUploadProps) {
 
   const handleUpload = async (files: FileList) => {
     if (!catalogId) {
-      // Crear catálogo automáticamente si no existe
-      try {
-        const catalog = await getOrCreateCatalog(spaceId);
-        setCatalogId(catalog.id);
-        setImages(catalog.images || []);
-      } catch (error) {
-        alert('Error al crear catálogo');
-        return;
-      }
+      setError('No se pudo obtener el catálogo. Intenta recargar la página.');
+      return;
     }
 
     setUploading(true);
+    setError(null);
     const uploadPromises = Array.from(files).map(async (file) => {
       try {
-        const newImage = await uploadImage(catalogId!, file, file.name);
+        const newImage = await uploadImage(catalogId, file, file.name);
         setImages((prev) => [...prev, newImage]);
-      } catch (error) {
-        console.error('Error subiendo imagen:', error);
+      } catch (err: any) {
+        console.error('Error subiendo imagen:', err);
+        setError(err.message || 'Error al subir imagen');
       }
     });
     await Promise.all(uploadPromises);
@@ -93,13 +111,24 @@ export default function ImageUpload({ spaceId }: ImageUploadProps) {
       await deleteImage(imageId);
       setImages((prev) => prev.filter((img) => img.id !== imageId));
     } catch (error) {
-      alert('Error al eliminar imagen');
+      setError('Error al eliminar imagen');
+    } finally {
+      setUploading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="text-center py-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+        <p className="mt-2 text-sm text-gray-500">Cargando imágenes...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Imágenes del espacio</h3>
+      <h3 className="text-lg font-semibold">Imágenes</h3>
 
       {/* Área de drop */}
       <div
@@ -136,6 +165,8 @@ export default function ImageUpload({ spaceId }: ImageUploadProps) {
           )}
         </div>
       </div>
+
+      {error && <p className="text-red-600 text-sm">{error}</p>}
 
       {/* Grid de imágenes */}
       {images.length > 0 && (
