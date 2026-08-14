@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.model.image import Image
 from app.model.banner import Banner
 from app.model.images_catalog import ImagesCatalog
+from app.model.package import Package
 from app.schemas.image import ImageCreate, ImageOut, ImageUploadResponse
 from app.schemas.images_catalog import ImagesCatalogCreate, ImagesCatalogOut
 from app.dependencies.auth import get_current_user
@@ -174,6 +175,29 @@ def get_or_create_catalog_for_banner(
     
     # Crear nuevo catálogo
     new_catalog = ImagesCatalog(banner_id=banner_id)
+    db.add(new_catalog)
+    db.commit()
+    db.refresh(new_catalog)
+    return new_catalog
+
+@router.post("/catalogs/package/{package_id}", response_model=ImagesCatalogOut)
+def get_or_create_catalog_for_package(
+    package_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="No autorizado")
+    
+    package = db.query(Package).filter(Package.id == package_id).first()
+    if not package:
+        raise HTTPException(status_code=404, detail="Paquete no encontrado")
+    
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.package_id == package_id).first()
+    if catalog:
+        return catalog
+    
+    new_catalog = ImagesCatalog(package_id=package_id)
     db.add(new_catalog)
     db.commit()
     db.refresh(new_catalog)
