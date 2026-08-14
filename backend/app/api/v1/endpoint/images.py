@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -6,6 +7,7 @@ import shutil
 from datetime import datetime
 from app.db.session import get_db
 from app.model.image import Image
+from app.model.banner import Banner
 from app.model.images_catalog import ImagesCatalog
 from app.schemas.image import ImageCreate, ImageOut, ImageUploadResponse
 from app.schemas.images_catalog import ImagesCatalogCreate, ImagesCatalogOut
@@ -150,3 +152,29 @@ def get_images_by_catalog(
 ):
     images = db.query(Image).filter(Image.catalog_id == catalog_id).all()
     return images
+
+@router.post("/catalogs/banner/{banner_id}", response_model=ImagesCatalogOut)
+def get_or_create_catalog_for_banner(
+    banner_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="No autorizado")
+    
+    # Verificar que el banner existe
+    banner = db.query(Banner).filter(Banner.id == banner_id).first()
+    if not banner:
+        raise HTTPException(status_code=404, detail="Banner no encontrado")
+    
+    # Buscar catálogo existente
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.banner_id == banner_id).first()
+    if catalog:
+        return catalog
+    
+    # Crear nuevo catálogo
+    new_catalog = ImagesCatalog(banner_id=banner_id)
+    db.add(new_catalog)
+    db.commit()
+    db.refresh(new_catalog)
+    return new_catalog

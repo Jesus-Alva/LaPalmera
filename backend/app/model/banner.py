@@ -5,7 +5,7 @@ from app.base_class import Base
 class Banner(Base):
     __tablename__ = 'banner'
 
-    id = Column(BigInteger, primary_key=True, autoincrement=False)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
     title = Column(String(255), nullable=False)
     subtitle = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)

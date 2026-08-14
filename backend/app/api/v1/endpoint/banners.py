@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import Optional
 from app.db.session import get_db
-from app.models.banner import Banner
+from app.model.banner import Banner
+from app.model.images_catalog import ImagesCatalog
+from app.model.image import Image
 from app.schemas.banner import BannerCreate, BannerUpdate, BannerOut
 from app.dependencies.auth import get_current_user
-from app.models.user import User
+from app.model.user import User
+
 
 router = APIRouter()
 
@@ -18,18 +22,52 @@ def list_banners(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Listar banners con paginación y búsqueda opcional.
+    Listar banners con su primera imagen destacada.
     """
+    # 1. Construir consulta base
     query = db.query(Banner)
-
     if search:
-        query = query.filter(
-            Banner.title.ilike(f"%{search}%") |
-            Banner.subtitle.ilike(f"%{search}%")
-        )
+        query = query.filter(Banner.title.ilike(f"%{search}%"))
 
-    items = query.offset(skip).limit(limit).all()
-    return items
+    # 2. Obtener banners (paginados)
+    banners = query.offset(skip).limit(limit).all()
+    if not banners:
+        return []
+
+    # 3. Obtener IDs de los banners
+    banner_ids = [b.id for b in banners]
+
+    # 4. Subconsulta para obtener la primera imagen de cada banner
+    subq = (
+        db.query(
+            ImagesCatalog.banner_id,
+            Image.image_path,
+            func.row_number().over(
+                partition_by=ImagesCatalog.banner_id,
+                order_by=Image.id
+            ).label("rn")
+        )
+        .join(Image, Image.catalog_id == ImagesCatalog.id)
+        .filter(ImagesCatalog.banner_id.in_(banner_ids))
+        .subquery()
+    )
+
+    first_images = db.query(subq).filter(subq.c.rn == 1).all()
+    image_map = {row.banner_id: row.image_path for row in first_images}
+
+    # 5. Construir respuesta
+    result = []
+    for banner in banners:
+        banner_out = BannerOut(
+            id=banner.id,
+            title=banner.title,
+            subtitle=banner.subtitle,
+            description=banner.description,
+            image_url=image_map.get(banner.id)
+        )
+        result.append(banner_out)
+
+    return result
 
 @router.post("/", response_model=BannerOut, status_code=status.HTTP_201_CREATED)
 def create_banner(
@@ -37,15 +75,8 @@ def create_banner(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Crear un nuevo banner. Solo admin/editor pueden crear.
-    """
     if current_user.role not in ["admin", "editor"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permiso para crear banners"
-        )
-
+        raise HTTPException(status_code=403, detail="No autorizado")
     new_banner = Banner(**banner_data.model_dump())
     db.add(new_banner)
     db.commit()
@@ -70,23 +101,14 @@ def update_banner(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Actualizar un banner. Solo admin/editor pueden actualizar.
-    """
+    if current_user.role not in ["admin", "editor"]:
+        raise HTTPException(status_code=403, detail="No autorizado")
     banner = db.query(Banner).filter(Banner.id == banner_id).first()
     if not banner:
         raise HTTPException(status_code=404, detail="Banner no encontrado")
-
-    if current_user.role not in ["admin", "editor"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permiso para modificar banners"
-        )
-
     update_data = banner_data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(banner, key, value)
-
     db.commit()
     db.refresh(banner)
     return banner
@@ -97,18 +119,10 @@ def delete_banner(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Eliminar un banner. Solo admin puede eliminar.
-    """
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="No autorizado")
     banner = db.query(Banner).filter(Banner.id == banner_id).first()
     if not banner:
         raise HTTPException(status_code=404, detail="Banner no encontrado")
-
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permiso para eliminar banners"
-        )
-
     db.delete(banner)
     db.commit()
