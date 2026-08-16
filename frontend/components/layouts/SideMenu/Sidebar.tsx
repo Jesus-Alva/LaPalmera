@@ -15,7 +15,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ImageIcon
 } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import SidebarUser from './SidebarUser';
@@ -52,6 +53,7 @@ export default function Sidebar({ user }: SidebarProps) {
     { href: '/banners', icon: <Image size={22} />, label: 'Banners' },
     { href: '/faqs', icon: <HelpCircle size={22} />, label: 'FAQs' },
     { href: '/packages', icon: <Package size={22} />, label: 'Paquetes' },
+    { href: '/gallery/categories', icon: <ImageIcon size={22} />, label: 'Galería' },
   ];
 
   const handleLogout = async () => {
