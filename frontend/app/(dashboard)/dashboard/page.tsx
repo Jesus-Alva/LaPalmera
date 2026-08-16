@@ -1,5 +1,5 @@
 // app/(dashboard)/dashboard/page.tsx
-import { fetchProtectedData } from '@/app/lib/auth';
+import { fetchProtectedData } from '@/app/lib/auth-server';
 import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {

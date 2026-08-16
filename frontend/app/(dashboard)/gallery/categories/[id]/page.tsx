@@ -1,10 +1,9 @@
-// app/(dashboard)/gallery/categories/[id]/page.tsx
 import { redirect } from 'next/navigation';
 import { getServerToken } from '@/app/lib/auth-server';
-import { getCategory } from '@/lib/api/gallery';
-import CategoryDetail from '@/components/forms/Gallery/CategoryDetail';
+import { getGalleryCategory } from '@/lib/api/gallery';
+import GalleryImageManager from '@/components/forms/Gallery/GalleryImageManager';
 
-export default async function CategoryDetailPage({
+export default async function GalleryCategoryDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -13,7 +12,7 @@ export default async function CategoryDetailPage({
   const token = await getServerToken();
   if (!token) redirect('/login');
 
-  const category = await getCategory(Number(id), token);
+  const category = await getGalleryCategory(Number(id), token);
 
-  return <CategoryDetail category={category} />;
+  return <GalleryImageManager category={category} />;
 }

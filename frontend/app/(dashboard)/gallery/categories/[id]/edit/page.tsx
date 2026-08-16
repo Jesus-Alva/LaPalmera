@@ -1,10 +1,9 @@
-// app/(dashboard)/gallery/categories/[id]/edit/page.tsx
 import { redirect } from 'next/navigation';
 import { getServerToken } from '@/app/lib/auth-server';
-import { getCategory } from '@/lib/api/gallery';
-import CategoryForm from '@/components/forms/Gallery/CategoryForm';
+import { getGalleryCategory } from '@/lib/api/gallery';
+import GalleryCategoryForm from '@/components/forms/Gallery/GalleryCategoryForm';
 
-export default async function EditCategoryPage({
+export default async function EditGalleryCategoryPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -13,7 +12,7 @@ export default async function EditCategoryPage({
   const token = await getServerToken();
   if (!token) redirect('/login');
 
-  const category = await getCategory(Number(id), token);
+  const category = await getGalleryCategory(Number(id), token);
 
-  return <CategoryForm initialData={category} />;
+  return <GalleryCategoryForm initialData={category} />;
 }
