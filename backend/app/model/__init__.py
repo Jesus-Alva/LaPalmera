@@ -10,6 +10,8 @@ from .banner import Banner
 from .package_feature import PackageFeature
 from .location import Location
 from .team_member import TeamMember
+from .gallery_category import GalleryCategory
+from .gallery_image import GalleryImage
 
 __all__ = [
     "Base",
@@ -24,4 +26,6 @@ __all__ = [
     "PackageFeature",
     "Location",
     "TeamMember",
+    "GalleryCategory",
+    "GalleryImage",
 ]
