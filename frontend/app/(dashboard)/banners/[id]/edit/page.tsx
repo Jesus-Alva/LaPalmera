@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import { getBanner } from '@/lib/api/banners';
 import BannerForm from '@/components/forms/Banners/BannerForm';
 
@@ -14,5 +14,5 @@ export default async function EditBannerPage({
 
   const banner = await getBanner(Number(id), token);
 
-  return <BannerForm token={token} initialData={banner} />;
+  return <BannerForm initialData={banner} />;
 }

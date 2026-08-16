@@ -1,42 +1,25 @@
-// app/lib/auth.ts
-import { cookies } from 'next/headers';
+// lib/auth-client.ts
+// ✅ Solo para Client Components (no usa next/headers)
 
-// ✅ Corregido: ahora es async y usa await
-export async function getServerToken() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('access_token')?.value;
-  if (!token) {
-    console.warn('No se encontró token en cookies del servidor');
-  }
-  return token;
+export function getClientToken() {
+  // Si usaras localStorage (no recomendado para tokens sensibles)
+  // return localStorage.getItem('access_token');
+  // Pero como usas cookies HttpOnly, no puedes leer desde JS.
+  // Las peticiones desde el cliente deben usar credentials: 'include'
+  return null;
 }
 
-// ✅ Función para hacer fetch con token (también async)
-export async function fetchProtectedData<T = any>(url: string): Promise<T> {
-  const token = await getServerToken();
-  if (!token) {
-    throw new Error('No autorizado');
-  }
-
+// Función para hacer fetch desde cliente (con credentials)
+export async function fetchClientData(url: string, options?: RequestInit) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
+    ...options,
+    credentials: 'include', // <- esto envía la cookie automáticamente
   });
 
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error('Token inválido o expirado');
-    }
-    throw new Error(`Error ${response.status}: ${response.statusText}`);
+    if (response.status === 401) throw new Error('No autorizado');
+    throw new Error(`Error ${response.status}`);
   }
 
   return response.json();
-}
-
-// ✅ Opcional: función para verificar si el usuario está autenticado
-export async function isAuthenticated(): Promise<boolean> {
-  const token = await getServerToken();
-  return !!token;
 }

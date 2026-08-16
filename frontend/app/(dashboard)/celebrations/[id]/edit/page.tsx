@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import { getCelebration } from '@/lib/api/celebrations';
 import CelebrationForm from '@/components/forms/Celebrations/CelebrationsForm';
 

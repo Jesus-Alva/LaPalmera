@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import Sidebar from '@/components/layouts/SideMenu/Sidebar';
 
 // Función que decodifica el token para obtener los datos del usuario (solo email y rol)

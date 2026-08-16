@@ -1,5 +1,5 @@
 // new/page.tsx
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import BannerForm from '@/components/forms/Banners/BannerForm';
 import { redirect } from 'next/dist/client/components/navigation';
 

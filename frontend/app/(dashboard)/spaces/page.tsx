@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import { getSpaces } from '@/lib/api/spaces';
 import SpacesTable from '@/components/forms/SpaceForms/SpacesTable';
 

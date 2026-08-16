@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import { getTeamMembers } from '@/lib/api/teamMembers';
 import TeamMembersTable from '@/components/forms/TeamMembers/TeamMembersTable';
 

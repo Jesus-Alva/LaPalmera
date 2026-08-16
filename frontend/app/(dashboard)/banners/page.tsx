@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import { getBanners } from '@/lib/api/banners';
 import BannersTable from '@/components/forms/Banners/BannerTable';
 

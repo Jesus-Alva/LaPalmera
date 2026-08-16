@@ -1,4 +1,4 @@
-import { getServerToken } from '@/app/lib/auth';
+import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
 import { getSpace } from '@/lib/api/spaces';
 import SpaceForm from '@/components/forms/SpaceForms/SpaceForm';
 import { redirect } from 'next/navigation';

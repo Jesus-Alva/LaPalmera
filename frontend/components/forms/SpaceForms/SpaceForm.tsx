@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
-import { Space, SpaceCreate } from '@/lib/types';
+import { Space, SpaceCreate } from '@/src/types/space';
 import { createSpace, updateSpace } from '@/lib/api/spaces';
 import { getOrCreateCatalog, uploadImage } from '@/lib/api/images';
 

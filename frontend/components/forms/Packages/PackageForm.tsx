@@ -1,52 +1,44 @@
-// components/PackageForm.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Package, PackageCreate } from '@/src/types/package';
 import { Celebration } from '@/src/types/celebration';
 import { createPackage, updatePackage } from '@/lib/api/packages';
-import { getCelebrations } from '@/lib/api/celebrations';
-import { getServerToken } from '@/app/lib/auth';
+import { getOrCreateCatalogForPackage, uploadImage } from '@/lib/api/images';
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
 
 interface Props {
   initialData?: Package;
+  celebrations: Celebration[]; // <-- ahora viene del servidor
 }
 
-export default function PackageForm({ initialData }: Props) {
+export default function PackageForm({ initialData, celebrations }: Props) {
   const router = useRouter();
-  const [celebrations, setCelebrations] = useState<Celebration[]>([]);
-  const [loadingCelebrations, setLoadingCelebrations] = useState(true);
+
+  // Estados del formulario
   const [title, setTitle] = useState(initialData?.title || '');
   const [shortDescription, setShortDescription] = useState(initialData?.short_description || '');
   const [celebrationId, setCelebrationId] = useState<number>(initialData?.celebration_id || 0);
   const [sortOrder, setSortOrder] = useState(initialData?.sort_order || 0);
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
-  const [dataAvailableStart, setDataAvailableStart] = useState(initialData?.data_available_start || '');
-  const [dataAvailableEnd, setDataAvailableEnd] = useState(initialData?.data_available_end || '');
+  // ⚠️ Corregido: los nombres de los campos son date_available_start/end (con 'date')
+  const [dateAvailableStart, setDateAvailableStart] = useState(
+    initialData?.data_available_start ? new Date(initialData.data_available_start).toISOString().split('T')[0] : ''
+  );
+  const [dateAvailableEnd, setDateAvailableEnd] = useState(
+    initialData?.data_available_end ? new Date(initialData.data_available_end).toISOString().split('T')[0] : ''
+  );
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Estados para imágenes
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-
-  // Cargar celebraciones
-  useEffect(() => {
-    const loadCelebrations = async () => {
-      try {
-        const token = await getServerToken();
-        const data = await getCelebrations(token);
-        setCelebrations(data);
-      } catch (err) {
-        console.error('Error cargando celebraciones:', err);
-      } finally {
-        setLoadingCelebrations(false);
-      }
-    };
-    loadCelebrations();
-  }, []);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   // Manejar imágenes
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,14 +65,15 @@ export default function PackageForm({ initialData }: Props) {
         throw new Error('Selecciona una celebración');
       }
 
+      // 1. Crear/actualizar el paquete
       const data: PackageCreate = {
         title,
         short_description: shortDescription || undefined,
         celebration_id: celebrationId,
         sort_order: sortOrder,
         is_active: isActive,
-        data_available_start: dataAvailableStart || null,
-        data_available_end: dataAvailableEnd || null,
+        data_available_start: dateAvailableStart || null,
+        data_available_end: dateAvailableEnd || null,
       };
 
       let packageResult;
@@ -90,8 +83,15 @@ export default function PackageForm({ initialData }: Props) {
         packageResult = await createPackage(data);
       }
 
-      // Subir imágenes si hay (la lógica será similar a la de Spaces)
-      // Por ahora, solo guardamos el paquete (las imágenes se manejarán en otro paso)
+      // 2. Subir imágenes (si hay)
+      if (images.length > 0) {
+        setUploadingImages(true);
+        const catalog = await getOrCreateCatalogForPackage(packageResult.id);
+        for (const file of images) {
+          await uploadImage(catalog.id, file);
+        }
+        setUploadingImages(false);
+      }
 
       router.push('/packages');
       router.refresh();
@@ -109,6 +109,7 @@ export default function PackageForm({ initialData }: Props) {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Título */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">Título *</label>
           <input
@@ -121,6 +122,7 @@ export default function PackageForm({ initialData }: Props) {
           />
         </div>
 
+        {/* Descripción corta */}
         <div>
           <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">Descripción corta</label>
           <textarea
@@ -132,6 +134,7 @@ export default function PackageForm({ initialData }: Props) {
           />
         </div>
 
+        {/* Selección de celebración */}
         <div>
           <label htmlFor="celebration" className="block text-sm font-medium text-gray-700">Celebración *</label>
           <select
@@ -140,7 +143,6 @@ export default function PackageForm({ initialData }: Props) {
             value={celebrationId}
             onChange={e => setCelebrationId(Number(e.target.value))}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            disabled={loadingCelebrations}
           >
             <option value="0">Selecciona una celebración...</option>
             {celebrations.map(celebration => (
@@ -149,17 +151,17 @@ export default function PackageForm({ initialData }: Props) {
               </option>
             ))}
           </select>
-          {loadingCelebrations && <p className="text-xs text-gray-500 mt-1">Cargando celebraciones...</p>}
         </div>
 
+        {/* Fechas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Fecha de inicio (opcional)</label>
             <input
               id="startDate"
               type="date"
-              value={dataAvailableStart}
-              onChange={e => setDataAvailableStart(e.target.value)}
+              value={dateAvailableStart}
+              onChange={e => setDateAvailableStart(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
             <p className="text-xs text-gray-500 mt-1">Dejar vacío para paquetes permanentes</p>
@@ -169,14 +171,15 @@ export default function PackageForm({ initialData }: Props) {
             <input
               id="endDate"
               type="date"
-              value={dataAvailableEnd}
-              onChange={e => setDataAvailableEnd(e.target.value)}
+              value={dateAvailableEnd}
+              onChange={e => setDateAvailableEnd(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
             <p className="text-xs text-gray-500 mt-1">Dejar vacío para paquetes permanentes</p>
           </div>
         </div>
 
+        {/* Orden */}
         <div>
           <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700">Orden</label>
           <input
@@ -188,6 +191,7 @@ export default function PackageForm({ initialData }: Props) {
           />
         </div>
 
+        {/* Activo */}
         <div className="flex items-center">
           <input
             id="isActive"
@@ -199,7 +203,7 @@ export default function PackageForm({ initialData }: Props) {
           <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">Activo</label>
         </div>
 
-        {/* Área de subida de imágenes (similar a Spaces) */}
+        {/* Subida de imágenes */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Imágenes del paquete (opcional)</label>
           <div className="flex items-center gap-4">
@@ -210,12 +214,22 @@ export default function PackageForm({ initialData }: Props) {
             </label>
             <span className="text-sm text-gray-500">{images.length} archivos seleccionados</span>
           </div>
+          {uploadingImages && (
+            <div className="flex items-center gap-2 text-blue-600 text-sm mt-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
+              Subiendo imágenes...
+            </div>
+          )}
           {imagePreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-3 mt-4">
               {imagePreviews.map((url, index) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
                   <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                  <button type="button" onClick={() => removeImage(index)} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </div>
@@ -236,10 +250,10 @@ export default function PackageForm({ initialData }: Props) {
           </button>
           <button
             type="submit"
-            disabled={loading || loadingCelebrations}
+            disabled={loading || uploadingImages}
             className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            {loading ? 'Guardando...' : (initialData ? 'Actualizar' : 'Crear paquete')}
+            {loading || uploadingImages ? 'Guardando...' : (initialData ? 'Actualizar' : 'Crear paquete')}
           </button>
         </div>
       </form>
