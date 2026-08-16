@@ -7,10 +7,11 @@ export interface Package {
   sort_order: number | null;
   celebration_id: number;
   celebration_title?: string;
-  data_available_start: string | null;  // fecha ISO
-  data_available_end: string | null;
+  date_available_start: string | null;  // fecha ISO
+  date_available_end: string | null;
   image_url?: string | null;
   is_available?: boolean;
+  features: PackageFeature[];
 }
 
 export interface PackageCreate {
@@ -20,8 +21,9 @@ export interface PackageCreate {
   is_active?: boolean;
   sort_order?: number;
   celebration_id: number;
-  data_available_start?: string | null;
-  data_available_end?: string | null;
+  date_available_start?: string | null;
+  date_available_end?: string | null;
+  features?: PackageFeatureCreate[]
 }
 
 export interface PackageUpdate {
@@ -31,6 +33,18 @@ export interface PackageUpdate {
   is_active?: boolean;
   sort_order?: number;
   celebration_id?: number;
-  data_available_start?: string | null;
-  data_available_end?: string | null;
+  date_available_start?: string | null;
+  date_available_end?: string | null;
+  features?: PackageFeatureCreate[];
+}
+
+export interface PackageFeature {
+  id: number;
+  feature_key: string;
+  feature_value: string;
+}
+
+export interface PackageFeatureCreate {
+  feature_key: string;
+  feature_value: string;
 }

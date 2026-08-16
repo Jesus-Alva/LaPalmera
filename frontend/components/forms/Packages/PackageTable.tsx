@@ -1,4 +1,3 @@
-// components/PackagesTable.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -20,18 +19,13 @@ export default function PackagesTable({ initialPackages }: Props) {
     router.refresh();
   };
 
-  const formatDate = (date: string | null) => {
-    if (!date) return '—';
-    return new Date(date).toLocaleDateString('es-MX');
-  };
-
   const columns: ColumnDef<Package>[] = [
     {
       key: 'image_url',
       label: 'Imagen',
       render: (pkg) =>
         pkg.image_url ? (
-          <div className="relative w-20 h-20 rounded-md overflow-hidden">
+          <div className="relative w-12 h-12 rounded-md overflow-hidden">
             <Image
               src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${pkg.image_url}`}
               alt={pkg.title}
@@ -41,7 +35,7 @@ export default function PackagesTable({ initialPackages }: Props) {
             />
           </div>
         ) : (
-          <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xs">
+          <div className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xs">
             Sin img
           </div>
         ),
@@ -55,39 +49,19 @@ export default function PackagesTable({ initialPackages }: Props) {
     {
       key: 'celebration_title',
       label: 'Celebración',
-      render: (pkg) => pkg.celebration_title || '—',
       align: 'left',
-    },
-    {
-      key: 'date_range',
-      label: 'Vigencia',
-      render: (pkg) => {
-        if (!pkg.data_available_start && !pkg.data_available_end) return 'Permanente';
-        const start = formatDate(pkg.data_available_start);
-        const end = formatDate(pkg.data_available_end);
-        return `${start} → ${end}`;
-      },
-      align: 'center',
-    },
-    {
-      key: 'is_available',
-      label: 'Disponible',
-      render: (pkg) => (
-        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-          pkg.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {pkg.is_available ? 'Disponible' : 'No disponible'}
-        </span>
-      ),
-      align: 'center',
+      render: (pkg) => pkg.celebration_title || '—',
     },
     {
       key: 'is_active',
       label: 'Estado',
       render: (pkg) => (
-        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-          pkg.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
+        <span
+          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+            pkg.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full mr-1.5 ${pkg.is_active ? 'bg-green-500' : 'bg-red-500'}`} />
           {pkg.is_active ? 'Activo' : 'Inactivo'}
         </span>
       ),

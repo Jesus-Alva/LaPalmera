@@ -14,8 +14,8 @@ class Package(Base):
     sort_order = Column(Integer, nullable=True)
     
     # Campos de temporada
-    data_available_start = Column(Date, nullable=True)  # nullable True para paquetes permanentes
-    data_available_end = Column(Date, nullable=True)
+    date_available_start = Column(Date, nullable=True)  # nullable True para paquetes permanentes
+    date_available_end = Column(Date, nullable=True)
     
     # Relación con Celebration
     celebration_id = Column(Integer, ForeignKey('celebrations.id'), nullable=False)

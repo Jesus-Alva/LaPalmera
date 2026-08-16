@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
+import { getServerToken } from '@/app/lib/auth-server';
 import { getPackages } from '@/lib/api/packages';
 import PackagesTable from '@/components/forms/Packages/PackageTable';
 
