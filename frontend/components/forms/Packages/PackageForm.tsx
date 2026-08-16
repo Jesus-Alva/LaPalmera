@@ -1,7 +1,7 @@
 // components/PackageForm.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePersistedForm } from '@/lib/hooks/usePersistedForm';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +18,6 @@ interface Props {
   celebrations: Celebration[];
 }
 
-// Definir el tipo de datos del formulario
 interface FormData {
   title: string;
   shortDescription: string;
@@ -28,7 +27,6 @@ interface FormData {
   dateAvailableStart: string;
   dateAvailableEnd: string;
   features: { feature_key: string; feature_value: string }[];
-  // Las imágenes no se guardan en localStorage, solo en estado local
 }
 
 export default function PackageForm({ initialData, celebrations }: Props) {
@@ -36,7 +34,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
   const isEditing = !!initialData?.id;
   const storageKey = `package_form_${isEditing ? `edit_${initialData.id}` : 'new'}`;
 
-  // Datos por defecto (se usan si no hay persistencia)
   const defaultData: FormData = {
     title: initialData?.title || '',
     shortDescription: initialData?.short_description || '',
@@ -52,7 +49,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     features: initialData?.features?.map(f => ({ feature_key: f.feature_key, feature_value: f.feature_value })) || [],
   };
 
-  // Hook de persistencia
   const {
     data: persistedData,
     updateData,
@@ -60,12 +56,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     setStep,
     isRestored,
     clearPersistedData,
-    resetToDefault,
-  } = usePersistedForm<FormData>(
-    storageKey,
-    defaultData,
-    1 // paso inicial
-  );
+  } = usePersistedForm<FormData>(storageKey, defaultData, 1);
 
   // Estado local para imágenes (no se persisten)
   const [images, setImages] = useState<File[]>([]);
@@ -76,17 +67,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
 
   const totalSteps = 3;
   const stepLabels = ['Información', 'Características', 'Imágenes'];
-
-  // Cuando se carga el componente y hay datos persistentes, no hacemos nada
-  // porque el hook ya los provee.
-
-  // Sincronizar con initialData solo si no hay persistencia
-  useEffect(() => {
-    if (!isRestored && initialData) {
-      // Si no se restauró, usar initialData como base
-      // pero el hook ya tiene defaultData, así que no es necesario
-    }
-  }, [isRestored, initialData]);
 
   // Funciones para manejar cambios en campos individuales
   const handleFieldChange = (field: keyof FormData, value: any) => {
@@ -151,13 +131,25 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     return true;
   };
 
-  const nextStep = () => {
+  // Navegación con prevención de submit
+  const nextStep = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (validateStep()) {
       setStep(Math.min(step + 1, totalSteps));
     }
   };
 
-  const prevStep = () => setStep(Math.max(step - 1, 1));
+  const prevStep = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setStep(Math.max(step - 1, 1));
+  };
+
+  // Prevenir submit con Enter en los pasos 1 y 2
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === 'Enter' && step < 3) {
+      e.preventDefault();
+    }
+  };
 
   // Submit final
   const handleSubmit = async (e: React.FormEvent) => {
@@ -166,7 +158,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     setLoading(true);
 
     try {
-      // Validar paso actual antes de guardar
       if (!validateStep()) {
         setLoading(false);
         return;
@@ -176,7 +167,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         throw new Error('Selecciona una celebración');
       }
 
-      // 1. Crear/actualizar el paquete
       const data: PackageCreate = {
         title: persistedData.title,
         short_description: persistedData.shortDescription || undefined,
@@ -198,7 +188,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         packageResult = await createPackage(data);
       }
 
-      // 2. Subir imágenes (si hay)
       if (images.length > 0) {
         setUploadingImages(true);
         const catalog = await getOrCreateCatalogForPackage(packageResult.id);
@@ -208,9 +197,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         setUploadingImages(false);
       }
 
-      // 3. Limpiar persistencia después del éxito
       clearPersistedData();
-
       router.push('/packages');
       router.refresh();
     } catch (err: any) {
@@ -454,7 +441,8 @@ export default function PackageForm({ initialData, celebrations }: Props) {
 
       <MilestoneProgressBar currentStep={step} steps={stepLabels} />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Formulario con manejo de teclado */}
+      <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
         <AnimatePresence mode="wait">
           {renderStep()}
         </AnimatePresence>
@@ -469,7 +457,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
           </motion.p>
         )}
 
-        {/* Navegación entre pasos */}
+        {/* Navegación entre pasos - FUERA del formulario */}
         <div className="flex justify-between pt-4 border-t">
           <button
             type="button"

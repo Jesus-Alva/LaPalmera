@@ -1,0 +1,176 @@
+// components/forms/Packages/PackageCard.tsx
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { Package } from '@/src/types/package';
+import { deletePackage } from '@/lib/api/packages';
+import { Edit, Trash2, Calendar, CheckCircle, XCircle, Eye } from 'lucide-react';
+
+interface Props {
+  packageItem: Package;
+  onDelete?: (id: number) => void;
+}
+
+export default function PackageCard({ packageItem, onDelete }: Props) {
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleEdit = () => {
+    router.push(`/packages/${packageItem.id}/edit`);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`¿Eliminar el paquete "${packageItem.title}"?`)) return;
+    setIsDeleting(true);
+    try {
+      await deletePackage(packageItem.id);
+      if (onDelete) onDelete(packageItem.id);
+      router.refresh();
+    } catch (error) {
+      alert('Error al eliminar el paquete');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Determinar si el paquete está disponible (por fechas)
+  const isAvailable = () => {
+    if (!packageItem.date_available_start && !packageItem.date_available_end) {
+      return true; // permanente
+    }
+    const today = new Date();
+    const start = packageItem.date_available_start ? new Date(packageItem.date_available_start) : null;
+    const end = packageItem.date_available_end ? new Date(packageItem.date_available_end) : null;
+    if (start && start > today) return false;
+    if (end && end < today) return false;
+    return true;
+  };
+
+  const available = isAvailable();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
+    >
+      {/* Imagen */}
+      <div className="relative w-full pt-[60%] bg-gray-100">
+        {packageItem.image_url ? (
+          <Image
+            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${packageItem.image_url}`}
+            alt={packageItem.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+            <span className="text-sm">Sin imagen</span>
+          </div>
+        )}
+
+        {/* Badge de estado */}
+        <div className="absolute top-3 right-3 flex gap-2">
+          {packageItem.is_active && available ? (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Activo
+            </span>
+          ) : packageItem.is_active && !available ? (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+              <Calendar className="w-3 h-3 mr-1" />
+              Próximo
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <XCircle className="w-3 h-3 mr-1" />
+              Inactivo
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Contenido */}
+      <div className="p-5 flex flex-col flex-grow">
+        <h3 className="font-noto-serif font-semibold text-xl text-gray-800 line-clamp-1">
+          {packageItem.title}
+        </h3>
+
+        <p className="text-gray-600 text-sm mt-1 line-clamp-2 flex-grow">
+          {packageItem.short_description || 'Sin descripción'}
+        </p>
+
+        {/* Fechas (si existen) */}
+        {(packageItem.date_available_start || packageItem.date_available_end) && (
+          <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+            <Calendar className="w-4 h-4" />
+            {packageItem.date_available_start && (
+              <span>Desde: {new Date(packageItem.date_available_start).toLocaleDateString('es-ES')}</span>
+            )}
+            {packageItem.date_available_end && (
+              <span>Hasta: {new Date(packageItem.date_available_end).toLocaleDateString('es-ES')}</span>
+            )}
+          </div>
+        )}
+
+        {/* Características destacadas (primeras 3) */}
+        {packageItem.features && packageItem.features.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {packageItem.features.slice(0, 3).map((feature, idx) => (
+              <span
+                key={idx}
+                className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
+              >
+                {feature.feature_key}: {feature.feature_value}
+              </span>
+            ))}
+            {packageItem.features.length > 3 && (
+              <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                +{packageItem.features.length - 3} más
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Acciones */}
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+          <div className="flex gap-2">
+            <button
+              onClick={handleEdit}
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              <Edit className="w-4 h-4 mr-1" />
+              Editar
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent mr-1" />
+                  Eliminando...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Eliminar
+                </>
+              )}
+            </button>
+          </div>
+
+          <span className="text-xs text-gray-400">
+            ID: {packageItem.id}
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
