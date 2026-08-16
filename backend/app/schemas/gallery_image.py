@@ -1,21 +1,19 @@
+# app/schemas/gallery_image.py
 from pydantic import BaseModel
 from typing import Optional
 
 class GalleryImageBase(BaseModel):
-    image_path: str
     alt_text: Optional[str] = None
     sort_order: Optional[int] = 0
 
 class GalleryImageCreate(GalleryImageBase):
     category_id: int
-
-class GalleryImageUpdate(BaseModel):
-    alt_text: Optional[str] = None
-    sort_order: Optional[int] = None
+    image_path: str
 
 class GalleryImageOut(GalleryImageBase):
     id: int
     category_id: int
+    image_path: str
 
     class Config:
         from_attributes = True
