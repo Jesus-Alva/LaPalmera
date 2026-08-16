@@ -7,7 +7,10 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package } from '@/src/types/package';
 import { deletePackage } from '@/lib/api/packages';
-import { Edit, Trash2, Calendar, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  Edit, Trash2, Calendar, CheckCircle, XCircle, 
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp 
+} from 'lucide-react';
 
 interface Props {
   packageItem: Package;
@@ -19,6 +22,7 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false); // <--- NUEVO
 
   // Obtener lista de imágenes (si hay)
   const imageList = packageItem.images_url || [];
@@ -36,7 +40,6 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
   const goToImage = (index: number) => {
     setCurrentImageIndex(index);
     setIsAutoPlaying(false);
-    // Reiniciar auto-play después de 5 segundos de inactividad
     setTimeout(() => setIsAutoPlaying(true), 5000);
   };
 
@@ -70,6 +73,10 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
     }
   };
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   // Determinar si el paquete está disponible
   const isAvailable = () => {
     if (!packageItem.date_available_start && !packageItem.date_available_end) {
@@ -87,6 +94,9 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
 
   // Construir URL base para imágenes
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+
+  // Obtener características (features)
+  const features = packageItem.features || [];
 
   return (
     <motion.div
@@ -118,7 +128,6 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
               </motion.div>
             </AnimatePresence>
 
-            {/* Controles del carrusel (visibles al hacer hover) */}
             {hasMultipleImages && (
               <>
                 <button
@@ -134,7 +143,6 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
                   <ChevronRight className="w-5 h-5" />
                 </button>
 
-                {/* Indicadores de página */}
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                   {imageList.map((_, idx) => (
                     <button
@@ -179,12 +187,12 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
       </div>
 
       {/* Contenido */}
-      <div className="p-5 flex flex-col flex-grow">
+      <div className="p-5 flex flex-col grow">
         <h3 className="font-noto-serif font-semibold text-xl text-gray-800 line-clamp-1">
           {packageItem.title}
         </h3>
 
-        <p className="text-gray-600 text-sm mt-1 line-clamp-2 flex-grow">
+        <p className="text-gray-600 text-sm mt-1 line-clamp-2 grow">
           {packageItem.short_description || 'Sin descripción'}
         </p>
 
@@ -201,22 +209,53 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
           </div>
         )}
 
-        {/* Características destacadas (primeras 3) */}
-        {packageItem.features && packageItem.features.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {packageItem.features.slice(0, 3).map((feature, idx) => (
-              <span
-                key={idx}
-                className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
-              >
-                {feature.feature_key}: {feature.feature_value}
-              </span>
-            ))}
-            {packageItem.features.length > 3 && (
-              <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                +{packageItem.features.length - 3} más
-              </span>
-            )}
+        {/* Características - Vista previa */}
+        {features.length > 0 && (
+          <div className="mt-3">
+            <div className="flex flex-wrap gap-1.5">
+              {features.slice(0, 3).map((feature, idx) => (
+                <span
+                  key={idx}
+                  className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full"
+                >
+                  {feature.feature_key}: {feature.feature_value}
+                </span>
+              ))}
+              {features.length > 3 && (
+                <button
+                  onClick={toggleExpand}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded-full hover:bg-blue-200 transition-colors"
+                >
+                  +{features.length - 3} más
+                  {isExpanded ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                </button>
+              )}
+            </div>
+
+            {/* Características expandidas */}
+            <AnimatePresence>
+              {isExpanded && features.length > 3 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden mt-2"
+                >
+                  <div className="pt-2 border-t border-gray-100 space-y-1">
+                    {features.slice(3).map((feature, idx) => (
+                      <div key={idx} className="flex justify-between text-xs">
+                        <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">{feature.feature_key}:{feature.feature_value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
