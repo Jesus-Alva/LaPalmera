@@ -1,13 +1,13 @@
-// components/forms/Packages/PackageCard.tsx
+// components/packages/PackageCard.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Package } from '@/src/types/package';
 import { deletePackage } from '@/lib/api/packages';
-import { Edit, Trash2, Calendar, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Edit, Trash2, Calendar, CheckCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Props {
   packageItem: Package;
@@ -17,6 +17,40 @@ interface Props {
 export default function PackageCard({ packageItem, onDelete }: Props) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Obtener lista de imágenes (si hay)
+  const imageList = packageItem.images_url || [];
+  const hasMultipleImages = imageList.length > 1;
+
+  // Auto-play del carrusel
+  useEffect(() => {
+    if (!hasMultipleImages || !isAutoPlaying) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % imageList.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [imageList.length, hasMultipleImages, isAutoPlaying]);
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsAutoPlaying(false);
+    // Reiniciar auto-play después de 5 segundos de inactividad
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
+
+  const goPrev = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + imageList.length) % imageList.length);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
+
+  const goNext = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % imageList.length);
+    setIsAutoPlaying(false);
+    setTimeout(() => setIsAutoPlaying(true), 5000);
+  };
 
   const handleEdit = () => {
     router.push(`/packages/${packageItem.id}/edit`);
@@ -36,10 +70,10 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
     }
   };
 
-  // Determinar si el paquete está disponible (por fechas)
+  // Determinar si el paquete está disponible
   const isAvailable = () => {
     if (!packageItem.date_available_start && !packageItem.date_available_end) {
-      return true; // permanente
+      return true;
     }
     const today = new Date();
     const start = packageItem.date_available_start ? new Date(packageItem.date_available_start) : null;
@@ -51,6 +85,9 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
 
   const available = isAvailable();
 
+  // Construir URL base para imágenes
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -58,19 +95,65 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
     >
-      {/* Imagen */}
-      <div className="relative w-full pt-[60%] bg-gray-100">
-        {packageItem.image_url ? (
-          <Image
-            src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${packageItem.image_url}`}
-            alt={packageItem.title}
-            fill
-            className="object-cover"
-            unoptimized
-          />
+      {/* Carrusel de imágenes */}
+      <div className="relative w-full pt-[60%] bg-gray-100 overflow-hidden group">
+        {imageList.length > 0 ? (
+          <>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentImageIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={`${baseUrl}${imageList[currentImageIndex]}`}
+                  alt={packageItem.title}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Controles del carrusel (visibles al hacer hover) */}
+            {hasMultipleImages && (
+              <>
+                <button
+                  onClick={goPrev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={goNext}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                {/* Indicadores de página */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  {imageList.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => goToImage(idx)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        idx === currentImageIndex
+                          ? 'bg-white w-4'
+                          : 'bg-white/50 hover:bg-white/80'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-            <span className="text-sm">Sin imagen</span>
+            <span className="text-sm">Sin imágenes</span>
           </div>
         )}
 

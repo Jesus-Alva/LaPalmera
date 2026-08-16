@@ -24,9 +24,14 @@ def list_packages(
     is_active: Optional[bool] = None,
     current_user: User = Depends(get_current_user),
 ):
-    # Consulta base con join a Celebration para obtener título
-    query = db.query(Package, Celebration.title.label('celebration_title')).join(Celebration, Package.celebration_id == Celebration.id)
+    """
+    Listar paquetes con paginación, filtros, y todas sus imágenes y características.
+    """
+    # 1. Consulta base con join a Celebration para obtener título
+    query = db.query(Package, Celebration.title.label('celebration_title')) \
+              .join(Celebration, Package.celebration_id == Celebration.id)
 
+    # Aplicar filtros
     if celebration_id:
         query = query.filter(Package.celebration_id == celebration_id)
     if search:
@@ -34,39 +39,56 @@ def list_packages(
     if is_active is not None:
         query = query.filter(Package.is_active == is_active)
 
+    # Paginación
     results = query.offset(skip).limit(limit).all()
     if not results:
         return []
 
-    # Obtener imágenes destacadas
+    # 2. Extraer IDs de los paquetes
     package_ids = [p.id for p, _ in results]
-    subq = (
+
+    # 3. Obtener TODAS las imágenes agrupadas por package_id
+    #    Usamos una subconsulta con ROW_NUMBER para ordenar, pero luego agrupamos todas.
+    images_subq = (
         db.query(
             ImagesCatalog.package_id,
             Image.image_path,
             func.row_number().over(
                 partition_by=ImagesCatalog.package_id,
-                order_by=Image.id
+                order_by=Image.id  # Ordenadas por ID (más antigua primero)
             ).label("rn")
         )
         .join(Image, Image.catalog_id == ImagesCatalog.id)
         .filter(ImagesCatalog.package_id.in_(package_ids))
         .subquery()
     )
-    first_images = db.query(subq).filter(subq.c.rn == 1).all()
-    image_map = {row.package_id: row.image_path for row in first_images}
 
-    # Obtener features (opcional: hacer una segunda consulta para traer todas)
-    # Para evitar N+1, podemos hacer un join con PackageFeature, pero por simplicidad,
-    # usaremos una consulta separada.
-    from app.model.package_feature import PackageFeature
+    # Obtenemos todas las filas (todas las imágenes)
+    all_images = db.query(images_subq).all()
+    
+    # Diccionarios para almacenar imágenes
+    images_map = {}      # package_id -> list of image_paths (todas)
+    first_image_map = {} # package_id -> first image (destacada)
+
+    for row in all_images:
+        pkg_id = row.package_id
+        if pkg_id not in images_map:
+            images_map[pkg_id] = []
+        images_map[pkg_id].append(row.image_path)
+        # La primera imagen es la de rn=1 (la más antigua)
+        if row.rn == 1:
+            first_image_map[pkg_id] = row.image_path
+
+    # 4. Obtener todas las características agrupadas por package_id
     features_map = {}
     if package_ids:
-        feature_rows = db.query(PackageFeature).filter(PackageFeature.package_id.in_(package_ids)).all()
+        feature_rows = db.query(PackageFeature).filter(
+            PackageFeature.package_id.in_(package_ids)
+        ).all()
         for f in feature_rows:
             features_map.setdefault(f.package_id, []).append(f)
 
-    # Construir respuesta
+    # 5. Construir respuesta
     result = []
     for package, celebration_title in results:
         package_out = PackageOut(
@@ -78,13 +100,11 @@ def list_packages(
             date_available_start=package.date_available_start,
             date_available_end=package.date_available_end,
             celebration_id=package.celebration_id,
-            image_url=image_map.get(package.id),
             celebration_title=celebration_title,
-            features=[],  # Lo llenaremos abajo
+            image_url=first_image_map.get(package.id),          # primera imagen (destacada)
+            images_url=images_map.get(package.id, []),          # todas las imágenes
+            features=features_map.get(package.id, []),
         )
-        # Asignar features
-        if package.id in features_map:
-            package_out.features = features_map[package.id]
         result.append(package_out)
 
     return result
