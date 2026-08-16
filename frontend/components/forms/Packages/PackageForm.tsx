@@ -1,15 +1,20 @@
-// components/PackageForm.tsx
+// components/forms/Packages/PackageForm.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePersistedForm } from '@/lib/hooks/usePersistedForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, PackageCreate } from '@/src/types/package';
 import { Celebration } from '@/src/types/celebration';
 import { createPackage, updatePackage } from '@/lib/api/packages';
-import { getOrCreateCatalogForPackage, uploadImage } from '@/lib/api/images';
-import { Upload, X, Plus } from 'lucide-react';
+import {
+  getOrCreateCatalogForPackage,
+  uploadImage,
+  deleteImage,
+  getCatalogByPackageId,
+} from '@/lib/api/images';
+import { Upload, X, Plus, ImageIcon, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import MilestoneProgressBar from '@/components/ui/MilestoneProgressBar';
 
@@ -33,7 +38,23 @@ export default function PackageForm({ initialData, celebrations }: Props) {
   const router = useRouter();
   const isEditing = !!initialData?.id;
   const storageKey = `package_form_${isEditing ? `edit_${initialData.id}` : 'new'}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
 
+  // ============ ESTADOS ============
+  const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [error, setError] = useState('');
+
+  // Estado para imágenes existentes
+  const [existingImages, setExistingImages] = useState<{ id: number; url: string; alt: string }[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+  const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
+
+  // Estado para nuevas imágenes (seleccionadas desde el input)
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
+
+  // Estado principal del formulario (persistente)
   const defaultData: FormData = {
     title: initialData?.title || '',
     shortDescription: initialData?.short_description || '',
@@ -58,22 +79,84 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     clearPersistedData,
   } = usePersistedForm<FormData>(storageKey, defaultData, 1);
 
-  // Estado local para imágenes (no se persisten)
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const [error, setError] = useState('');
-
   const totalSteps = 3;
   const stepLabels = ['Información', 'Características', 'Imágenes'];
 
-  // Funciones para manejar cambios en campos individuales
-  const handleFieldChange = (field: keyof FormData, value: any) => {
-    updateData({ [field]: value });
+  // ============ FUNCIONES AUXILIARES (declaradas antes del useEffect) ============
+
+  const loadExistingImages = async (packageId: number) => {
+    setLoadingImages(true);
+    try {
+      const catalog = await getCatalogByPackageId(packageId);
+      if (catalog && catalog.images) {
+        const images = catalog.images.map((img: any) => ({
+          id: img.id,
+          url: `${baseUrl}${img.image_path}`,
+          alt: img.alt_text || 'Imagen del paquete',
+        }));
+        setExistingImages(images);
+      } else {
+        setExistingImages([]);
+      }
+    } catch (error) {
+      console.error('Error cargando imágenes:', error);
+    } finally {
+      setLoadingImages(false);
+    }
   };
 
-  // Funciones para características
+  // ============ EFFECTS ============
+
+  // Cargar imágenes existentes al editar
+  useEffect(() => {
+    if (isEditing && initialData?.id) {
+      const fetchImages = async () => {
+        setLoadingImages(true);
+        try {
+          const catalog = await getCatalogByPackageId(initialData.id);
+          if (catalog && catalog.images) {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+            const images = catalog.images.map(img => ({
+              id: img.id,
+              url: `${baseUrl}${img.image_path}`,
+              alt: img.alt_text || 'Imagen del paquete',
+            }));
+            setExistingImages(images);
+          }
+        } catch (error) {
+          console.error('Error cargando imágenes:', error);
+        } finally {
+          setLoadingImages(false);
+        }
+      };
+      fetchImages();
+    }
+  }, [isEditing, initialData?.id]);
+
+  // ============ MANEJO DE IMÁGENES ============
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newFiles = Array.from(files);
+    const newPreviews = newFiles.map(f => URL.createObjectURL(f));
+    setNewImages(prev => [...prev, ...newFiles]);
+    setNewImagePreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages(prev => prev.filter((_, i) => i !== index));
+    setNewImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const markImageForDeletion = (imageId: number) => {
+    if (!confirm('¿Eliminar esta imagen permanentemente?')) return;
+    setImagesToDelete(prev => [...prev, imageId]);
+    setExistingImages(prev => prev.filter(img => img.id !== imageId));
+  };
+
+  // ============ MANEJO DE CARACTERÍSTICAS ============
+
   const addFeature = () => {
     const updatedFeatures = [...persistedData.features, { feature_key: '', feature_value: '' }];
     updateData({ features: updatedFeatures });
@@ -90,22 +173,8 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     updateData({ features: updated });
   };
 
-  // Funciones para imágenes
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    const newFiles = Array.from(files);
-    const newPreviews = newFiles.map(f => URL.createObjectURL(f));
-    setImages(prev => [...prev, ...newFiles]);
-    setImagePreviews(prev => [...prev, ...newPreviews]);
-  };
+  // ============ VALIDACIÓN Y NAVEGACIÓN ============
 
-  const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Validación por pasos
   const validateStep = (): boolean => {
     setError('');
     if (step === 1) {
@@ -131,27 +200,26 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     return true;
   };
 
-  // Navegación con prevención de submit
-  const nextStep = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const nextStep = (e: React.MouseEvent) => {
     e.preventDefault();
     if (validateStep()) {
       setStep(Math.min(step + 1, totalSteps));
     }
   };
 
-  const prevStep = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const prevStep = (e: React.MouseEvent) => {
     e.preventDefault();
     setStep(Math.max(step - 1, 1));
   };
 
-  // Prevenir submit con Enter en los pasos 1 y 2
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === 'Enter' && step < 3) {
       e.preventDefault();
     }
   };
 
-  // Submit final
+  // ============ SUBMIT ============
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -167,6 +235,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         throw new Error('Selecciona una celebración');
       }
 
+      // 1. Crear/actualizar el paquete
       const data: PackageCreate = {
         title: persistedData.title,
         short_description: persistedData.shortDescription || undefined,
@@ -188,26 +257,36 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         packageResult = await createPackage(data);
       }
 
-      if (images.length > 0) {
+      // 2. Eliminar imágenes marcadas (solo en edición)
+      if (isEditing && imagesToDelete.length > 0) {
+        for (const imageId of imagesToDelete) {
+          await deleteImage(imageId);
+        }
+      }
+
+      // 3. Subir nuevas imágenes
+      if (newImages.length > 0) {
         setUploadingImages(true);
         const catalog = await getOrCreateCatalogForPackage(packageResult.id);
-        for (const file of images) {
+        for (const file of newImages) {
           await uploadImage(catalog.id, file);
         }
         setUploadingImages(false);
       }
 
+      // 4. Limpiar persistencia y redirigir
       clearPersistedData();
       router.push('/packages');
       router.refresh();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Error al guardar el paquete');
     } finally {
       setLoading(false);
     }
   };
 
-  // Renderizar cada paso
+  // ============ RENDER POR PASOS ============
+
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -220,7 +299,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
             className="space-y-6"
           >
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">Título *</label>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                Título *
+              </label>
               <input
                 id="title"
                 type="text"
@@ -232,7 +313,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
             </div>
 
             <div>
-              <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">Descripción corta</label>
+              <label htmlFor="shortDescription" className="block text-sm font-medium text-gray-700">
+                Descripción corta
+              </label>
               <textarea
                 id="shortDescription"
                 rows={3}
@@ -243,7 +326,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
             </div>
 
             <div>
-              <label htmlFor="celebration" className="block text-sm font-medium text-gray-700">Celebración *</label>
+              <label htmlFor="celebration" className="block text-sm font-medium text-gray-700">
+                Celebración *
+              </label>
               <select
                 id="celebration"
                 required
@@ -262,7 +347,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Fecha de inicio (opcional)</label>
+                <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                  Fecha de inicio (opcional)
+                </label>
                 <input
                   id="startDate"
                   type="date"
@@ -273,7 +360,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
                 <p className="text-xs text-gray-500 mt-1">Dejar vacío para paquetes permanentes</p>
               </div>
               <div>
-                <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">Fecha de fin (opcional)</label>
+                <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+                  Fecha de fin (opcional)
+                </label>
                 <input
                   id="endDate"
                   type="date"
@@ -286,7 +375,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
             </div>
 
             <div>
-              <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700">Orden</label>
+              <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700">
+                Orden
+              </label>
               <input
                 id="sortOrder"
                 type="number"
@@ -304,7 +395,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
                 onChange={e => handleFieldChange('isActive', e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">Activo</label>
+              <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
+                Activo
+              </label>
             </div>
           </motion.div>
         );
@@ -331,7 +424,9 @@ export default function PackageForm({ initialData, celebrations }: Props) {
             </div>
 
             {persistedData.features.length === 0 && (
-              <p className="text-gray-500 text-sm text-center py-8">No hay características agregadas. Haz clic en "Añadir" para comenzar.</p>
+              <p className="text-gray-500 text-sm text-center py-8">
+                No hay características agregadas. Haz clic en "Añadir" para comenzar.
+              </p>
             )}
 
             <AnimatePresence>
@@ -348,7 +443,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
                     <input
                       type="text"
                       value={feature.feature_key}
-                      onChange={(e) => updateFeature(index, 'feature_key', e.target.value)}
+                      onChange={e => updateFeature(index, 'feature_key', e.target.value)}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ej: Capacidad"
                     />
@@ -358,7 +453,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
                     <input
                       type="text"
                       value={feature.feature_value}
-                      onChange={(e) => updateFeature(index, 'feature_value', e.target.value)}
+                      onChange={e => updateFeature(index, 'feature_value', e.target.value)}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ej: 100 personas"
                     />
@@ -383,42 +478,95 @@ export default function PackageForm({ initialData, celebrations }: Props) {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
+            className="space-y-6"
           >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Imágenes del paquete (opcional)</label>
-              <div className="flex items-center gap-4">
-                <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Seleccionar imágenes
-                  <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageSelect} />
-                </label>
-                <span className="text-sm text-gray-500">{images.length} archivos seleccionados</span>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Imágenes del paquete
+              </label>
 
-              {uploadingImages && (
-                <div className="flex items-center gap-2 text-blue-600 text-sm mt-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
-                  Subiendo imágenes...
-                </div>
-              )}
-
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 mt-4">
-                  {imagePreviews.map((url, index) => (
-                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
-                      <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
+              {/* Imágenes existentes (solo en edición) */}
+              {isEditing && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-600 mb-2">Imágenes actuales</h4>
+                  {loadingImages ? (
+                    <div className="flex items-center gap-2 text-gray-500 text-sm">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-transparent" />
+                      Cargando imágenes...
                     </div>
-                  ))}
+                  ) : existingImages.length === 0 ? (
+                    <p className="text-sm text-gray-400">No hay imágenes registradas</p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3">
+                      {existingImages.map((img) => (
+                        <div
+                          key={img.id}
+                          className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group"
+                        >
+                          <img
+                            src={img.url}
+                            alt={img.alt}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => markImageForDeletion(img.id)}
+                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                          <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-2 py-0.5 rounded">
+                            ID: {img.id}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* Subida de nuevas imágenes */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-600 mb-2">
+                  {isEditing ? 'Agregar nuevas imágenes' : 'Seleccionar imágenes'}
+                </h4>
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <Upload className="mr-2 h-4 w-4" />
+                    {isEditing ? 'Agregar imágenes' : 'Seleccionar imágenes'}
+                    <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageSelect} />
+                  </label>
+                  <span className="text-sm text-gray-500">{newImages.length} archivos seleccionados</span>
+                </div>
+
+                {uploadingImages && (
+                  <div className="flex items-center gap-2 text-blue-600 text-sm mt-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
+                    Subiendo imágenes...
+                  </div>
+                )}
+
+                {/* Previsualización de nuevas imágenes */}
+                {newImagePreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    {newImagePreviews.map((url, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-gray-200"
+                      >
+                        <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeNewImage(index)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         );
@@ -428,9 +576,15 @@ export default function PackageForm({ initialData, celebrations }: Props) {
     }
   };
 
+  const handleFieldChange = (field: keyof FormData, value: any) => {
+    updateData({ [field]: value });
+  };
+
+  // ============ RENDER PRINCIPAL ============
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6">
+      <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
         {initialData ? 'Editar paquete' : 'Nuevo paquete'}
         {isRestored && (
           <span className="ml-2 text-sm text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
@@ -441,11 +595,8 @@ export default function PackageForm({ initialData, celebrations }: Props) {
 
       <MilestoneProgressBar currentStep={step} steps={stepLabels} />
 
-      {/* Formulario con manejo de teclado */}
       <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
-        <AnimatePresence mode="wait">
-          {renderStep()}
-        </AnimatePresence>
+        <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
 
         {error && (
           <motion.p
@@ -457,12 +608,13 @@ export default function PackageForm({ initialData, celebrations }: Props) {
           </motion.p>
         )}
 
-        {/* Navegación entre pasos - FUERA del formulario */}
+        {/* Navegación entre pasos */}
         <div className="flex justify-between pt-4 border-t">
           <button
             type="button"
             onClick={prevStep}
-            className={`px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ${step === 1 ? 'invisible' : ''}`}
+            className={`px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 ${step === 1 ? 'invisible' : ''
+              }`}
           >
             Anterior
           </button>
@@ -482,7 +634,7 @@ export default function PackageForm({ initialData, celebrations }: Props) {
                 disabled={loading || uploadingImages}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
               >
-                {loading || uploadingImages ? 'Guardando...' : (initialData ? 'Actualizar' : 'Crear paquete')}
+                {loading || uploadingImages ? 'Guardando...' : initialData ? 'Actualizar' : 'Crear paquete'}
               </button>
             )}
 

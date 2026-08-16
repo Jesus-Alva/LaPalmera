@@ -202,3 +202,14 @@ def get_or_create_catalog_for_package(
     db.commit()
     db.refresh(new_catalog)
     return new_catalog
+
+@router.get("/catalogs/package/{package_id}", response_model=ImagesCatalogOut)
+def get_catalog_by_package(
+    package_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.package_id == package_id).first()
+    if not catalog:
+        raise HTTPException(status_code=404, detail="Catálogo no encontrado")
+    return catalog

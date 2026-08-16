@@ -89,3 +89,15 @@ export async function getOrCreateCatalogForPackage(packageId: number): Promise<I
   }
   return res.json();
 }
+
+export async function getCatalogByPackageId(packageId: number): Promise<ImagesCatalog | null> {
+  const res = await fetch(`${API_URL}/images/catalogs/package/${packageId}`, {
+    credentials: 'include',
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al obtener catálogo');
+  }
+  return res.json();
+}
