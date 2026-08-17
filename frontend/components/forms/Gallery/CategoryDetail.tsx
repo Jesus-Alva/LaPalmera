@@ -76,7 +76,7 @@ export default function CategoryDetail({ category }: Props) {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => router.push('/gallery/categories')}
+            onClick={() => router.push('/gallery_image/categories')}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Volver

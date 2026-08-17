@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GalleryCategory, GalleryCategoryCreate } from '@/src/types/gallery';
-import { createCategory, updateCategory } from '@/lib/api/gallery';
+import { createGalleryCategory, updateGalleryCategory } from '@/lib/api/gallery';
 
 interface Props {
   initialData?: GalleryCategory;
@@ -46,12 +46,12 @@ export default function CategoryForm({ initialData }: Props) {
       };
 
       if (initialData) {
-        await updateCategory(initialData.id, data);
+        await updateGalleryCategory(initialData.id, data);
       } else {
-        await createCategory(data);
+        await createGalleryCategory(data);
       }
 
-      router.push('/gallery/categories');
+      router.push('/gallery_image/categories');
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -107,7 +107,7 @@ export default function CategoryForm({ initialData }: Props) {
         <div className="flex justify-end space-x-4">
           <button
             type="button"
-            onClick={() => router.push('/gallery/categories')}
+            onClick={() => router.push('/gallery_image/categories')}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
           >
             Cancelar

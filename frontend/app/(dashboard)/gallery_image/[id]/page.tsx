@@ -12,7 +12,12 @@ export default async function GalleryCategoryDetailPage({
   const token = await getServerToken();
   if (!token) redirect('/login');
 
-  const category = await getGalleryCategory(Number(id), token);
+  const categoryId = Number(id);
+  if (isNaN(categoryId)) {
+    throw new Error('ID inválido');
+  }
+
+  const category = await getGalleryCategory(categoryId, token);
 
   return <GalleryImageManager category={category} />;
 }

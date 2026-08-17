@@ -29,8 +29,22 @@ async function fetchWithAuth<T>(
 
   const res = await fetch(url, fetchOptions);
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: 'Error desconocido' }));
-    throw new Error(error.detail || 'Error en la petición');
+    let errorMessage = `Error ${res.status}: ${res.statusText}`;
+    try {
+      const errorData = await res.json();
+      // Si errorData.detail es string, usarlo; si es objeto, serializarlo
+      if (typeof errorData.detail === 'string') {
+        errorMessage = errorData.detail;
+      } else if (typeof errorData.detail === 'object' && errorData.detail !== null) {
+        errorMessage = JSON.stringify(errorData.detail);
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+      }
+    } catch (e) {
+      // Si no se puede parsear JSON, usar el texto de estado
+      errorMessage = `Error ${res.status}: ${res.statusText}`;
+    }
+    throw new Error(errorMessage);
   }
   return res.json();
 }
