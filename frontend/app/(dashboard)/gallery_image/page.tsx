@@ -116,7 +116,7 @@ export default function GalleryPage() {
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Subir imagen
+          Subir imagen o crear categoria
         </button>
       </div>
 
