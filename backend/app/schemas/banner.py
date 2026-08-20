@@ -3,8 +3,8 @@ from typing import Optional
 
 class BannerBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
-    subtitle: str = Field(..., min_length=1, max_length=255)
-    description: str = Field(..., min_length=1, max_length=255)
+    subtitle: Optional[str] = Field(None, max_length=255)
+    description: Optional[str] = Field(None, max_length=255)
 
 class BannerCreate(BannerBase):
     pass

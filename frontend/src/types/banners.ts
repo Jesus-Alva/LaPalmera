@@ -1,15 +1,15 @@
 export interface Banner {
   id: number;
   title: string;
-  subtitle: string;
-  description: string;
+  subtitle: string | null;
+  description: string | null;
   image_url?: string | null;
 }
 
 export interface BannerCreate {
   title: string;
-  subtitle: string;
-  description: string;
+  subtitle?: string;
+  description?: string;
 }
 
 export interface BannerUpdate {

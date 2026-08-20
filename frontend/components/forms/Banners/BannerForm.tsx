@@ -81,7 +81,11 @@ export default function BannerForm({ initialData }: Props) {
 
     try {
       let banner;
-      const data: BannerCreate = { title, subtitle, description };
+      const data: BannerCreate = {
+        title,
+        subtitle: subtitle.trim() || undefined,
+        description: description.trim() || undefined,
+      };
 
       if (initialData) {
         banner = await updateBanner(initialData.id, data);
@@ -118,12 +122,12 @@ export default function BannerForm({ initialData }: Props) {
           <input id="title" type="text" required value={title} onChange={e => setTitle(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <div>
-          <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700">Subtítulo *</label>
-          <input id="subtitle" type="text" required value={subtitle} onChange={e => setSubtitle(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+          <label htmlFor="subtitle" className="block text-sm font-medium text-gray-700">Subtítulo</label>
+          <input id="subtitle" type="text" value={subtitle} onChange={e => setSubtitle(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descripción *</label>
-          <textarea id="description" rows={4} required value={description} onChange={e => setDescription(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea id="description" rows={4} value={description} onChange={e => setDescription(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
         </div>
 
         {/* Área de subida de imágenes */}
