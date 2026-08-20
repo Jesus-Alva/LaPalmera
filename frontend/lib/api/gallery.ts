@@ -1,137 +1,102 @@
-// lib/api/gallery.ts
-import { GalleryCategory, GalleryCategoryCreate, GalleryCategoryUpdate, GalleryImage } from '@/src/types/gallery';
+import { GalleryCategory, GalleryImage, GalleryCategoryCreate, GalleryCategoryUpdate, GalleryImageUpdate } from '@/src/types/gallery';
 import { getApiBaseUrl } from './client';
 
 const API_URL = getApiBaseUrl();
 
 // ============ CATEGORÍAS ============
-// Helper para hacer fetch con token opcional
-async function fetchWithAuth<T>(
-  url: string,
-  options: RequestInit = {},
-  token?: string
-): Promise<T> {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(options.headers || {}),
-  };
+export async function getCategories(token?: string): Promise<GalleryCategory[]> {
+  const res = await fetch(`${API_URL}/gallery/categories`, {
+    ...(token ? { headers: { 'Authorization': `Bearer ${token}` } } : {}),
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Error al cargar categorías');
+  return res.json();
+}
 
-  const fetchOptions: RequestInit = {
-    ...options,
-    headers,
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  } else {
-    fetchOptions.credentials = 'include';
-  }
-
-  const res = await fetch(url, fetchOptions);
+export async function createCategory(data: GalleryCategoryCreate): Promise<GalleryCategory> {
+  const res = await fetch(`${API_URL}/gallery/categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
   if (!res.ok) {
-    let errorMessage = `Error ${res.status}: ${res.statusText}`;
-    try {
-      const errorData = await res.json();
-      // Si errorData.detail es string, usarlo; si es objeto, serializarlo
-      if (typeof errorData.detail === 'string') {
-        errorMessage = errorData.detail;
-      } else if (typeof errorData.detail === 'object' && errorData.detail !== null) {
-        errorMessage = JSON.stringify(errorData.detail);
-      } else if (errorData.message) {
-        errorMessage = errorData.message;
-      }
-    } catch (e) {
-      // Si no se puede parsear JSON, usar el texto de estado
-      errorMessage = `Error ${res.status}: ${res.statusText}`;
-    }
-    throw new Error(errorMessage);
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al crear categoría');
   }
   return res.json();
 }
 
-// ============ CATEGORÍAS ============
-export async function getGalleryCategories(
-  params?: { skip?: number; limit?: number; search?: string },
-  token?: string
-): Promise<GalleryCategory[]> {
-  const query = new URLSearchParams();
-  if (params?.skip) query.append('skip', params.skip.toString());
-  if (params?.limit) query.append('limit', params.limit.toString());
-  if (params?.search) query.append('search', params.search);
-  const url = `${API_URL}/gallery-categories?${query.toString()}`;
-  return fetchWithAuth(url, { method: 'GET' }, token);
-}
-
-export async function getGalleryCategory(id: number, token?: string): Promise<GalleryCategory> {
-  const url = `${API_URL}/gallery-categories/${id}`;
-  return fetchWithAuth(url, { method: 'GET' }, token);
-}
-
-export async function createGalleryCategory(data: GalleryCategoryCreate, token?: string): Promise<GalleryCategory> {
-  const url = `${API_URL}/gallery-categories`;
-  return fetchWithAuth(url, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }, token);
-}
-
-export async function updateGalleryCategory(id: number, data: GalleryCategoryUpdate, token?: string): Promise<GalleryCategory> {
-  const url = `${API_URL}/gallery-categories/${id}`;
-  return fetchWithAuth(url, {
+export async function updateCategory(id: number, data: GalleryCategoryUpdate): Promise<GalleryCategory> {
+  const res = await fetch(`${API_URL}/gallery/categories/${id}`, {
     method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data),
-  }, token);
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al actualizar categoría');
+  }
+  return res.json();
 }
 
-export async function deleteGalleryCategory(id: number, token?: string): Promise<void> {
-  const url = `${API_URL}/gallery-categories/${id}`;
-  await fetchWithAuth(url, { method: 'DELETE' }, token);
+export async function deleteCategory(id: number): Promise<void> {
+  const res = await fetch(`${API_URL}/gallery/categories/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al eliminar categoría');
+  }
 }
 
 // ============ IMÁGENES ============
-export async function uploadGalleryImage(categoryId: number, file: File, altText?: string, token?: string): Promise<GalleryImage> {
-  const formData = new FormData();
-  formData.append('category_id', categoryId.toString());
-  formData.append('file', file);
-  if (altText) formData.append('alt_text', altText);
+export async function getImages(token: string | undefined, categoryId?: number): Promise<GalleryImage[]> {
+  const query = categoryId ? `?category_id=${categoryId}` : '';
+  const res = await fetch(`${API_URL}/gallery/images${query}`, {
+    ...(token ? { headers: { 'Authorization': `Bearer ${token}` } } : {}),
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Error al cargar imágenes');
+  return res.json();
+}
 
-  const url = `${API_URL}/gallery-images`;
-  const headers: HeadersInit = {};
-  const fetchOptions: RequestInit = {
+export async function uploadImage(formData: FormData): Promise<GalleryImage> {
+  const res = await fetch(`${API_URL}/gallery/images`, {
     method: 'POST',
     body: formData,
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-    fetchOptions.headers = headers;
-  } else {
-    fetchOptions.credentials = 'include';
-  }
-
-  const res = await fetch(url, fetchOptions);
+    credentials: 'include',
+  });
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: 'Error al subir imagen' }));
+    const error = await res.json();
     throw new Error(error.detail || 'Error al subir imagen');
   }
   return res.json();
 }
 
-export async function deleteGalleryImage(imageId: number, token?: string): Promise<void> {
-  const url = `${API_URL}/gallery-images/${imageId}`;
-  const headers: HeadersInit = {};
-  const fetchOptions: RequestInit = { method: 'DELETE' };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-    fetchOptions.headers = headers;
-  } else {
-    fetchOptions.credentials = 'include';
-  }
-
-  const res = await fetch(url, fetchOptions);
+export async function updateImage(id: number, data: GalleryImageUpdate): Promise<GalleryImage> {
+  const res = await fetch(`${API_URL}/gallery/images/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: 'Error al eliminar imagen' }));
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al actualizar imagen');
+  }
+  return res.json();
+}
+
+export async function deleteImage(id: number): Promise<void> {
+  const res = await fetch(`${API_URL}/gallery/images/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const error = await res.json();
     throw new Error(error.detail || 'Error al eliminar imagen');
   }
 }

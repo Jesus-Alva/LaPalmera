@@ -91,6 +91,23 @@ Aplicar migraciones
 docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
 ```
 
+Despues de un Down ejecuta para levantar de nuevo tu BD
+#### En caso de tener dos Head:
+```bash
+# Ver las cabezas
+docker compose -f docker-compose.dev.yml exec web python -m alembic heads
+
+# Fusionar (reemplaza `head1` y `head2` con los identificadores que obtuviste)
+docker compose -f docker-compose.dev.yml exec web python -m alembic merge <head1> <head2> -m "merge heads"
+# O simplemente:
+docker compose -f docker-compose.dev.yml exec web python -m alembic merge heads -m "merge heads"
+```
+O simplemente:
+```bash
+# Aplica
+docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
+```
+
 ### Ingresa a PostgresSQL con el comando: docker exec -it postgres-palmera-dev psql -U lapalmera -d lapalmera
 
 # Nota: Despues de ejecutar las migraciones
