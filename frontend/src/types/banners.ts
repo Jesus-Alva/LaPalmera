@@ -4,6 +4,7 @@ export interface Banner {
   subtitle: string | null;
   description: string | null;
   image_url?: string | null;
+  images_url?: string[];
 }
 
 export interface BannerCreate {

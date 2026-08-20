@@ -37,7 +37,7 @@ def list_banners(
     # 3. Obtener IDs de los banners
     banner_ids = [b.id for b in banners]
 
-    # 4. Subconsulta para obtener la primera imagen de cada banner
+    # 4. Subconsulta para obtener TODAS las imágenes de cada banner, ordenadas
     subq = (
         db.query(
             ImagesCatalog.banner_id,
@@ -52,8 +52,15 @@ def list_banners(
         .subquery()
     )
 
-    first_images = db.query(subq).filter(subq.c.rn == 1).all()
-    image_map = {row.banner_id: row.image_path for row in first_images}
+    all_images = db.query(subq).all()
+
+    images_map = {}      # banner_id -> lista de todas las imágenes
+    first_image_map = {} # banner_id -> primera imagen (destacada)
+
+    for row in all_images:
+        images_map.setdefault(row.banner_id, []).append(row.image_path)
+        if row.rn == 1:
+            first_image_map[row.banner_id] = row.image_path
 
     # 5. Construir respuesta
     result = []
@@ -63,7 +70,8 @@ def list_banners(
             title=banner.title,
             subtitle=banner.subtitle,
             description=banner.description,
-            image_url=image_map.get(banner.id)
+            image_url=first_image_map.get(banner.id),
+            images_url=images_map.get(banner.id, []),
         )
         result.append(banner_out)
 
@@ -92,7 +100,23 @@ def get_banner(
     banner = db.query(Banner).filter(Banner.id == banner_id).first()
     if not banner:
         raise HTTPException(status_code=404, detail="Banner no encontrado")
-    return banner
+
+    images = []
+    catalog = db.query(ImagesCatalog).filter(ImagesCatalog.banner_id == banner_id).first()
+    if catalog:
+        images = [
+            img.image_path
+            for img in db.query(Image).filter(Image.catalog_id == catalog.id).order_by(Image.id).all()
+        ]
+
+    return BannerOut(
+        id=banner.id,
+        title=banner.title,
+        subtitle=banner.subtitle,
+        description=banner.description,
+        image_url=images[0] if images else None,
+        images_url=images,
+    )
 
 @router.put("/{banner_id}", response_model=BannerOut)
 def update_banner(
