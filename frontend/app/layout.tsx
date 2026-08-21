@@ -5,6 +5,7 @@ import './globals.css';
 import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 import NavbarComponent from '../components/layouts/NavbarComponent';
 import FooterComponent from '../components/layouts/FooterComponent';
+import SocialBubbles from '../components/ui/SocialBubbles';
 import { ROUTES_IMAGES } from './constants/routes';
 import AuthCheck from '@/components/ui/AuthCheck';
 
@@ -37,9 +38,12 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
         <LanguageProvider>
-          {/* Navbar solo visible en rutas públicas */}
+          {/* Navbar, burbujas de redes sociales y Footer solo visibles en rutas públicas */}
           <AuthCheck>
             <NavbarComponent logo={ROUTES_IMAGES.logo} />
+          </AuthCheck>
+          <AuthCheck>
+            <SocialBubbles />
           </AuthCheck>
           {children}
           <AuthCheck>
