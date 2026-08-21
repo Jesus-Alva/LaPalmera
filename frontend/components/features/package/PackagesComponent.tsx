@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import Image from "next/image";
 import { FaRegCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import PackageImageCarousel from "./PackageImageCarousel";
 import { Package } from "@/src/types/package";
 
 interface ComponentProps {
@@ -11,7 +11,12 @@ interface ComponentProps {
 }
 
 const DEFAULT_IMAGE = "/images/package/default_package.jpeg";
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+
+// Lista de imágenes de un paquete (usa images_url; si no viene, cae a la imagen destacada)
+const getPackageImages = (pkg: Package): string[] =>
+  pkg.images_url && pkg.images_url.length > 0
+    ? pkg.images_url
+    : (pkg.image_url ? [pkg.image_url] : []);
 
 const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -190,7 +195,7 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
             style={{ transform: `translateX(${translateX}px)` }}
           >
             {packages.map((pkg, idx) => {
-              const srcImage = pkg.image_url ? getImageUrl(pkg.image_url) : DEFAULT_IMAGE;
+              const packageImages = getPackageImages(pkg);
               const isSelected = selectedIdx === idx;
               const previewFeatures = pkg.features.slice(0, 3);
 
@@ -208,13 +213,11 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
                     `}
                   >
                     <div className="relative w-full pt-[60%] overflow-hidden rounded-t-2xl">
-                      <Image
-                        src={srcImage}
+                      <PackageImageCarousel
+                        images={packageImages}
                         alt={pkg.title}
-                        fill
-                        className="object-cover"
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        unoptimized={!!pkg.image_url}
+                        fallbackSrc={DEFAULT_IMAGE}
                       />
                     </div>
                     <div
@@ -300,14 +303,15 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
               </div>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <div className="relative w-full pt-[60%] rounded-xl overflow-hidden mb-5 shadow-md">
-                    <Image
-                      src={selectedPackage.image_url ? getImageUrl(selectedPackage.image_url) : DEFAULT_IMAGE}
-                      alt={selectedPackage.title}
-                      fill
-                      className="object-cover hover:scale-105 transition-transform duration-500"
-                      unoptimized={!!selectedPackage.image_url}
-                    />
+                  <div className="relative w-full pt-[60%] rounded-xl overflow-hidden mb-5 shadow-md group">
+                    <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-500">
+                      <PackageImageCarousel
+                        images={getPackageImages(selectedPackage)}
+                        alt={selectedPackage.title}
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        fallbackSrc={DEFAULT_IMAGE}
+                      />
+                    </div>
                   </div>
                   <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                     <p className="text-gray-700 leading-relaxed font-manrope text-sm md:text-base">

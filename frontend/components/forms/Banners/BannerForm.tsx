@@ -14,11 +14,20 @@ interface Props {
   initialData?: Banner;
 }
 
+const PAGE_OPTIONS = [
+  { value: '', label: 'General (Home / reutilizable)' },
+  { value: 'paquetes', label: 'Paquetes' },
+  { value: 'galeria', label: 'Galería' },
+  { value: 'nosotros', label: 'Nosotros' },
+  { value: 'contacto', label: 'Contacto' },
+];
+
 export default function BannerForm({ initialData }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState(initialData?.title || '');
   const [subtitle, setSubtitle] = useState(initialData?.subtitle || '');
   const [description, setDescription] = useState(initialData?.description || '');
+  const [page, setPage] = useState(initialData?.page || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [images, setImages] = useState<ImageType[]>([]);
@@ -85,6 +94,7 @@ export default function BannerForm({ initialData }: Props) {
         title,
         subtitle: subtitle.trim() || undefined,
         description: description.trim() || undefined,
+        page: page || null,
       };
 
       if (initialData) {
@@ -128,6 +138,15 @@ export default function BannerForm({ initialData }: Props) {
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descripción</label>
           <textarea id="description" rows={4} value={description} onChange={e => setDescription(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+        </div>
+        <div>
+          <label htmlFor="page" className="block text-sm font-medium text-gray-700">Página</label>
+          <select id="page" value={page} onChange={e => setPage(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            {PAGE_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-500">Elige en qué página pública se mostrará este banner. "General" es el banner reutilizable que hoy se ve en el Home.</p>
         </div>
 
         {/* Área de subida de imágenes */}

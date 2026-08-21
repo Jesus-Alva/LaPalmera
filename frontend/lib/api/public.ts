@@ -14,8 +14,11 @@ const API_URL = getApiBaseUrl();
  * Consumen los endpoints /public/* del backend, que no requieren autenticación.
  */
 
-export async function getPublicBanners(): Promise<Banner[]> {
-  const res = await fetch(`${API_URL}/public/banners`, { cache: 'no-store' });
+export async function getPublicBanners(params?: { page?: string }): Promise<Banner[]> {
+  const query = new URLSearchParams();
+  if (params?.page) query.append('page', params.page);
+
+  const res = await fetch(`${API_URL}/public/banners?${query.toString()}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Error al cargar banners');
   return res.json();
 }

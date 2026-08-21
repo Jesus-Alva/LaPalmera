@@ -70,6 +70,7 @@ def list_banners(
             title=banner.title,
             subtitle=banner.subtitle,
             description=banner.description,
+            page=banner.page,
             image_url=first_image_map.get(banner.id),
             images_url=images_map.get(banner.id, []),
         )
@@ -114,6 +115,7 @@ def get_banner(
         title=banner.title,
         subtitle=banner.subtitle,
         description=banner.description,
+        page=banner.page,
         image_url=images[0] if images else None,
         images_url=images,
     )

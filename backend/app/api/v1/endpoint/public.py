@@ -37,9 +37,13 @@ activos (is_active=True donde el modelo lo soporta) y no requieren sesión.
 @router.get("/banners", response_model=list[BannerOut])
 def list_public_banners(
     db: Session = Depends(get_db),
+    page: Optional[str] = None,
     limit: int = Query(20, ge=1, le=100),
 ):
-    banners = db.query(Banner).order_by(Banner.id).limit(limit).all()
+    query = db.query(Banner)
+    if page:
+        query = query.filter(Banner.page == page)
+    banners = query.order_by(Banner.id).limit(limit).all()
     if not banners:
         return []
 
@@ -69,6 +73,7 @@ def list_public_banners(
             title=b.title,
             subtitle=b.subtitle,
             description=b.description,
+            page=b.page,
             image_url=first_image_map.get(b.id),
             images_url=images_map.get(b.id, []),
         )

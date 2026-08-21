@@ -9,5 +9,6 @@ class Banner(Base):
     title = Column(String(255), nullable=False)
     subtitle = Column(String(255), nullable=True)
     description = Column(String(255), nullable=True)
+    page = Column(String(50), nullable=True)
 
     images_catalogs = relationship('ImagesCatalog', back_populates='banner')

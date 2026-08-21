@@ -145,9 +145,14 @@ export default function BannerCard({ banner, onDelete }: Props) {
 
       {/* Contenido */}
       <div className="p-5 flex flex-col grow">
-        <h3 className="font-noto-serif font-semibold text-xl text-gray-800 line-clamp-1">
-          {banner.title}
-        </h3>
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-noto-serif font-semibold text-xl text-gray-800 line-clamp-1">
+            {banner.title}
+          </h3>
+          <span className="shrink-0 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 capitalize">
+            {banner.page || 'General'}
+          </span>
+        </div>
 
         {banner.subtitle && (
           <p className="text-gray-700 text-sm font-medium mt-1 line-clamp-1">

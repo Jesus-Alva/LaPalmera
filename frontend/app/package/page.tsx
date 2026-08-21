@@ -3,14 +3,17 @@ import PackagesComponent from "../../components/features/package/PackagesCompone
 import QuestionsComponent from "../../components/features/package/QuestionsComponent";
 
 import { ROUTES_IMAGES } from "../constants/routes";
-import { getPublicPackages } from "../../lib/api/public";
+import { getPublicPackages, getPublicBanners } from "../../lib/api/public";
 
 export default async function Page() {
-    const packages = await getPublicPackages({ limit: 200 });
+    const [packages, banners] = await Promise.all([
+        getPublicPackages({ limit: 200 }),
+        getPublicBanners({ page: "paquetes" }),
+    ]);
 
     return (
         <div className="min-h-screen">
-            <BannerComponent srcBanner={ROUTES_IMAGES.paquetes.src_banner}/>
+            <BannerComponent banner={banners[0] ?? null} fallbackSrc={ROUTES_IMAGES.paquetes.src_banner} />
 
             <PackagesComponent packages={packages} />
 
