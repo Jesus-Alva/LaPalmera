@@ -3,8 +3,13 @@
 import { FaRegCheckCircle } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
+import { Package } from "../../../src/types/package";
 
-const PartyPackageComponent: React.FC = () => {
+interface ComponentProps {
+  packages: Package[];
+}
+
+const PartyPackageComponent: React.FC<ComponentProps> = ({ packages }) => {
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
@@ -36,10 +41,8 @@ const PartyPackageComponent: React.FC = () => {
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
-  const packageList = t("inicio.partyPackage.packageList", { returnObjects: true }) as Record<string, any>;
-  if (!packageList || typeof packageList !== "object") return null;
+  if (packages.length === 0) return null;
 
-  const packages = Object.values(packageList);
   const totalPackages = packages.length;
   const maxIndex = Math.max(0, totalPackages - itemsPerView);
 
@@ -91,17 +94,6 @@ const PartyPackageComponent: React.FC = () => {
     setIsDragging(false);
   };
 
-  const getStringValue = (value: string | string[] | undefined): string => {
-    if (!value) return "";
-    if (Array.isArray(value)) return value.join(", ");
-    return value;
-  };
-  const normalizeArray = (value: string | string[] | undefined): string[] => {
-    if (!value) return [];
-    if (Array.isArray(value)) return value;
-    return [value];
-  };
-
   return (
     <section className="bg-gray-100 px-4 py-12 md:py-16 my-12 md:my-18.75">
       <div className="container mx-auto">
@@ -123,85 +115,35 @@ const PartyPackageComponent: React.FC = () => {
             className={`flex transition-transform duration-500 ease-in-out ${isDragging ? 'duration-0' : ''}`}
             style={{ transform: `translateX(${translateX}px)` }}
           >
-            {packages.map((pkgData, idx) => {
-              const title = pkgData.title;
-              const desc = pkgData.desc;
-              const services = pkgData.services as Record<string, string | string[]>;
+            {packages.map((pkg) => (
+              <div
+                key={pkg.id}
+                className="shrink-0 p-3 md:p-4 "
+                style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
+              >
+                <div className="bg-white border border-gray-200 shadow-md p-4 md:p-6 flex flex-col h-full rounded-xl hover:shadow-lg transition-shadow">
+                  <h5 className="text-center md:text-center lg:text-left mb-2 text-2xl md:text-3xl font-noto-serif tracking-wider font-semibold text-secondary">
+                    {pkg.title}
+                  </h5>
+                  <p className="text-body font-noto-serif text-sm md:text-base">
+                    {pkg.short_description}
+                  </p>
 
-              const hrs = getStringValue(services.hrs);
-              const food = getStringValue(services.food);
-              const carpa = getStringValue(services.carpa);
-              const ambiente = getStringValue(services.ambiente);
-              const parking = getStringValue(services.parking);
-              const mobiliario = normalizeArray(services.mobiliario);
-              const staff = normalizeArray(services.staff);
+                  <ul className="mt-4 space-y-2 font-manrope text-sm md:text-base flex-grow">
+                    {pkg.features.map((feature) => (
+                      <li key={feature.id} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
+                        <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
+                        <span>{feature.feature_value}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-              return (
-                <div
-                  key={idx}
-                  className="shrink-0 p-3 md:p-4 "
-                  style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
-                >
-                  <div className="bg-white border border-gray-200 shadow-md p-4 md:p-6 flex flex-col h-full rounded-xl hover:shadow-lg transition-shadow">
-                    <h5 className="text-center md:text-center lg:text-left mb-2 text-2xl md:text-3xl font-noto-serif tracking-wider font-semibold text-secondary">
-                      {title}
-                    </h5>
-                    <p className="text-body font-noto-serif text-sm md:text-base">
-                      {desc}
-                    </p>
-
-                    <ul className="mt-4 space-y-2 font-manrope text-sm md:text-base flex-grow">
-                      {hrs && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{hrs}</span>
-                        </li>
-                      )}
-                      {food && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{food}</span>
-                        </li>
-                      )}
-                      {carpa && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{carpa}</span>
-                        </li>
-                      )}
-                      {mobiliario.map((item, i) => (
-                        <li key={`mob-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                      {staff.map((item, i) => (
-                        <li key={`staff-${idx}-${i}`} className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                      {ambiente && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{ambiente}</span>
-                        </li>
-                      )}
-                      {parking && (
-                        <li className="flex items-start gap-2 hover:bg-gray-100 transition-colors duration-300 p-1 rounded">
-                          <FaRegCheckCircle className="w-5 h-5 md:w-6 md:h-6 mt-0.5 shrink-0 text-yellow-500" />
-                          <span>{parking}</span>
-                        </li>
-                      )}
-                    </ul>
-
-                    <a href="/package#description" className="w-full text-center mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
-                      Más Detalles
-                    </a>
-                  </div>
+                  <a href="/package#description" className="w-full text-center mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
+                    Más Detalles
+                  </a>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
 

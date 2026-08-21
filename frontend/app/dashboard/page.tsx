@@ -1,7 +1,3 @@
-'use client';
-import Image from "next/image";
-
-import { ROUTES_IMAGES, ROUTES_PAGE } from "../constants/routes";
 import BannerComponent from "../../components/features/dashboard/BannerComponent";
 import EspaciosComponent from "../../components/features/dashboard/EspaciosComponent";
 import CelebrationsComponent from "../../components/features/dashboard/CelebrationsComponent";
@@ -9,30 +5,39 @@ import ServiceComponent from "../../components/features/dashboard/ServiceCompone
 import PartyPackageComponent from "../../components/features/dashboard/PartyPackageComponent";
 import LocationComponent from "../../components/features/dashboard/LocationComponent";
 
-import { useLang } from "../../lib/i18n/LanguageProvider";
-import { useTranslation } from "../../lib/hooks/useTranslation";
+import {
+    getPublicBanners,
+    getPublicSpaces,
+    getPublicCelebrations,
+    getPublicPackages,
+    getPublicLocations,
+} from "../../lib/api/public";
 
-const Page: React.FC = () => {
-    const { t } = useTranslation();
+export default async function Page() {
+    const [banners, spaces, celebrations, packages, locations] = await Promise.all([
+        getPublicBanners(),
+        getPublicSpaces(),
+        getPublicCelebrations(),
+        getPublicPackages(),
+        getPublicLocations(),
+    ]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br ">
             {/* Seccion: Banner */}
-            <BannerComponent srcBanner={ROUTES_IMAGES.dashboard} />
+            <BannerComponent banner={banners[0] ?? null} />
 
             {/* Seccion: Nuestros espacios */}
-            <EspaciosComponent espacios={ROUTES_IMAGES.inicio.espacios}/>
+            <EspaciosComponent spaces={spaces} />
 
             {/* Sección: Celebraciones */}
-            <CelebrationsComponent src={ROUTES_IMAGES.inicio.celebrations} />
+            <CelebrationsComponent celebrations={celebrations} />
 
             <ServiceComponent />
 
-            <PartyPackageComponent />
-            
-            <LocationComponent />
+            <PartyPackageComponent packages={packages} />
+
+            <LocationComponent location={locations[0] ?? null} />
         </div>
     );
 };
-
-export default Page;

@@ -34,8 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`}>
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
         <LanguageProvider>
           {/* Navbar solo visible en rutas públicas */}
           <AuthCheck>

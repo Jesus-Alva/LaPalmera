@@ -2,16 +2,18 @@
 
 import Image from "next/image";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
-import { ROUTES_IMAGES } from "../../../app/constants/routes";
-
-type Espacios = typeof ROUTES_IMAGES.inicio.espacios;
+import { Space } from "../../../src/types/space";
 
 interface ComponentProps {
-    espacios: Espacios;
+    spaces: Space[];
 }
 
-const EspaciosComponent: React.FC<ComponentProps> = ({ espacios }) => {
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+
+const EspaciosComponent: React.FC<ComponentProps> = ({ spaces }) => {
     const { t } = useTranslation();
+
+    if (spaces.length === 0) return null;
 
     return (
         <section className="container mx-auto px-4 py-8 md:py-12 mt-18.75 md:mt-20">
@@ -25,70 +27,32 @@ const EspaciosComponent: React.FC<ComponentProps> = ({ espacios }) => {
                 {t("inicio.espacios.title")}
             </h2>
 
-            {/* Grid de tarjetas */}
+            {/* Grid de tarjetas, una por espacio activo en BD */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {/* Tarjeta 1 */}
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col h-full">
-                    <div className="relative w-full pt-[75%] overflow-hidden rounded-t-2xl">
-                        <Image
-                            src={espacios.lvl1[0]}
-                            alt="Frontend"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
+                {spaces.map((space) => (
+                    <div key={space.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col h-full">
+                        <div className="relative w-full pt-[75%] overflow-hidden rounded-t-2xl bg-gray-100">
+                            {space.image_url && (
+                                <Image
+                                    src={getImageUrl(space.image_url)}
+                                    alt={space.title}
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                    unoptimized
+                                />
+                            )}
+                        </div>
+                        <div className="p-6 md:p-8 lg:p-10 flex flex-col grow">
+                            <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
+                                {space.title}
+                            </h3>
+                            <span className="font-noto-serif font-light text-base md:text-lg text-gray-600">
+                                {space.description}
+                            </span>
+                        </div>
                     </div>
-                    <div className="p-6 md:p-8 lg:p-10 flex flex-col flex-grow">
-                        <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
-                            {t("inicio.espacios.lvl1.title")}
-                        </h3>
-                        <span className="font-noto-serif font-light text-base md:text-lg text-gray-600">
-                            {t("inicio.espacios.lvl1.desc")}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Tarjeta 2 */}
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col h-full">
-                    <div className="relative w-full pt-[75%] overflow-hidden rounded-t-2xl">
-                        <Image
-                            src={espacios.lvl2[0]}
-                            alt="Frontend"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                    </div>
-                    <div className="p-6 md:p-8 lg:p-10 flex flex-col flex-grow">
-                        <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
-                            {t("inicio.espacios.lvl2.title")}
-                        </h3>
-                        <span className="font-noto-serif font-light text-base md:text-lg text-gray-600">
-                            {t("inicio.espacios.lvl2.desc")}
-                        </span>
-                    </div>
-                </div>
-
-                {/* Tarjeta 3 */}
-                <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col h-full">
-                    <div className="relative w-full pt-[75%] overflow-hidden rounded-t-2xl">
-                        <Image
-                            src={espacios.lvl3[0]}
-                            alt="Frontend"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                    </div>
-                    <div className="p-6 md:p-8 lg:p-10 flex flex-col flex-grow">
-                        <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
-                            {t("inicio.espacios.lvl3.title")}
-                        </h3>
-                        <span className="font-noto-serif font-light text-base md:text-lg text-gray-600">
-                            {t("inicio.espacios.lvl3.desc")}
-                        </span>
-                    </div>
-                </div>
+                ))}
             </div>
         </section>
     );
