@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
-import { useTranslation } from "../../../lib/hooks/useTranslation";
 import { IoClose, IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
+import { GalleryCategory, GalleryImage } from "@/src/types/gallery";
 
 // Variantes de animación
 const variants = {
@@ -22,23 +22,31 @@ const variants = {
   }),
 };
 
-interface GalleryCategory {
-  category: string;
-  images: string[];
+interface ComponentProps {
+  categories: GalleryCategory[];
+  images: GalleryImage[];
 }
 
-const GalleryImageComponent: React.FC = () => {
-  const { t } = useTranslation();
-  const dataGallery = t("gallery.images", { returnObjects: true }) as GalleryCategory[];
-  const categories = Array.isArray(dataGallery) ? dataGallery : [];
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
 
-  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
-    const firstWithImages = categories.find(cat => cat.images.length > 0);
-    return firstWithImages ? firstWithImages.category : "";
+const GalleryImageComponent: React.FC<ComponentProps> = ({ categories, images }) => {
+  const imagesByCategory = useMemo(() => {
+    const map = new Map<number, GalleryImage[]>();
+    for (const image of images) {
+      const bucket = map.get(image.category_id) || [];
+      bucket.push(image);
+      map.set(image.category_id, bucket);
+    }
+    return map;
+  }, [images]);
+
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(() => {
+    const firstWithImages = categories.find((cat) => (imagesByCategory.get(cat.id)?.length || 0) > 0);
+    return firstWithImages ? firstWithImages.id : (categories[0]?.id ?? null);
   });
 
-  const activeCategory = categories.find(cat => cat.category === selectedCategory);
-  const imagesToShow = activeCategory?.images || [];
+  const activeCategory = categories.find((cat) => cat.id === selectedCategoryId);
+  const imagesToShow = (selectedCategoryId != null ? imagesByCategory.get(selectedCategoryId) : []) || [];
 
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -93,43 +101,47 @@ const GalleryImageComponent: React.FC = () => {
     <section className="py-8">
       {/* Filtro de categorías */}
       <div className="flex justify-start flex-wrap container mx-auto px-4 gap-2 mb-8">
-        {categories.map((item, index) => (
-          <div key={index} className="w-auto p-1">
-            <span
-              onClick={() => item.images.length > 0 && setSelectedCategory(item.category)}
-              className={`
-                font-noto-serif font-medium tracking-wide border px-4 py-2 rounded-full 
-                transition-all duration-300 cursor-pointer inline-block
-                ${selectedCategory === item.category
-                  ? "bg-secondary text-white border-secondary shadow-md"
-                  : "border-secondary text-secondary hover:bg-secondary hover:text-white"
-                }
-                ${item.images.length === 0 ? "opacity-40 cursor-not-allowed" : ""}
-              `}
-            >
-              {item.category}
-              {item.images.length === 0 && " (próximamente)"}
-            </span>
-          </div>
-        ))}
+        {categories.map((category) => {
+          const count = imagesByCategory.get(category.id)?.length || 0;
+          return (
+            <div key={category.id} className="w-auto p-1">
+              <span
+                onClick={() => count > 0 && setSelectedCategoryId(category.id)}
+                className={`
+                  font-noto-serif font-medium tracking-wide border px-4 py-2 rounded-full
+                  transition-all duration-300 cursor-pointer inline-block
+                  ${selectedCategoryId === category.id
+                    ? "bg-secondary text-white border-secondary shadow-md"
+                    : "border-secondary text-secondary hover:bg-secondary hover:text-white"
+                  }
+                  ${count === 0 ? "opacity-40 cursor-not-allowed" : ""}
+                `}
+              >
+                {category.name}
+                {count === 0 && " (próximamente)"}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* Cuadrícula de imágenes */}
       <div className="container mx-auto px-4">
         {imagesToShow.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {imagesToShow.map((imgSrc, imgIdx) => (
+            {imagesToShow.map((image, imgIdx) => (
               <div
-                key={imgIdx}
+                key={image.id}
                 onClick={() => openLightbox(imgIdx)}
                 className="relative aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all group cursor-pointer"
               >
                 <Image
-                  src={imgSrc}
-                  alt={`${selectedCategory} - ${imgIdx + 1}`}
+                  src={getImageUrl(image.image_path)}
+                  alt={image.alt_text || `${activeCategory?.name || "Galería"} - ${imgIdx + 1}`}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  unoptimized
                 />
               </div>
             ))}
@@ -180,11 +192,12 @@ const GalleryImageComponent: React.FC = () => {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={imagesToShow[currentImageIndex]}
-                    alt={`Imagen ${currentImageIndex + 1} de ${selectedCategory}`}
+                    src={getImageUrl(imagesToShow[currentImageIndex].image_path)}
+                    alt={imagesToShow[currentImageIndex].alt_text || `Imagen ${currentImageIndex + 1} de ${activeCategory?.name || "galería"}`}
                     fill
                     className="object-contain"
                     sizes="(max-width: 768px) 90vw, 80vw"
+                    unoptimized
                     priority
                   />
                 </motion.div>

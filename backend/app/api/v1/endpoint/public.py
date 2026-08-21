@@ -11,6 +11,9 @@ from app.model.celebration import Celebration
 from app.model.package import Package
 from app.model.package_feature import PackageFeature
 from app.model.location import Location
+from app.model.team_member import TeamMember
+from app.model.gallery_category import GalleryCategory
+from app.model.gallery_image import GalleryImage
 from app.model.images_catalog import ImagesCatalog
 from app.model.image import Image
 
@@ -19,6 +22,8 @@ from app.schemas.space import SpaceOut
 from app.schemas.celebrations import CelebrationOut
 from app.schemas.package import PackageOut
 from app.schemas.location import LocationOut
+from app.schemas.team_members import TeamMemberOut
+from app.schemas.gallery import GalleryCategoryOut, GalleryImageOut
 
 router = APIRouter()
 
@@ -133,7 +138,7 @@ def list_public_celebrations(
 def list_public_packages(
     db: Session = Depends(get_db),
     celebration_id: Optional[int] = None,
-    limit: int = Query(20, ge=1, le=100),
+    limit: int = Query(20, ge=1, le=200),
 ):
     query = (
         db.query(Package, Celebration.title.label("celebration_title"))
@@ -203,3 +208,43 @@ def list_public_locations(
         .limit(limit)
         .all()
     )
+
+
+@router.get("/team-members", response_model=list[TeamMemberOut])
+def list_public_team_members(
+    db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100),
+):
+    return (
+        db.query(TeamMember)
+        .filter(TeamMember.is_active == True)
+        .order_by(TeamMember.sort_order, TeamMember.id)
+        .limit(limit)
+        .all()
+    )
+
+
+@router.get("/gallery/categories", response_model=list[GalleryCategoryOut])
+def list_public_gallery_categories(db: Session = Depends(get_db)):
+    categories = db.query(GalleryCategory).order_by(GalleryCategory.sort_order, GalleryCategory.name).all()
+    return [
+        GalleryCategoryOut(
+            id=cat.id,
+            name=cat.name,
+            slug=cat.slug,
+            sort_order=cat.sort_order,
+            image_count=db.query(GalleryImage).filter(GalleryImage.category_id == cat.id).count(),
+        )
+        for cat in categories
+    ]
+
+
+@router.get("/gallery/images", response_model=list[GalleryImageOut])
+def list_public_gallery_images(
+    category_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(GalleryImage).order_by(GalleryImage.sort_order, GalleryImage.id)
+    if category_id:
+        query = query.filter(GalleryImage.category_id == category_id)
+    return query.all()

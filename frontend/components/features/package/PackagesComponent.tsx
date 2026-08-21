@@ -2,12 +2,18 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { useTranslation } from "../../../lib/hooks/useTranslation";
 import { FaRegCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import { Package } from "@/src/types/package";
 
-const PackagesComponent: React.FC = () => {
-  const { t } = useTranslation();
+interface ComponentProps {
+  packages: Package[];
+}
+
+const DEFAULT_IMAGE = "/images/package/default_package.jpeg";
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+
+const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -21,8 +27,6 @@ const PackagesComponent: React.FC = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const packageList = t("inicio.partyPackage.packageList", { returnObjects: true });
-  const packages = packageList && typeof packageList === "object" ? Object.values(packageList) : [];
   const totalPackages = packages.length;
 
   const updateItemsPerView = () => {
@@ -138,10 +142,6 @@ const PackagesComponent: React.FC = () => {
     setIsDragging(false);
   };
 
-  if (!packageList || typeof packageList !== "object" || packages.length === 0) {
-    return null;
-  }
-
   const translateX = -safeIndex * itemWidth;
 
   const handleSelect = (idx: number) => {
@@ -157,33 +157,20 @@ const PackagesComponent: React.FC = () => {
   const WhatsAppMessage = useMemo(() => {
     if (!selectedPackage) return "";
 
-    const { title, desc, services } = selectedPackage;
-    const hrs = getStringValue(services?.hrs);
-    const food = getStringValue(services?.food);
-    const drinks = services?.drinks ? normalizeArray(services.drinks) : [];
-    const carpa = getStringValue(services?.carpa);
-    const mobiliario = services?.mobiliario ? normalizeArray(services.mobiliario) : [];
-    const staff = services?.staff ? normalizeArray(services.staff) : [];
-    const ambiente = getStringValue(services?.ambiente);
-    const parking = getStringValue(services?.parking);
-
     const lines = [
-      `Hola, estoy interesado en el paquete "${title}"`,
+      `Hola, estoy interesado en el paquete "${selectedPackage.title}"`,
       "",
       "*Detalles del paquete:*",
-      ...(hrs ? [`Duración: ${hrs}`] : []),
-      ...(food ? [`Alimentación: ${food}`] : []),
-      ...(drinks.length ? [`Bebidas: ${drinks.join(", ")}`] : []),
-      ...(carpa ? [`Carpa / Techo: ${carpa}`] : []),
-      ...(mobiliario.length ? [`Mobiliario: ${mobiliario.join(", ")}`] : []),
-      ...(staff.length ? [`Personal: ${staff.join(", ")}`] : []),
-      ...(ambiente ? [`Ambiente: ${ambiente}`] : []),
-      ...(parking ? [`Estacionamiento: ${parking}`] : []),
+      ...selectedPackage.features.map((f) => `${f.feature_key}: ${f.feature_value}`),
       "",
       "Quedo atento a su respuesta.",
     ];
     return lines.join("\n");
   }, [selectedPackage]);
+
+  if (packages.length === 0) {
+    return null;
+  }
 
   return (
     <section id="description" className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
@@ -202,19 +189,14 @@ const PackagesComponent: React.FC = () => {
             className={`flex transition-transform duration-500 ease-in-out ${isDragging ? "duration-0" : ""}`}
             style={{ transform: `translateX(${translateX}px)` }}
           >
-            {packages.map((pkgData, idx) => {
-              const title = pkgData.title;
-              const desc = pkgData.desc;
-              const services = pkgData.services as Record<string, string | string[]>;
-              const srcImage = pkgData.srcImage || "/images/package/default_package.jpeg";
-              const hrs = getStringValue(services.hrs);
-              const food = getStringValue(services.food);
-              const drinks = normalizeArray(services.drinks);
+            {packages.map((pkg, idx) => {
+              const srcImage = pkg.image_url ? getImageUrl(pkg.image_url) : DEFAULT_IMAGE;
               const isSelected = selectedIdx === idx;
+              const previewFeatures = pkg.features.slice(0, 3);
 
               return (
                 <div
-                  key={idx}
+                  key={pkg.id}
                   className="shrink-0 p-3 md:p-4 package-card cursor-pointer"
                   style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
                   onClick={() => handleSelect(idx)}
@@ -228,10 +210,11 @@ const PackagesComponent: React.FC = () => {
                     <div className="relative w-full pt-[60%] overflow-hidden rounded-t-2xl">
                       <Image
                         src={srcImage}
-                        alt={title}
+                        alt={pkg.title}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        unoptimized={!!pkg.image_url}
                       />
                     </div>
                     <div
@@ -239,37 +222,19 @@ const PackagesComponent: React.FC = () => {
                         }`}
                     >
                       <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
-                        {title}
+                        {pkg.title}
                       </h3>
                       <span className="font-noto-serif font-light text-sm md:text-base">
-                        {desc}
+                        {pkg.short_description}
                       </span>
                       <ul className="mt-4 space-y-2 font-manrope text-xs md:text-sm grow">
-                        {hrs && (
-                          <li className="flex items-start gap-2">
+                        {previewFeatures.map((feature) => (
+                          <li key={feature.id} className="flex items-start gap-2">
                             <FaRegCheckCircle
                               className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
                                 }`}
                             />
-                            <span>{hrs}</span>
-                          </li>
-                        )}
-                        {food && (
-                          <li className="flex items-start gap-2">
-                            <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
-                                }`}
-                            />
-                            <span>{food}</span>
-                          </li>
-                        )}
-                        {drinks.map((item, i) => (
-                          <li key={`drink-${idx}-${i}`} className="flex items-start gap-2">
-                            <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
-                                }`}
-                            />
-                            <span>{item}</span>
+                            <span>{feature.feature_value}</span>
                           </li>
                         ))}
                       </ul>
@@ -337,15 +302,16 @@ const PackagesComponent: React.FC = () => {
                 <div>
                   <div className="relative w-full pt-[60%] rounded-xl overflow-hidden mb-5 shadow-md">
                     <Image
-                      src={selectedPackage.srcImage || "/images/package/default_package.jpeg"}
+                      src={selectedPackage.image_url ? getImageUrl(selectedPackage.image_url) : DEFAULT_IMAGE}
                       alt={selectedPackage.title}
                       fill
                       className="object-cover hover:scale-105 transition-transform duration-500"
+                      unoptimized={!!selectedPackage.image_url}
                     />
                   </div>
                   <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                     <p className="text-gray-700 leading-relaxed font-manrope text-sm md:text-base">
-                      {selectedPackage.desc}
+                      {selectedPackage.short_description}
                     </p>
                   </div>
                 </div>
@@ -353,40 +319,16 @@ const PackagesComponent: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="min-w-full border-separate border-spacing-y-2">
                     <tbody>
-                      {(() => {
-                        const services = selectedPackage.services as Record<string, string | string[]>;
-                        const items = [
-                          { label: "⏱️ Duración", value: getStringValue(services.hrs) },
-                          { label: "🍽️ Alimentación", value: getStringValue(services.food) },
-                          { label: "🥤 Bebidas", value: services.drinks ? normalizeArray(services.drinks) : [] },
-                          { label: "⛺ Carpa / Techo", value: getStringValue(services.carpa) },
-                          { label: "🪑 Mobiliario", value: services.mobiliario ? normalizeArray(services.mobiliario) : [] },
-                          { label: "👥 Personal", value: services.staff ? normalizeArray(services.staff) : [] },
-                          { label: "🎵 Ambiente", value: getStringValue(services.ambiente) },
-                          { label: "🅿️ Estacionamiento", value: getStringValue(services.parking) },
-                        ];
-                        return items.map((item, idx) => (
-                          <tr key={idx} className="group">
-                            <td className="py-2 md:py-3 pr-3 md:pr-5 font-noto-serif font-semibold text-gray-800 w-1/3 align-top bg-gray-100 rounded-l-xl pl-3 md:pl-4 text-sm md:text-base">
-                              {item.label}
-                            </td>
-                            <td className="py-2 md:py-3 px-3 md:px-4 text-gray-600 bg-white rounded-r-xl border-l-2 border-secondary/20 text-sm md:text-base">
-                              {Array.isArray(item.value) ? (
-                                <ul className="space-y-1">
-                                  {item.value.map((v, i) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                      <span className="text-green-500 mt-0.5 text-xs md:text-sm">✓</span>
-                                      <span className="font-manrope">{v}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <span className="font-light">{item.value || "—"}</span>
-                              )}
-                            </td>
-                          </tr>
-                        ));
-                      })()}
+                      {selectedPackage.features.map((feature) => (
+                        <tr key={feature.id} className="group">
+                          <td className="py-2 md:py-3 pr-3 md:pr-5 font-noto-serif font-semibold text-gray-800 w-1/3 align-top bg-gray-100 rounded-l-xl pl-3 md:pl-4 text-sm md:text-base">
+                            {feature.feature_key}
+                          </td>
+                          <td className="py-2 md:py-3 px-3 md:px-4 text-gray-600 bg-white rounded-r-xl border-l-2 border-secondary/20 text-sm md:text-base">
+                            <span className="font-manrope font-light">{feature.feature_value}</span>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -406,18 +348,6 @@ const PackagesComponent: React.FC = () => {
       )}
     </section>
   );
-};
-
-const getStringValue = (value: string | string[] | undefined): string => {
-  if (!value) return "";
-  if (Array.isArray(value)) return value.join(", ");
-  return value;
-};
-
-const normalizeArray = (value: string | string[] | undefined): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  return [value];
 };
 
 export default PackagesComponent;

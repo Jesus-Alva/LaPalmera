@@ -2,12 +2,12 @@
 import Image from "next/image";
 
 import { origin } from "@/src/types/aboutus";
+import { useTranslation } from "../../../lib/hooks/useTranslation";
 
-interface ComponentProps {
-    data: origin;
-}
+const OriginComponent: React.FC = () => {
+    const { t } = useTranslation();
+    const data = t("aboutus.origin", { returnObjects: true }) as origin;
 
-const OriginComponent: React.FC<ComponentProps> = ({ data }) => {
     return (
         <section className="py-12 md:py-16 mt-8 md:mt-16">
             <div className="container flex justify-center align-middle mx-auto px-4">

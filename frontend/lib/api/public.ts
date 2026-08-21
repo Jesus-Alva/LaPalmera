@@ -3,6 +3,8 @@ import { Space } from '@/src/types/space';
 import { Celebration } from '@/src/types/celebration';
 import { Package } from '@/src/types/package';
 import { Location } from '@/src/types/location';
+import { TeamMember } from '@/src/types/teamMember';
+import { GalleryCategory, GalleryImage } from '@/src/types/gallery';
 import { getApiBaseUrl } from './client';
 
 const API_URL = getApiBaseUrl();
@@ -30,9 +32,10 @@ export async function getPublicCelebrations(): Promise<Celebration[]> {
   return res.json();
 }
 
-export async function getPublicPackages(params?: { celebration_id?: number }): Promise<Package[]> {
+export async function getPublicPackages(params?: { celebration_id?: number; limit?: number }): Promise<Package[]> {
   const query = new URLSearchParams();
   if (params?.celebration_id) query.append('celebration_id', params.celebration_id.toString());
+  if (params?.limit) query.append('limit', params.limit.toString());
 
   const res = await fetch(`${API_URL}/public/packages?${query.toString()}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Error al cargar paquetes');
@@ -42,5 +45,23 @@ export async function getPublicPackages(params?: { celebration_id?: number }): P
 export async function getPublicLocations(): Promise<Location[]> {
   const res = await fetch(`${API_URL}/public/locations`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Error al cargar ubicaciones');
+  return res.json();
+}
+
+export async function getPublicTeamMembers(): Promise<TeamMember[]> {
+  const res = await fetch(`${API_URL}/public/team-members`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Error al cargar el equipo');
+  return res.json();
+}
+
+export async function getPublicGalleryCategories(): Promise<GalleryCategory[]> {
+  const res = await fetch(`${API_URL}/public/gallery/categories`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Error al cargar categorías de galería');
+  return res.json();
+}
+
+export async function getPublicGalleryImages(): Promise<GalleryImage[]> {
+  const res = await fetch(`${API_URL}/public/gallery/images`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Error al cargar imágenes de galería');
   return res.json();
 }
