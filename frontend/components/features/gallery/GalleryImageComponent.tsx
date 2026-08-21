@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { IoClose, IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { ZoomIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GalleryCategory, GalleryImage } from "@/src/types/gallery";
 
-// Variantes de animación
+// Variantes de animación del lightbox
 const variants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 300 : -300,
@@ -100,50 +101,73 @@ const GalleryImageComponent: React.FC<ComponentProps> = ({ categories, images })
   return (
     <section className="py-8">
       {/* Filtro de categorías */}
-      <div className="flex justify-start flex-wrap container mx-auto px-4 gap-2 mb-8">
+      <div className="flex justify-center flex-wrap container mx-auto px-4 gap-2 mb-10">
         {categories.map((category) => {
           const count = imagesByCategory.get(category.id)?.length || 0;
+          const isActive = selectedCategoryId === category.id;
           return (
-            <div key={category.id} className="w-auto p-1">
-              <span
-                onClick={() => count > 0 && setSelectedCategoryId(category.id)}
-                className={`
-                  font-noto-serif font-medium tracking-wide border px-4 py-2 rounded-full
-                  transition-all duration-300 cursor-pointer inline-block
-                  ${selectedCategoryId === category.id
-                    ? "bg-secondary text-white border-secondary shadow-md"
-                    : "border-secondary text-secondary hover:bg-secondary hover:text-white"
-                  }
-                  ${count === 0 ? "opacity-40 cursor-not-allowed" : ""}
-                `}
-              >
-                {category.name}
-                {count === 0 && " (próximamente)"}
-              </span>
-            </div>
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => count > 0 && setSelectedCategoryId(category.id)}
+              disabled={count === 0}
+              className={`
+                relative font-noto-serif font-medium tracking-wide px-5 py-2 rounded-full
+                transition-colors duration-300 cursor-pointer
+                ${isActive ? "text-white" : "text-secondary hover:text-white"}
+                ${count === 0 ? "opacity-40 cursor-not-allowed" : ""}
+              `}
+            >
+              {isActive && (
+                <motion.span
+                  layoutId="gallery-category-pill"
+                  className="absolute inset-0 bg-secondary rounded-full shadow-md -z-10"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              {!isActive && (
+                <span className="absolute inset-0 rounded-full border border-secondary -z-10 hover:bg-secondary transition-colors duration-300" />
+              )}
+              {category.name}
+              {count === 0 && " (próximamente)"}
+            </button>
           );
         })}
       </div>
 
-      {/* Cuadrícula de imágenes */}
+      {/* Galería en formato masonry */}
       <div className="container mx-auto px-4">
         {imagesToShow.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div
+            key={selectedCategoryId}
+            className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4"
+          >
             {imagesToShow.map((image, imgIdx) => (
-              <div
+              <motion.div
                 key={image.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: Math.min(imgIdx, 8) * 0.05 }}
                 onClick={() => openLightbox(imgIdx)}
-                className="relative aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all group cursor-pointer"
+                className="relative mb-4 break-inside-avoid overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-shadow group cursor-pointer"
               >
                 <Image
                   src={getImageUrl(image.image_path)}
                   alt={image.alt_text || `${activeCategory?.name || "Galería"} - ${imgIdx + 1}`}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  width={600}
+                  height={600}
+                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                   unoptimized
                 />
-              </div>
+                {/* Overlay al hover */}
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                  <span className="flex items-center gap-2 text-white text-sm font-manrope bg-white/10 backdrop-blur-sm border border-white/30 rounded-full px-4 py-1.5 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <ZoomIn className="w-4 h-4" />
+                    Ver imagen
+                  </span>
+                </div>
+              </motion.div>
             ))}
           </div>
         ) : (
