@@ -279,9 +279,11 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
 
       {selectedPackage && (
         <div className="mt-12 md:mt-16 overflow-hidden transition-all duration-300">
-          <div className="bg-gray-50 rounded-2xl shadow-xl border border-gray-100">
-            <div className="flex justify-between items-center p-5 md:p-6 border-b border-yellow-800/20 bg-white rounded-t-2xl">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-noto-serif font-bold text-secondary">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            {/* Encabezado */}
+            <div className="flex justify-between items-center p-5 md:p-6 border-b-2 border-secondary/20 bg-linear-to-r from-secondary/5 to-transparent">
+              <h2 className="flex items-center gap-3 text-xl md:text-2xl lg:text-3xl font-noto-serif font-bold text-secondary">
+                <span className="w-1.5 h-6 md:h-8 bg-secondary rounded-full inline-block" />
                 Detalles del Servicio
               </h2>
               <button
@@ -295,47 +297,47 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
               </button>
             </div>
 
-            <div className="p-5 md:p-8">
-              <div className="text-center mb-6">
-                <span className="text-xl md:text-2xl text-yellow-800 font-semibold font-noto-serif tracking-wide">
+            {/* Imagen de portada con título y descripción superpuestos */}
+            <div className="relative w-full pt-[35%] md:pt-[30%] overflow-hidden">
+              <PackageImageCarousel
+                images={getPackageImages(selectedPackage)}
+                alt={selectedPackage.title}
+                sizes="100vw"
+                fallbackSrc={DEFAULT_IMAGE}
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 pointer-events-none">
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-noto-serif font-bold text-white drop-shadow-lg mb-1 md:mb-2">
                   {selectedPackage.title}
-                </span>
+                </h3>
+                <p className="text-white/90 font-manrope text-sm md:text-base max-w-2xl drop-shadow">
+                  {selectedPackage.short_description}
+                </p>
               </div>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <div className="relative w-full pt-[60%] rounded-xl overflow-hidden mb-5 shadow-md group">
-                    <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-500">
-                      <PackageImageCarousel
-                        images={getPackageImages(selectedPackage)}
-                        alt={selectedPackage.title}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        fallbackSrc={DEFAULT_IMAGE}
-                      />
+            </div>
+
+            {/* Grid de características */}
+            <div className="p-5 md:p-8">
+              <h4 className="font-noto-serif font-semibold text-secondary text-base md:text-lg uppercase tracking-widest mb-4 md:mb-5">
+                Lo que incluye
+              </h4>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                {selectedPackage.features.map((feature) => (
+                  <div
+                    key={feature.id}
+                    className="flex items-start gap-3 bg-gray-50 hover:bg-secondary/5 border border-gray-100 hover:border-secondary/30 rounded-xl p-4 transition-colors duration-300"
+                  >
+                    <FaRegCheckCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-noto-serif font-semibold text-gray-800 text-sm md:text-base">
+                        {feature.feature_key}
+                      </p>
+                      <p className="font-manrope text-gray-600 text-xs md:text-sm mt-0.5">
+                        {feature.feature_value}
+                      </p>
                     </div>
                   </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                    <p className="text-gray-700 leading-relaxed font-manrope text-sm md:text-base">
-                      {selectedPackage.short_description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border-separate border-spacing-y-2">
-                    <tbody>
-                      {selectedPackage.features.map((feature) => (
-                        <tr key={feature.id} className="group">
-                          <td className="py-2 md:py-3 pr-3 md:pr-5 font-noto-serif font-semibold text-gray-800 w-1/3 align-top bg-gray-100 rounded-l-xl pl-3 md:pl-4 text-sm md:text-base">
-                            {feature.feature_key}
-                          </td>
-                          <td className="py-2 md:py-3 px-3 md:px-4 text-gray-600 bg-white rounded-r-xl border-l-2 border-secondary/20 text-sm md:text-base">
-                            <span className="font-manrope font-light">{feature.feature_value}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                ))}
               </div>
             </div>
 

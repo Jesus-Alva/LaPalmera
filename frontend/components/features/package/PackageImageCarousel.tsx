@@ -62,19 +62,19 @@ const PackageImageCarousel: React.FC<Props> = ({ images, alt, sizes, priority, f
             type="button"
             onClick={goPrev}
             aria-label="Imagen anterior"
-            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-10 bg-black/40 text-white rounded-full p-1 opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/60"
+            className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white rounded-full p-1 transition-colors hover:bg-black/70"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 z-40" />
           </button>
           <button
             type="button"
             onClick={goNext}
             aria-label="Imagen siguiente"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 z-10 bg-black/40 text-white rounded-full p-1 opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/60"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white rounded-full p-1 transition-colors hover:bg-black/70"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 z-40" />
           </button>
-          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-10 flex gap-1">
+          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-20 flex gap-1">
             {images.map((_, idx) => (
               <span
                 key={idx}
