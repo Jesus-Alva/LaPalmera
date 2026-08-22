@@ -85,9 +85,9 @@ const BannerComponent: React.FC<ComponentProps> = ({ banner, fallbackSrc }) => {
 
       {/* Contenido del banner */}
       <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8 max-w-5xl mx-auto">
-        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-noto-serif font-normal mb-4 md:mb-6 drop-shadow-lg">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-noto-serif font-normal mb-4 md:mb-6 drop-shadow-lg">
           {title}
-        </h2>
+        </h1>
         <p className="w-full sm:w-5/6 md:w-3/4 lg:w-2/3 mx-auto text-lg sm:text-2xl md:text-3xl lg:text-4xl font-noto-serif font-extralight drop-shadow-lg bg-black/50 rounded-xl p-3 sm:p-4 backdrop-blur-sm">
           {slogan}
         </p>

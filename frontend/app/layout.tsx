@@ -9,6 +9,7 @@ import SocialBubbles from '../components/ui/SocialBubbles';
 import LoadingScreen from '../components/ui/LoadingScreen';
 import { ROUTES_IMAGES } from './constants/routes';
 import AuthCheck from '@/components/ui/AuthCheck';
+import { buildPageMetadata, SITE_URL } from '../lib/seo';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
@@ -25,9 +26,15 @@ const manrope = Manrope({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'La Palmera',
-  description: 'Jardín de Eventos La Palmera',
+// Metadata por defecto del sitio: se arma en cada request a partir de site_settings
+// (secciones `seo`/`branding`, editables desde /settings), y sirve como respaldo
+// para cualquier página que no defina su propio `generateMetadata`.
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await buildPageMetadata();
+  return {
+    ...metadata,
+    metadataBase: new URL(SITE_URL),
+  };
 }
 
 export default function RootLayout({

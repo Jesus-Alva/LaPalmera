@@ -82,9 +82,9 @@ const BannerComponent: React.FC<ComponentProps> = ({ banner }) => {
 
                 {/* Contenido del dashboard */}
                 <div className="relative z-10 text-center text-white px-4">
-                    <h2 className="text-4xl md:text-7xl font-noto-serif font-normal mb-6 drop-shadow-lg">
+                    <h1 className="text-4xl md:text-7xl font-noto-serif font-normal mb-6 drop-shadow-lg">
                         {title}
-                    </h2>
+                    </h1>
                     <p className="w-3/4 mx-auto text-2xl md:text-4xl font-noto-serif font-extralight mb-12 drop-shadow-lg">
                         {slogan}
                     </p>

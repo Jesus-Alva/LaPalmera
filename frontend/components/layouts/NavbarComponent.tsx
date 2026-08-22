@@ -111,7 +111,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
         className={`
           fixed top-0 right-0 left-0 z-50 bg-linear-to-r from-black/80 via-black/60 to-black/40
           backdrop-blur-md border-b border-white/10 transition-all duration-300 ease-out
-          ${isScrolled ? "h-14 md:h-16 shadow-lg" : "h-16 md:h-20 shadow-md"}
+          ${isScrolled ? "h-14 md:h-16 shadow-lg shadow-black/40" : "h-16 md:h-20 shadow-md"}
         `}
       >
         <div className="container mx-auto h-full px-4 flex items-center justify-between gap-2 sm:gap-4">
