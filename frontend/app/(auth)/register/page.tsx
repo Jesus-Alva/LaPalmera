@@ -10,6 +10,9 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,7 +30,14 @@ export default function RegisterPage() {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, display_name: displayName || undefined }),
+        body: JSON.stringify({
+          email,
+          password,
+          display_name: displayName || undefined,
+          phone: phone || undefined,
+          address: address || undefined,
+          notifications_enabled: notificationsEnabled,
+        }),
       });
 
       const data = await res.json();
@@ -109,6 +119,36 @@ export default function RegisterPage() {
               />
             </motion.div>
 
+            {/* Teléfono (opcional) */}
+            <motion.div variants={itemVariants} className="relative">
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Teléfono <span className="text-gray-400 text-xs">(opcional)</span>
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                placeholder="55 1234 5678"
+              />
+            </motion.div>
+
+            {/* Dirección (opcional) */}
+            <motion.div variants={itemVariants} className="relative">
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Dirección <span className="text-gray-400 text-xs">(opcional)</span>
+              </label>
+              <input
+                id="address"
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                placeholder="Calle, número, colonia..."
+              />
+            </motion.div>
+
             {/* Email */}
             <motion.div variants={itemVariants} className="relative">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -140,6 +180,20 @@ export default function RegisterPage() {
                 placeholder="••••••••"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Mínimo 8 caracteres</p>
+            </motion.div>
+
+            {/* Preferencia de notificaciones */}
+            <motion.div variants={itemVariants} className="flex items-center gap-2">
+              <input
+                id="notificationsEnabled"
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/50"
+              />
+              <label htmlFor="notificationsEnabled" className="text-sm text-gray-700 dark:text-gray-200">
+                Quiero recibir notificaciones
+              </label>
             </motion.div>
 
             {/* Mensajes de error y éxito con animación */}

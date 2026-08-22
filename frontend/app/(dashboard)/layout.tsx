@@ -20,7 +20,7 @@ async function getUserFromToken() {
     return {
       email: payload.sub || 'usuario',
       display_name: payload.display_name || payload.sub,
-      role: payload.role || 'editor',
+      role: payload.role || 'read',
     };
   } catch {
     return undefined;

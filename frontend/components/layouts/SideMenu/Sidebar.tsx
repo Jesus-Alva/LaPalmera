@@ -10,13 +10,14 @@ import {
   Users, 
   Image, 
   HelpCircle, 
-  Package, 
+  Package,
   LogOut,
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
-  ImageIcon
+  ImageIcon,
+  UserCog
 } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import SidebarUser from './SidebarUser';
@@ -54,6 +55,9 @@ export default function Sidebar({ user }: SidebarProps) {
     { href: '/gallery_image', icon: <ImageIcon size={22} />, label: 'Galería' },
     { href: '/packages', icon: <Package size={22} />, label: 'Paquetes' },
     { href: '/locations', icon: <MapPin size={22} />, label: 'Ubicaciones' },
+    ...(user?.role === 'admin'
+      ? [{ href: '/users', icon: <UserCog size={22} />, label: 'Usuarios' }]
+      : []),
   ];
 
   const handleLogout = async () => {

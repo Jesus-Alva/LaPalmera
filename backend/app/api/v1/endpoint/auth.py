@@ -1,4 +1,5 @@
 # app/api/v1/endpoints/auth.py
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserOut
@@ -20,6 +21,11 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         email=user_data.email,
         password_hash=hashed,
         display_name=user_data.display_name,
+        phone=user_data.phone,
+        address=user_data.address,
+        notifications_enabled=user_data.notifications_enabled,
+        role="read",  # Todo usuario nuevo inicia en solo-lectura; un admin debe elevarlo desde el panel de usuarios
+        status="active",
     )
     db.add(new_user)
     db.commit()
@@ -35,5 +41,14 @@ def login(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Credenciales incorrectas",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_access_token(data={"sub": user.email})
+    if user.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Esta cuenta está inactiva o suspendida. Contacta a un administrador.",
+        )
+
+    user.last_login_at = datetime.utcnow()
+    db.commit()
+
+    access_token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer"}

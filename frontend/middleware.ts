@@ -32,5 +32,6 @@ export const config = {
     '/packages/:path*',
     '/login',
     '/gallery/:path*',
+    '/users/:path*',
   ],
 };

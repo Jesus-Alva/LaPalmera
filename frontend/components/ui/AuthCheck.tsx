@@ -22,6 +22,7 @@ export default function AuthCheck({ children, fallback = null }: AuthCheckProps)
     '/packages',
     '/dashboard',
     '/gallery_image',
+    '/users',
   ];
 
   // Verificar si la ruta actual es una ruta protegida
