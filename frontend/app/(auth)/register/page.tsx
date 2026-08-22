@@ -114,7 +114,7 @@ export default function RegisterPage() {
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
                 placeholder="Tu nombre"
               />
             </motion.div>
@@ -129,7 +129,7 @@ export default function RegisterPage() {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
                 placeholder="55 1234 5678"
               />
             </motion.div>
@@ -144,7 +144,7 @@ export default function RegisterPage() {
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
                 placeholder="Calle, número, colonia..."
               />
             </motion.div>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
                 placeholder="tu@email.com"
               />
             </motion.div>
@@ -176,7 +176,7 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 bg-white/50 dark:bg-black/30 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
                 placeholder="••••••••"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Mínimo 8 caracteres</p>
@@ -192,7 +192,7 @@ export default function RegisterPage() {
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/50"
               />
               <label htmlFor="notificationsEnabled" className="text-sm text-gray-700 dark:text-gray-200">
-                Quiero recibir notificaciones
+                Quiero recibir notificaciones y promociones a mi correo
               </label>
             </motion.div>
 
