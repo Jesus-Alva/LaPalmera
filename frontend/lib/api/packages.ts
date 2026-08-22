@@ -5,10 +5,9 @@ const API_URL = getApiBaseUrl();
 
 export async function getPackages(
   token: string,
-  params?: { 
-    skip?: number; 
-    limit?: number; 
-    celebration_id?: number; 
+  params?: {
+    skip?: number;
+    limit?: number;
     search?: string;
     is_active?: boolean;
     available_only?: boolean;
@@ -18,7 +17,6 @@ export async function getPackages(
   const query = new URLSearchParams();
   if (params?.skip) query.append('skip', params.skip.toString());
   if (params?.limit) query.append('limit', params.limit.toString());
-  if (params?.celebration_id) query.append('celebration_id', params.celebration_id.toString());
   if (params?.search) query.append('search', params.search);
   if (params?.is_active !== undefined) query.append('is_active', params.is_active.toString());
   if (params?.available_only) query.append('available_only', 'true');

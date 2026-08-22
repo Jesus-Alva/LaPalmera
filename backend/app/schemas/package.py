@@ -11,7 +11,6 @@ class PackageBase(BaseModel):
     sort_order: Optional[int] = None
     date_available_start: Optional[date] = None
     date_available_end: Optional[date] = None
-    celebration_id: int
 
 class PackageCreate(PackageBase):
     features: Optional[List[PackageFeatureCreate]] = []
@@ -23,15 +22,13 @@ class PackageUpdate(BaseModel):
     sort_order: Optional[int] = None
     date_available_start: Optional[date] = None
     date_available_end: Optional[date] = None
-    celebration_id: Optional[int] = None
     features: Optional[List[PackageFeatureCreate]] = None
 
 class PackageOut(PackageBase):
     id: int
     image_url: Optional[str] = None
     images_url: Optional[List[str]] = []
-    celebration_title: Optional[str] = None
     features: List[PackageFeatureOut] = []
-    
+
     class Config:
         from_attributes = True

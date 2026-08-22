@@ -142,22 +142,15 @@ def list_public_celebrations(
 @router.get("/packages", response_model=list[PackageOut])
 def list_public_packages(
     db: Session = Depends(get_db),
-    celebration_id: Optional[int] = None,
     limit: int = Query(20, ge=1, le=200),
 ):
-    query = (
-        db.query(Package, Celebration.title.label("celebration_title"))
-        .join(Celebration, Package.celebration_id == Celebration.id)
-        .filter(Package.is_active == True)
-    )
-    if celebration_id:
-        query = query.filter(Package.celebration_id == celebration_id)
+    query = db.query(Package).filter(Package.is_active == True)
 
-    results = query.order_by(Package.sort_order, Package.id).limit(limit).all()
-    if not results:
+    packages = query.order_by(Package.sort_order, Package.id).limit(limit).all()
+    if not packages:
         return []
 
-    package_ids = [p.id for p, _ in results]
+    package_ids = [p.id for p in packages]
 
     images_subq = (
         db.query(
@@ -191,13 +184,11 @@ def list_public_packages(
             sort_order=package.sort_order,
             date_available_start=package.date_available_start,
             date_available_end=package.date_available_end,
-            celebration_id=package.celebration_id,
-            celebration_title=celebration_title,
             image_url=first_image_map.get(package.id),
             images_url=images_map.get(package.id, []),
             features=features_map.get(package.id, []),
         )
-        for package, celebration_title in results
+        for package in packages
     ]
 
 

@@ -35,9 +35,8 @@ export async function getPublicCelebrations(): Promise<Celebration[]> {
   return res.json();
 }
 
-export async function getPublicPackages(params?: { celebration_id?: number; limit?: number }): Promise<Package[]> {
+export async function getPublicPackages(params?: { limit?: number }): Promise<Package[]> {
   const query = new URLSearchParams();
-  if (params?.celebration_id) query.append('celebration_id', params.celebration_id.toString());
   if (params?.limit) query.append('limit', params.limit.toString());
 
   const res = await fetch(`${API_URL}/public/packages?${query.toString()}`, { cache: 'no-store' });

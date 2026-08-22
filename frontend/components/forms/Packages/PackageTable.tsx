@@ -47,12 +47,6 @@ export default function PackagesTable({ initialPackages }: Props) {
       align: 'left',
     },
     {
-      key: 'celebration_title',
-      label: 'Celebración',
-      align: 'left',
-      render: (pkg) => pkg.celebration_title || '—',
-    },
-    {
       key: 'is_active',
       label: 'Estado',
       render: (pkg) => (

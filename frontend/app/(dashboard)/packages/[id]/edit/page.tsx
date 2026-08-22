@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getServerToken } from '@/app/lib/auth-server';
 import { getPackage } from '@/lib/api/packages';
-import { getCelebrations } from '@/lib/api/celebrations';
 import PackageForm from '@/components/forms/Packages/PackageForm';
 
 export default async function EditPackagePage({
@@ -13,10 +12,7 @@ export default async function EditPackagePage({
   const token = await getServerToken();
   if (!token) redirect('/login');
 
-  const [packageData, celebrations] = await Promise.all([
-    getPackage(Number(id), token),
-    getCelebrations({ limit: 100 }, token),
-  ]);
+  const packageData = await getPackage(Number(id), token);
 
-  return <PackageForm initialData={packageData} celebrations={celebrations} />;
+  return <PackageForm initialData={packageData} />;
 }

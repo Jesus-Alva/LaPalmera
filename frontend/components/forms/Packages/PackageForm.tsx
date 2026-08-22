@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { usePersistedForm } from '@/lib/hooks/usePersistedForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, PackageCreate } from '@/src/types/package';
-import { Celebration } from '@/src/types/celebration';
 import { createPackage, updatePackage } from '@/lib/api/packages';
 import {
   getOrCreateCatalogForPackage,
@@ -20,13 +19,11 @@ import MilestoneProgressBar from '@/components/ui/MilestoneProgressBar';
 
 interface Props {
   initialData?: Package;
-  celebrations: Celebration[];
 }
 
 interface FormData {
   title: string;
   shortDescription: string;
-  celebrationId: number;
   sortOrder: number;
   isActive: boolean;
   dateAvailableStart: string;
@@ -34,7 +31,7 @@ interface FormData {
   features: { feature_key: string; feature_value: string }[];
 }
 
-export default function PackageForm({ initialData, celebrations }: Props) {
+export default function PackageForm({ initialData }: Props) {
   const router = useRouter();
   const isEditing = !!initialData?.id;
   const storageKey = `package_form_${isEditing ? `edit_${initialData.id}` : 'new'}`;
@@ -58,7 +55,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
   const defaultData: FormData = {
     title: initialData?.title || '',
     shortDescription: initialData?.short_description || '',
-    celebrationId: initialData?.celebration_id || 0,
     sortOrder: initialData?.sort_order || 0,
     isActive: initialData?.is_active ?? true,
     dateAvailableStart: initialData?.date_available_start
@@ -182,10 +178,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         setError('El título es obligatorio');
         return false;
       }
-      if (!persistedData.celebrationId) {
-        setError('Selecciona una celebración');
-        return false;
-      }
       return true;
     }
     if (step === 2) {
@@ -231,15 +223,10 @@ export default function PackageForm({ initialData, celebrations }: Props) {
         return;
       }
 
-      if (!persistedData.celebrationId) {
-        throw new Error('Selecciona una celebración');
-      }
-
       // 1. Crear/actualizar el paquete
       const data: PackageCreate = {
         title: persistedData.title,
         short_description: persistedData.shortDescription || undefined,
-        celebration_id: persistedData.celebrationId,
         sort_order: persistedData.sortOrder,
         is_active: persistedData.isActive,
         date_available_start: persistedData.dateAvailableStart || null,
@@ -323,26 +310,6 @@ export default function PackageForm({ initialData, celebrations }: Props) {
                 onChange={e => handleFieldChange('shortDescription', e.target.value)}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
-            </div>
-
-            <div>
-              <label htmlFor="celebration" className="block text-sm font-medium text-gray-700">
-                Celebración *
-              </label>
-              <select
-                id="celebration"
-                required
-                value={persistedData.celebrationId}
-                onChange={e => handleFieldChange('celebrationId', Number(e.target.value))}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="0">Selecciona una celebración...</option>
-                {celebrations.map(celebration => (
-                  <option key={celebration.id} value={celebration.id}>
-                    {celebration.title}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -5,7 +5,6 @@ from typing import Optional
 from app.db.session import get_db
 from app.model.package import Package
 from app.model.package_feature import PackageFeature
-from app.model.celebration import Celebration
 from app.model.images_catalog import ImagesCatalog
 from app.model.image import Image
 from app.schemas.package import PackageCreate, PackageUpdate, PackageOut
@@ -19,7 +18,6 @@ def list_packages(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
-    celebration_id: Optional[int] = None,
     search: Optional[str] = None,
     is_active: Optional[bool] = None,
     current_user: User = Depends(get_current_user),
@@ -27,25 +25,22 @@ def list_packages(
     """
     Listar paquetes con paginación, filtros, y todas sus imágenes y características.
     """
-    # 1. Consulta base con join a Celebration para obtener título
-    query = db.query(Package, Celebration.title.label('celebration_title')) \
-              .join(Celebration, Package.celebration_id == Celebration.id)
+    # 1. Consulta base
+    query = db.query(Package)
 
     # Aplicar filtros
-    if celebration_id:
-        query = query.filter(Package.celebration_id == celebration_id)
     if search:
         query = query.filter(Package.title.ilike(f"%{search}%"))
     if is_active is not None:
         query = query.filter(Package.is_active == is_active)
 
     # Paginación
-    results = query.offset(skip).limit(limit).all()
-    if not results:
+    packages = query.offset(skip).limit(limit).all()
+    if not packages:
         return []
 
     # 2. Extraer IDs de los paquetes
-    package_ids = [p.id for p, _ in results]
+    package_ids = [p.id for p in packages]
 
     # 3. Obtener TODAS las imágenes agrupadas por package_id
     #    Usamos una subconsulta con ROW_NUMBER para ordenar, pero luego agrupamos todas.
@@ -65,7 +60,7 @@ def list_packages(
 
     # Obtenemos todas las filas (todas las imágenes)
     all_images = db.query(images_subq).all()
-    
+
     # Diccionarios para almacenar imágenes
     images_map = {}      # package_id -> list of image_paths (todas)
     first_image_map = {} # package_id -> first image (destacada)
@@ -90,7 +85,7 @@ def list_packages(
 
     # 5. Construir respuesta
     result = []
-    for package, celebration_title in results:
+    for package in packages:
         package_out = PackageOut(
             id=package.id,
             title=package.title,
@@ -99,8 +94,6 @@ def list_packages(
             sort_order=package.sort_order,
             date_available_start=package.date_available_start,
             date_available_end=package.date_available_end,
-            celebration_id=package.celebration_id,
-            celebration_title=celebration_title,
             image_url=first_image_map.get(package.id),          # primera imagen (destacada)
             images_url=images_map.get(package.id, []),          # todas las imágenes
             features=features_map.get(package.id, []),
@@ -117,11 +110,6 @@ def create_package(
 ):
     if current_user.role not in ["admin", "editor"]:
         raise HTTPException(status_code=403, detail="No autorizado")
-
-    # Verificar que la celebración existe
-    celebration = db.query(Celebration).filter(Celebration.id == package_data.celebration_id).first()
-    if not celebration:
-        raise HTTPException(status_code=404, detail="Celebración no encontrada")
 
     # Crear paquete
     new_package = Package(**package_data.model_dump(exclude={'features'}))
@@ -140,24 +128,17 @@ def create_package(
             db.add(feature)
         db.commit()
 
-    # Obtener el paquete completo con relaciones
-    result = db.query(Package, Celebration.title.label('celebration_title')).join(Celebration, Package.celebration_id == Celebration.id).filter(Package.id == new_package.id).first()
-    if not result:
-        raise HTTPException(status_code=404, detail="Error al recuperar paquete")
-
-    package, celebration_title = result
+    db.refresh(new_package)
     package_out = PackageOut(
-        id=package.id,
-        title=package.title,
-        short_description=package.short_description,
-        is_active=package.is_active,
-        sort_order=package.sort_order,
-        date_available_start=package.date_available_start,
-        date_available_end=package.date_available_end,
-        celebration_id=package.celebration_id,
-        celebration_title=celebration_title,
+        id=new_package.id,
+        title=new_package.title,
+        short_description=new_package.short_description,
+        is_active=new_package.is_active,
+        sort_order=new_package.sort_order,
+        date_available_start=new_package.date_available_start,
+        date_available_end=new_package.date_available_end,
         image_url=None,
-        features=package.features  # Esto carga las relaciones lazy (necesitamos eager load)
+        features=new_package.features  # Esto carga las relaciones lazy (necesitamos eager load)
     )
     return package_out
 
@@ -170,10 +151,6 @@ def get_package(
     package = db.query(Package).filter(Package.id == package_id).first()
     if not package:
         raise HTTPException(status_code=404, detail="Paquete no encontrado")
-
-    # Obtener celebration_title
-    celebration = db.query(Celebration).filter(Celebration.id == package.celebration_id).first()
-    celebration_title = celebration.title if celebration else None
 
     # Obtener imagen destacada
     image_path = None
@@ -192,8 +169,6 @@ def get_package(
         sort_order=package.sort_order,
         date_available_start=package.date_available_start,
         date_available_end=package.date_available_end,
-        celebration_id=package.celebration_id,
-        celebration_title=celebration_title,
         image_url=image_path,
         features=package.features  # Relación lazy, ya cargada
     )
@@ -234,10 +209,6 @@ def update_package(
     db.commit()
     db.refresh(package)
 
-    # Obtener celebration_title
-    celebration = db.query(Celebration).filter(Celebration.id == package.celebration_id).first()
-    celebration_title = celebration.title if celebration else None
-
     # Obtener imagen destacada
     image_path = None
     catalog = db.query(ImagesCatalog).filter(ImagesCatalog.package_id == package_id).first()
@@ -254,8 +225,6 @@ def update_package(
         sort_order=package.sort_order,
         date_available_start=package.date_available_start,
         date_available_end=package.date_available_end,
-        celebration_id=package.celebration_id,
-        celebration_title=celebration_title,
         image_url=image_path,
         features=package.features
     )
