@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ImageIcon,
-  UserCog
+  UserCog,
+  Settings
 } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import SidebarUser from './SidebarUser';
@@ -56,7 +57,10 @@ export default function Sidebar({ user }: SidebarProps) {
     { href: '/packages', icon: <Package size={22} />, label: 'Paquetes' },
     { href: '/locations', icon: <MapPin size={22} />, label: 'Ubicaciones' },
     ...(user?.role === 'admin'
-      ? [{ href: '/users', icon: <UserCog size={22} />, label: 'Usuarios' }]
+      ? [
+          { href: '/users', icon: <UserCog size={22} />, label: 'Usuarios' },
+          { href: '/settings', icon: <Settings size={22} />, label: 'Configuración' },
+        ]
       : []),
   ];
 

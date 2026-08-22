@@ -33,5 +33,6 @@ export const config = {
     '/login',
     '/gallery/:path*',
     '/users/:path*',
+    '/settings/:path*',
   ],
 };

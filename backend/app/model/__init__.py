@@ -13,6 +13,7 @@ from .location import Location
 from .team_member import TeamMember
 from .gallery_category import GalleryCategory
 from .gallery_image import GalleryImage
+from .site_setting import SiteSetting
 
 __all__ = [
     "Base",
@@ -30,4 +31,5 @@ __all__ = [
     "TeamMember",
     "GalleryCategory",
     "GalleryImage",
+    "SiteSetting",
 ]

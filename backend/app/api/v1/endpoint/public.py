@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional
@@ -16,6 +16,7 @@ from app.model.gallery_category import GalleryCategory
 from app.model.gallery_image import GalleryImage
 from app.model.images_catalog import ImagesCatalog
 from app.model.image import Image
+from app.model.site_setting import SiteSetting
 
 from app.schemas.banner import BannerOut
 from app.schemas.space import SpaceOut
@@ -244,3 +245,22 @@ def list_public_gallery_images(
     if category_id:
         query = query.filter(GalleryImage.category_id == category_id)
     return query.all()
+
+
+@router.get("/settings")
+def get_public_settings(db: Session = Depends(get_db)):
+    """
+    Devuelve todas las configuraciones del sitio como un diccionario
+    { setting_key: setting_value }, para que el sitio público (footer,
+    SEO, banner de inicio, redes sociales, etc.) las consuma de una sola vez.
+    """
+    settings = db.query(SiteSetting).all()
+    return {s.setting_key: s.setting_value for s in settings}
+
+
+@router.get("/settings/{setting_key}")
+def get_public_setting(setting_key: str, db: Session = Depends(get_db)):
+    setting = db.query(SiteSetting).filter(SiteSetting.setting_key == setting_key).first()
+    if not setting:
+        raise HTTPException(status_code=404, detail="Configuración no encontrada")
+    return setting.setting_value

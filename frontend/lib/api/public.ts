@@ -5,6 +5,7 @@ import { Package } from '@/src/types/package';
 import { Location } from '@/src/types/location';
 import { TeamMember } from '@/src/types/teamMember';
 import { GalleryCategory, GalleryImage } from '@/src/types/gallery';
+import { SettingKey, SettingValueMap } from '@/src/types/siteSettings';
 import { getApiBaseUrl } from './client';
 
 const API_URL = getApiBaseUrl();
@@ -65,5 +66,17 @@ export async function getPublicGalleryCategories(): Promise<GalleryCategory[]> {
 export async function getPublicGalleryImages(): Promise<GalleryImage[]> {
   const res = await fetch(`${API_URL}/public/gallery/images`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Error al cargar imágenes de galería');
+  return res.json();
+}
+
+export async function getPublicSettings(): Promise<Partial<SettingValueMap>> {
+  const res = await fetch(`${API_URL}/public/settings`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Error al cargar la configuración del sitio');
+  return res.json();
+}
+
+export async function getPublicSetting<K extends SettingKey>(key: K): Promise<SettingValueMap[K]> {
+  const res = await fetch(`${API_URL}/public/settings/${key}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Error al cargar la configuración del sitio');
   return res.json();
 }

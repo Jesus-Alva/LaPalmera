@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoint import auth, users, spaces, spaces_images, images, celebrations, locations, team_members, banners, faqs, packages, package_feature_catalog, gallery, public
+from app.api.v1.endpoint import auth, users, spaces, spaces_images, images, celebrations, locations, team_members, banners, faqs, packages, package_feature_catalog, gallery, public, site_settings
 
 api_router = APIRouter()
 
@@ -19,3 +19,4 @@ api_router.include_router(package_feature_catalog.router, prefix="/package-featu
 # api_router.include_router(gallery_categories.router, prefix="/gallery-categories", tags=["Gallery Categories"])
 # api_router.include_router(gallery_images.router, prefix="/gallery-images", tags=["Gallery Images"])
 api_router.include_router(gallery.router, prefix="/gallery", tags=["Gallery"])
+api_router.include_router(site_settings.router, prefix="/site-settings", tags=["Site Settings"])
