@@ -4,11 +4,24 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Eye, EyeOff, Check, X as XIcon } from 'lucide-react';
+
+// Reglas de formato exigidas por el backend (app/schemas/user.py) más el
+// mínimo de longitud, validadas también aquí para no depender solo del
+// mensaje de error que devuelve la API.
+const PASSWORD_REQUIREMENTS = [
+  { label: 'Mínimo 8 caracteres', test: (v: string) => v.length >= 8 },
+  { label: 'Al menos una letra mayúscula', test: (v: string) => /[A-Z]/.test(v) },
+  { label: 'Al menos un número', test: (v: string) => /\d/.test(v) },
+];
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
@@ -18,10 +31,24 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const passwordChecks = PASSWORD_REQUIREMENTS.map((req) => ({ ...req, valid: req.test(password) }));
+  const isPasswordValid = passwordChecks.every((req) => req.valid);
+  const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    if (!isPasswordValid) {
+      setError('La contraseña no cumple con los requisitos de formato.');
+      return;
+    }
+    if (!passwordsMatch) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
     setLoading(true);
 
     const API_URL = 'http://localhost:8000/api/v1';
@@ -69,7 +96,7 @@ export default function RegisterPage() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
@@ -170,16 +197,72 @@ export default function RegisterPage() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Contraseña
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
-                placeholder="••••••••"
-              />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Mínimo 8 caracteres</p>
+              <div className="relative mt-1">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full px-4 py-3 pr-11 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              {/* Requisitos de formato */}
+              <ul className="mt-2 space-y-1">
+                {passwordChecks.map((req) => (
+                  <li
+                    key={req.label}
+                    className={`flex items-center gap-1.5 text-xs ${
+                      req.valid ? 'text-green-500' : 'text-gray-400 dark:text-gray-500'
+                    }`}
+                  >
+                    {req.valid ? <Check className="w-3.5 h-3.5 shrink-0" /> : <XIcon className="w-3.5 h-3.5 shrink-0" />}
+                    {req.label}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            {/* Confirmar contraseña */}
+            <motion.div variants={itemVariants} className="relative">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Confirmar contraseña
+              </label>
+              <div className="relative mt-1">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full px-4 py-3 pr-11 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              {confirmPassword.length > 0 && (
+                <p className={`mt-1 flex items-center gap-1.5 text-xs ${passwordsMatch ? 'text-green-500' : 'text-red-400'}`}>
+                  {passwordsMatch ? <Check className="w-3.5 h-3.5 shrink-0" /> : <XIcon className="w-3.5 h-3.5 shrink-0" />}
+                  {passwordsMatch ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden'}
+                </p>
+              )}
             </motion.div>
 
             {/* Preferencia de notificaciones */}
@@ -227,7 +310,7 @@ export default function RegisterPage() {
             <motion.div variants={itemVariants}>
               <motion.button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !isPasswordValid || !passwordsMatch}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-medium text-whitefont-noto-serif text-primary bg-secondary hover:bg-primary hover:text-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300"
