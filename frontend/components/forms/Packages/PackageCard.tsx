@@ -7,10 +7,11 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package } from '@/src/types/package';
 import { deletePackage } from '@/lib/api/packages';
-import { 
-  Edit, Trash2, Calendar, CheckCircle, XCircle, 
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp 
+import {
+  Edit, Trash2, Calendar, CheckCircle, XCircle,
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp
 } from 'lucide-react';
+import { confirmAction, showErrorAlert } from '@/lib/alerts';
 
 interface Props {
   packageItem: Package;
@@ -60,14 +61,14 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`¿Eliminar el paquete "${packageItem.title}"?`)) return;
+    if (!(await confirmAction({ text: `¿Eliminar el paquete "${packageItem.title}"?` }))) return;
     setIsDeleting(true);
     try {
       await deletePackage(packageItem.id);
       if (onDelete) onDelete(packageItem.id);
       router.refresh();
     } catch (error) {
-      alert('Error al eliminar el paquete');
+      showErrorAlert('Error al eliminar el paquete');
     } finally {
       setIsDeleting(false);
     }

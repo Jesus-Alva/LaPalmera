@@ -6,11 +6,12 @@ import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 import NavbarComponent from '../components/layouts/NavbarComponent';
 import FooterComponent from '../components/layouts/FooterComponent';
 import SocialBubbles from '../components/ui/SocialBubbles';
+import PromotionsButton from '../components/ui/PromotionsButton';
 import LoadingScreen from '../components/ui/LoadingScreen';
 import { ROUTES_IMAGES } from './constants/routes';
 import AuthCheck from '@/components/ui/AuthCheck';
 import { buildPageMetadata, SITE_URL } from '../lib/seo';
-import { getPublicSetting } from '../lib/api/public';
+import { getPublicSetting, getPublicPackages } from '../lib/api/public';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
@@ -45,7 +46,13 @@ export default async function RootLayout({
 }) {
   // Enlaces reales de redes sociales (site_settings → Redes sociales, editable
   // desde /settings). Si el fetch falla, SocialBubbles usa su respaldo hardcodeado.
-  const socialNetworks = await getPublicSetting('social_networks').catch(() => undefined);
+  const [socialNetworks, packages] = await Promise.all([
+    getPublicSetting('social_networks').catch(() => undefined),
+    getPublicPackages({ limit: 200 }).catch(() => []),
+  ]);
+  // "Promociones" = paquetes con fecha de disponibilidad establecida
+  // (date_available_start), a diferencia de los paquetes permanentes.
+  const promotionalPackages = packages.filter((pkg) => !!pkg.date_available_start);
 
   return (
     <html lang="es" suppressHydrationWarning>
@@ -60,6 +67,9 @@ export default async function RootLayout({
           </AuthCheck>
           <AuthCheck>
             <SocialBubbles socialNetworks={socialNetworks} />
+          </AuthCheck>
+          <AuthCheck>
+            <PromotionsButton packages={promotionalPackages} />
           </AuthCheck>
           {children}
           <AuthCheck>

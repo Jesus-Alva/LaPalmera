@@ -9,6 +9,7 @@ import { getOrCreateCatalogForBanner, uploadImage, deleteImage } from '@/lib/api
 import { Image as ImageType } from '@/src/types/images';
 import { Upload, X } from 'lucide-react';
 import Image from 'next/image';
+import { confirmAction, showErrorAlert } from '@/lib/alerts';
 
 interface Props {
   initialData?: Banner;
@@ -74,12 +75,12 @@ export default function BannerForm({ initialData }: Props) {
   };
 
   const handleDeleteImage = async (imageId: number) => {
-    if (!confirm('¿Eliminar esta imagen?')) return;
+    if (!(await confirmAction({ text: '¿Eliminar esta imagen?' }))) return;
     try {
       await deleteImage(imageId);
       setImages(prev => prev.filter(img => img.id !== imageId));
     } catch (error) {
-      alert('Error al eliminar imagen');
+      showErrorAlert('Error al eliminar imagen');
     }
   };
 

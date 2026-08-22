@@ -8,6 +8,7 @@ import ImageUploadModal from '@/components/forms/Gallery/ImageUploadModal';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, Edit2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { confirmAction, showErrorAlert } from '@/lib/alerts';
 
 export default function GalleryPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function GalleryPage() {
   }, [selectedCategory]);
 
   const handleDeleteCategory = async (id: number) => {
-    if (!confirm('¿Eliminar esta categoría y todas sus imágenes?')) return;
+    if (!(await confirmAction({ text: '¿Eliminar esta categoría y todas sus imágenes?' }))) return;
     try {
       await deleteCategory(id);
       setCategories(prev => prev.filter(c => c.id !== id));
@@ -64,18 +65,18 @@ export default function GalleryPage() {
       }
       router.refresh();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error al eliminar categoría');
+      showErrorAlert(err instanceof Error ? err.message : 'Error al eliminar categoría');
     }
   };
 
   const handleDeleteImage = async (id: number) => {
-    if (!confirm('¿Eliminar esta imagen?')) return;
+    if (!(await confirmAction({ text: '¿Eliminar esta imagen?' }))) return;
     try {
       await deleteImage(id);
       setImages(prev => prev.filter(img => img.id !== id));
       router.refresh();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error al eliminar imagen');
+      showErrorAlert(err instanceof Error ? err.message : 'Error al eliminar imagen');
     }
   };
 
@@ -87,7 +88,7 @@ export default function GalleryPage() {
       setEditingCategory(null);
       router.refresh();
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Error al actualizar categoría');
+      showErrorAlert(err instanceof Error ? err.message : 'Error al actualizar categoría');
     }
   };
 

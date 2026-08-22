@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Space } from '@/src/types/space';
 import { deleteSpace } from '@/lib/api/spaces';
 import { Edit, Trash2, CheckCircle, XCircle, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { confirmAction, showErrorAlert } from '@/lib/alerts';
 
 interface Props {
   space: Space;
@@ -62,14 +63,14 @@ export default function SpaceCard({ space, onDelete }: Props) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`¿Eliminar el espacio "${space.title}"?`)) return;
+    if (!(await confirmAction({ text: `¿Eliminar el espacio "${space.title}"?` }))) return;
     setIsDeleting(true);
     try {
       await deleteSpace(space.id);
       if (onDelete) onDelete(space.id);
       router.refresh();
     } catch (error) {
-      alert('Error al eliminar el espacio');
+      showErrorAlert('Error al eliminar el espacio');
     } finally {
       setIsDeleting(false);
     }

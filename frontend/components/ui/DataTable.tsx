@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColumnDef, ActionDef } from '@/src/types/table';
+import { confirmAction } from '@/lib/alerts';
 
 interface DataTableProps<T extends { id: string | number }> {
   data: T[];
@@ -40,7 +41,7 @@ export default function DataTable<T extends { id: string | number }>({
   const handleDelete = async (item: T) => {
     const id = item[rowKey] as string | number;
     if (!id) return;
-    if (!window.confirm(`¿Estás seguro de eliminar este ${resourceName}? Esta acción no se puede deshacer.`)) return;
+    if (!(await confirmAction({ text: `¿Estás seguro de eliminar este ${resourceName}? Esta acción no se puede deshacer.` }))) return;
 
     setLoadingId(id);
     setError(null);

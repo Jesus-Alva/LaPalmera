@@ -8,6 +8,7 @@ import { Upload, X, Trash2 } from 'lucide-react';
 import { Space, SpaceCreate } from '@/src/types/space';
 import { createSpace, updateSpace } from '@/lib/api/spaces';
 import { getCatalogBySpace, getOrCreateCatalog, uploadImage, deleteImage } from '@/lib/api/images';
+import { confirmAction } from '@/lib/alerts';
 
 interface Props {
   initialData?: Space;
@@ -73,8 +74,8 @@ export default function SpaceForm({ initialData }: Props) {
     setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const markImageForDeletion = (imageId: number) => {
-    if (!confirm('¿Eliminar esta imagen permanentemente?')) return;
+  const markImageForDeletion = async (imageId: number) => {
+    if (!(await confirmAction({ text: '¿Eliminar esta imagen permanentemente?' }))) return;
     setImagesToDelete((prev) => [...prev, imageId]);
     setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
   };

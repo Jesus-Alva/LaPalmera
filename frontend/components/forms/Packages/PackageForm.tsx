@@ -19,6 +19,7 @@ import { Upload, X, Plus, ImageIcon, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import MilestoneProgressBar from '@/components/ui/MilestoneProgressBar';
 import FeatureCatalogSelector from './FeatureCatalogSelector';
+import { confirmAction } from '@/lib/alerts';
 
 interface Props {
   initialData?: Package;
@@ -171,8 +172,8 @@ export default function PackageForm({ initialData }: Props) {
     setNewImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const markImageForDeletion = (imageId: number) => {
-    if (!confirm('¿Eliminar esta imagen permanentemente?')) return;
+  const markImageForDeletion = async (imageId: number) => {
+    if (!(await confirmAction({ text: '¿Eliminar esta imagen permanentemente?' }))) return;
     setImagesToDelete(prev => [...prev, imageId]);
     setExistingImages(prev => prev.filter(img => img.id !== imageId));
   };
@@ -651,8 +652,8 @@ export default function PackageForm({ initialData }: Props) {
 
             <button
               type="button"
-              onClick={() => {
-                if (confirm('¿Seguro que quieres cancelar? Se perderán los cambios no guardados.')) {
+              onClick={async () => {
+                if (await confirmAction({ text: '¿Seguro que quieres cancelar? Se perderán los cambios no guardados.' })) {
                   clearPersistedData();
                   router.push('/packages');
                 }

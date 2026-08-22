@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { TeamMember } from '@/src/types/teamMember';
 import { deleteTeamMember } from '@/lib/api/teamMembers';
 import { Edit, Trash2, CheckCircle, XCircle, User } from 'lucide-react';
+import { confirmAction, showErrorAlert } from '@/lib/alerts';
 
 interface Props {
   member: TeamMember;
@@ -25,14 +26,14 @@ export default function TeamMemberCard({ member, onDelete }: Props) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`¿Eliminar a "${member.name}" del equipo?`)) return;
+    if (!(await confirmAction({ text: `¿Eliminar a "${member.name}" del equipo?` }))) return;
     setIsDeleting(true);
     try {
       await deleteTeamMember(member.id);
       if (onDelete) onDelete(member.id);
       router.refresh();
     } catch (error) {
-      alert('Error al eliminar el miembro del equipo');
+      showErrorAlert('Error al eliminar el miembro del equipo');
     } finally {
       setIsDeleting(false);
     }

@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Banner } from '@/src/types/banners';
 import { deleteBanner } from '@/lib/api/banners';
 import { Edit, Trash2, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { confirmAction, showErrorAlert } from '@/lib/alerts';
 
 interface Props {
   banner: Banner;
@@ -60,14 +61,14 @@ export default function BannerCard({ banner, onDelete }: Props) {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`¿Eliminar el banner "${banner.title}"?`)) return;
+    if (!(await confirmAction({ text: `¿Eliminar el banner "${banner.title}"?` }))) return;
     setIsDeleting(true);
     try {
       await deleteBanner(banner.id);
       if (onDelete) onDelete(banner.id);
       router.refresh();
     } catch (error) {
-      alert('Error al eliminar el banner');
+      showErrorAlert('Error al eliminar el banner');
     } finally {
       setIsDeleting(false);
     }
