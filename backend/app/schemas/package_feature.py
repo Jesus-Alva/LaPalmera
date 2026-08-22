@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 
-class PackageFeatureBase(BaseModel):
-    feature_key: str
+class PackageFeatureCreate(BaseModel):
+    catalog_id: int
     feature_value: str
 
-class PackageFeatureCreate(PackageFeatureBase):
-    pass
-
-class PackageFeatureOut(PackageFeatureBase):
+class PackageFeatureOut(BaseModel):
     id: int
     package_id: int
+    catalog_id: int
+    feature_key: str
+    feature_value: str
 
     class Config:
         from_attributes = True

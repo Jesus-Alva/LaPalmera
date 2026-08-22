@@ -8,6 +8,7 @@ from .image import Image
 from .images_catalog import ImagesCatalog
 from .banner import Banner
 from .package_feature import PackageFeature
+from .package_feature_catalog import PackageFeatureCatalog
 from .location import Location
 from .team_member import TeamMember
 from .gallery_category import GalleryCategory
@@ -24,6 +25,7 @@ __all__ = [
     "ImagesCatalog",
     "Banner",
     "PackageFeature",
+    "PackageFeatureCatalog",
     "Location",
     "TeamMember",
     "GalleryCategory",

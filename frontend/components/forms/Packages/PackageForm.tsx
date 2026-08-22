@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 import { usePersistedForm } from '@/lib/hooks/usePersistedForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package, PackageCreate } from '@/src/types/package';
+import { PackageFeatureCatalog } from '@/src/types/packageFeatureCatalog';
 import { createPackage, updatePackage } from '@/lib/api/packages';
+import { getPackageFeatureCatalog } from '@/lib/api/packageFeatureCatalog';
 import {
   getOrCreateCatalogForPackage,
   uploadImage,
@@ -16,6 +18,7 @@ import {
 import { Upload, X, Plus, ImageIcon, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import MilestoneProgressBar from '@/components/ui/MilestoneProgressBar';
+import FeatureCatalogSelector from './FeatureCatalogSelector';
 
 interface Props {
   initialData?: Package;
@@ -28,7 +31,7 @@ interface FormData {
   isActive: boolean;
   dateAvailableStart: string;
   dateAvailableEnd: string;
-  features: { feature_key: string; feature_value: string }[];
+  features: { catalog_id: number; feature_value: string }[];
 }
 
 export default function PackageForm({ initialData }: Props) {
@@ -51,6 +54,10 @@ export default function PackageForm({ initialData }: Props) {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
+  // Catálogo de características disponibles para seleccionar
+  const [featureCatalog, setFeatureCatalog] = useState<PackageFeatureCatalog[]>([]);
+  const [loadingFeatureCatalog, setLoadingFeatureCatalog] = useState(true);
+
   // Estado principal del formulario (persistente)
   const defaultData: FormData = {
     title: initialData?.title || '',
@@ -63,7 +70,7 @@ export default function PackageForm({ initialData }: Props) {
     dateAvailableEnd: initialData?.date_available_end
       ? new Date(initialData.date_available_end).toISOString().split('T')[0]
       : '',
-    features: initialData?.features?.map(f => ({ feature_key: f.feature_key, feature_value: f.feature_value })) || [],
+    features: initialData?.features?.map(f => ({ catalog_id: f.catalog_id, feature_value: f.feature_value })) || [],
   };
 
   const {
@@ -102,6 +109,25 @@ export default function PackageForm({ initialData }: Props) {
   };
 
   // ============ EFFECTS ============
+
+  // Cargar el catálogo de características disponibles
+  useEffect(() => {
+    let isMounted = true;
+    const fetchFeatureCatalog = async () => {
+      try {
+        const data = await getPackageFeatureCatalog();
+        if (isMounted) setFeatureCatalog(data);
+      } catch (error) {
+        console.error('Error cargando catálogo de características:', error);
+      } finally {
+        if (isMounted) setLoadingFeatureCatalog(false);
+      }
+    };
+    void fetchFeatureCatalog();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Cargar imágenes existentes al editar
   useEffect(() => {
@@ -154,19 +180,29 @@ export default function PackageForm({ initialData }: Props) {
   // ============ MANEJO DE CARACTERÍSTICAS ============
 
   const addFeature = () => {
-    const updatedFeatures = [...persistedData.features, { feature_key: '', feature_value: '' }];
+    const updatedFeatures = [...persistedData.features, { catalog_id: 0, feature_value: '' }];
     updateData({ features: updatedFeatures });
   };
 
-  const updateFeature = (index: number, field: 'feature_key' | 'feature_value', value: string) => {
+  const updateFeatureCatalog = (index: number, catalogId: number) => {
     const updated = [...persistedData.features];
-    updated[index][field] = value;
+    updated[index] = { ...updated[index], catalog_id: catalogId };
+    updateData({ features: updated });
+  };
+
+  const updateFeatureValue = (index: number, value: string) => {
+    const updated = [...persistedData.features];
+    updated[index] = { ...updated[index], feature_value: value };
     updateData({ features: updated });
   };
 
   const removeFeature = (index: number) => {
     const updated = persistedData.features.filter((_, i) => i !== index);
     updateData({ features: updated });
+  };
+
+  const handleFeatureCatalogCreated = (item: PackageFeatureCatalog) => {
+    setFeatureCatalog(prev => [...prev, item].sort((a, b) => a.name.localeCompare(b.name)));
   };
 
   // ============ VALIDACIÓN Y NAVEGACIÓN ============
@@ -182,8 +218,8 @@ export default function PackageForm({ initialData }: Props) {
     }
     if (step === 2) {
       for (let i = 0; i < persistedData.features.length; i++) {
-        if (!persistedData.features[i].feature_key.trim() || !persistedData.features[i].feature_value.trim()) {
-          setError('Todos los campos de características deben estar completos');
+        if (!persistedData.features[i].catalog_id || !persistedData.features[i].feature_value.trim()) {
+          setError('Selecciona una característica y completa su valor en todas las filas');
           return false;
         }
       }
@@ -232,7 +268,7 @@ export default function PackageForm({ initialData }: Props) {
         date_available_start: persistedData.dateAvailableStart || null,
         date_available_end: persistedData.dateAvailableEnd || null,
         features: persistedData.features.map(f => ({
-          feature_key: f.feature_key,
+          catalog_id: f.catalog_id,
           feature_value: f.feature_value,
         })),
       };
@@ -390,51 +426,59 @@ export default function PackageForm({ initialData }: Props) {
               </button>
             </div>
 
-            {persistedData.features.length === 0 && (
-              <p className="text-gray-500 text-sm text-center py-8">
-                No hay características agregadas. Haz clic en "Añadir" para comenzar.
-              </p>
-            )}
+            {loadingFeatureCatalog ? (
+              <div className="flex items-center gap-2 text-gray-500 text-sm py-8 justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-transparent" />
+                Cargando catálogo de características...
+              </div>
+            ) : (
+              <>
+                {persistedData.features.length === 0 && (
+                  <p className="text-gray-500 text-sm text-center py-8">
+                    No hay características agregadas. Haz clic en "Añadir" para comenzar.
+                  </p>
+                )}
 
-            <AnimatePresence>
-              {persistedData.features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="flex gap-4 items-end border-b border-gray-100 pb-4"
-                >
-                  <div className="flex-1">
-                    <label className="block text-xs font-medium text-gray-500">Clave</label>
-                    <input
-                      type="text"
-                      value={feature.feature_key}
-                      onChange={e => updateFeature(index, 'feature_key', e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Ej: Capacidad"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-xs font-medium text-gray-500">Valor</label>
-                    <input
-                      type="text"
-                      value={feature.feature_value}
-                      onChange={e => updateFeature(index, 'feature_value', e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Ej: 100 personas"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeFeature(index)}
-                    className="text-red-500 hover:text-red-700 p-1"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                <AnimatePresence>
+                  {persistedData.features.map((feature, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex gap-4 items-start border-b border-gray-100 pb-4"
+                    >
+                      <div className="flex-1">
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Característica</label>
+                        <FeatureCatalogSelector
+                          catalog={featureCatalog}
+                          value={feature.catalog_id || null}
+                          onChange={(catalogId) => updateFeatureCatalog(index, catalogId)}
+                          onCatalogCreated={handleFeatureCatalogCreated}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-xs font-medium text-gray-500 mb-1">Valor</label>
+                        <input
+                          type="text"
+                          value={feature.feature_value}
+                          onChange={e => updateFeatureValue(index, e.target.value)}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Ej: 100 personas"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFeature(index)}
+                        className="text-red-500 hover:text-red-700 p-1 mt-6"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </>
+            )}
           </motion.div>
         );
 

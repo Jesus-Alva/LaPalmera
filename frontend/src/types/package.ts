@@ -40,11 +40,12 @@ export interface PackageUpdate {
 
 export interface PackageFeature {
   id: number;
+  catalog_id: number;
   feature_key: string;
   feature_value: string;
 }
 
 export interface PackageFeatureCreate {
-  feature_key: string;
+  catalog_id: number;
   feature_value: string;
 }

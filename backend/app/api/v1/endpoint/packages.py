@@ -122,7 +122,7 @@ def create_package(
         for feature_data in package_data.features:
             feature = PackageFeature(
                 package_id=new_package.id,
-                feature_key=feature_data.feature_key,
+                catalog_id=feature_data.catalog_id,
                 feature_value=feature_data.feature_value
             )
             db.add(feature)
@@ -201,7 +201,7 @@ def update_package(
         for feature_data in package_data.features:
             feature = PackageFeature(
                 package_id=package_id,
-                feature_key=feature_data.feature_key,
+                catalog_id=feature_data.catalog_id,
                 feature_value=feature_data.feature_value
             )
             db.add(feature)
