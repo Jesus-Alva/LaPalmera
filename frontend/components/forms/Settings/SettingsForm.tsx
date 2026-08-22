@@ -42,11 +42,16 @@ const inputClass =
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1';
 
 function buildInitialMap(initialSettings: SiteSetting[]): Partial<SettingValueMap> {
-  const map: Partial<SettingValueMap> = {};
+  // Cada `s` correlaciona su `setting_key` con su `setting_value`, pero TypeScript
+  // no puede verificar esa correlación al escribir dinámicamente en un objeto con
+  // claves de unión (limitación conocida de los "weak types" indexados). Se usa un
+  // `Record` explícito con el tipo unión de todos los valores posibles en vez de
+  // `any`, y se convierte a `Partial<SettingValueMap>` una sola vez al final.
+  const map: Partial<Record<SettingKey, SettingValueMap[SettingKey]>> = {};
   for (const s of initialSettings) {
-    (map as any)[s.setting_key] = s.setting_value;
+    map[s.setting_key] = s.setting_value;
   }
-  return map;
+  return map as Partial<SettingValueMap>;
 }
 
 export default function SettingsForm({ initialSettings }: Props) {
@@ -67,7 +72,7 @@ export default function SettingsForm({ initialSettings }: Props) {
     setSavedKey(null);
     setError('');
     try {
-      await updateSiteSetting(key, value as any);
+      await updateSiteSetting(key, value);
       setSavedKey(key);
       setTimeout(() => setSavedKey(null), 2000);
     } catch (err) {

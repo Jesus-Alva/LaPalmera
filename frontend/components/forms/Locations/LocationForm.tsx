@@ -60,8 +60,8 @@ export default function LocationForm({ initialData }: Props) {
       }
       router.push('/locations');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar la ubicación');
     } finally {
       setLoading(false);
     }

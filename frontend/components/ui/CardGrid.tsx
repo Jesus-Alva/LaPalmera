@@ -4,9 +4,9 @@
 import { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Props {
-  items: any[];
-  renderItem: (item: any) => ReactNode;
+interface Props<T> {
+  items: T[];
+  renderItem: (item: T) => ReactNode;
   emptyMessage?: string;
   emptyAction?: ReactNode;
   columns?: {
@@ -17,13 +17,13 @@ interface Props {
   };
 }
 
-export default function CardGrid({
+export default function CardGrid<T>({
   items,
   renderItem,
   emptyMessage = 'No hay elementos',
   emptyAction,
   columns = { sm: 1, md: 2, lg: 3, xl: 4 },
-}: Props) {
+}: Props<T>) {
   if (items.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-2xl shadow border border-gray-100">

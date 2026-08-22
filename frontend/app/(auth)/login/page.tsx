@@ -39,8 +39,8 @@ const Page: React.FC = () => {
       }
 
       router.push('/spaces');
-    } catch (err: any) {
-      setError(err.message || 'Error al iniciar sesión');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }

@@ -113,8 +113,8 @@ export default function BannerForm({ initialData }: Props) {
 
       router.push('/banners');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar el banner');
     } finally {
       setLoading(false);
     }

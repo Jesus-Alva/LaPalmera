@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ColumnDef, ActionDef } from '@/types/table';
+import { ColumnDef, ActionDef } from '@/src/types/table';
 
-interface DataTableProps<T> {
+interface DataTableProps<T extends { id: string | number }> {
   data: T[];
   columns: ColumnDef<T>[];
   actions?: ActionDef<T>[];
@@ -17,11 +17,11 @@ interface DataTableProps<T> {
   newItemLink?: string;
   emptyMessage?: string;
   loading?: boolean;
-  rowKey?: keyof T | string; // por defecto 'id'
+  rowKey?: keyof T; // por defecto 'id'
   className?: string;
 }
 
-export default function DataTable<T extends Record<string, any>>({
+export default function DataTable<T extends { id: string | number }>({
   data,
   columns,
   actions = [],
@@ -30,7 +30,7 @@ export default function DataTable<T extends Record<string, any>>({
   newItemLink,
   emptyMessage = `No hay ${resourceName}s creados.`,
   loading = false,
-  rowKey = 'id',
+  rowKey = 'id' as keyof T,
   className = '',
 }: DataTableProps<T>) {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function DataTable<T extends Record<string, any>>({
   const [error, setError] = useState<string | null>(null);
 
   const handleDelete = async (item: T) => {
-    const id = item[rowKey];
+    const id = item[rowKey] as string | number;
     if (!id) return;
     if (!window.confirm(`¿Estás seguro de eliminar este ${resourceName}? Esta acción no se puede deshacer.`)) return;
 
@@ -51,8 +51,8 @@ export default function DataTable<T extends Record<string, any>>({
         // router.refresh();
       }
       router.refresh(); // O forzar recarga
-    } catch (err: any) {
-      setError(err.message || 'Error al eliminar');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar');
     } finally {
       setLoadingId(null);
     }
@@ -158,7 +158,7 @@ export default function DataTable<T extends Record<string, any>>({
               >
                 <AnimatePresence mode="popLayout">
                   {data.map((item) => {
-                    const id = item[rowKey];
+                    const id = item[rowKey] as string | number;
                     const isDeleting = loadingId === id;
                     return (
                       <motion.tr

@@ -120,8 +120,8 @@ export default function SpaceForm({ initialData }: Props) {
       // 4. Redirigir
       router.push('/spaces');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar el espacio');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar el espacio');
     } finally {
       setLoading(false);
     }

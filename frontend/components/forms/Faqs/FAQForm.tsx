@@ -41,8 +41,8 @@ export default function FAQForm({ initialData }: Props) {
 
       router.push('/faqs');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar la pregunta frecuente');
     } finally {
       setLoading(false);
     }

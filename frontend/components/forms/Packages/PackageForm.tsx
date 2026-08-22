@@ -92,7 +92,7 @@ export default function PackageForm({ initialData }: Props) {
     try {
       const catalog = await getCatalogByPackageId(packageId);
       if (catalog && catalog.images) {
-        const images = catalog.images.map((img: any) => ({
+        const images = catalog.images.map((img) => ({
           id: img.id,
           url: `${baseUrl}${img.image_path}`,
           alt: img.alt_text || 'Imagen del paquete',
@@ -301,8 +301,8 @@ export default function PackageForm({ initialData }: Props) {
       clearPersistedData();
       router.push('/packages');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar el paquete');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar el paquete');
     } finally {
       setLoading(false);
     }
@@ -587,7 +587,7 @@ export default function PackageForm({ initialData }: Props) {
     }
   };
 
-  const handleFieldChange = (field: keyof FormData, value: any) => {
+  const handleFieldChange = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     updateData({ [field]: value });
   };
 

@@ -99,8 +99,8 @@ export default function TeamMemberForm({ initialData }: Props) {
 
       router.push('/team-members');
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar el miembro del equipo');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al guardar el miembro del equipo');
       setUploadingPhoto(false);
     } finally {
       setLoading(false);
