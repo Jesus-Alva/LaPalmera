@@ -17,3 +17,10 @@ export interface UserAdminUpdate {
   role?: UserRole;
   status?: UserStatus;
 }
+
+export interface UserProfileUpdate {
+  display_name?: string;
+  phone?: string;
+  address?: string;
+  notifications_enabled?: boolean;
+}

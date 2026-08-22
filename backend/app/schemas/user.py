@@ -38,3 +38,9 @@ class UserOut(BaseModel):
 class UserAdminUpdate(BaseModel):
     role: Optional[UserRole] = None
     status: Optional[UserStatus] = None
+
+class UserProfileUpdate(BaseModel):
+    display_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    notifications_enabled: Optional[bool] = None

@@ -6,13 +6,33 @@ from typing import Optional
 
 from app.db.session import get_db
 from app.dependencies.auth import get_current_user
-from app.schemas.user import UserOut, UserAdminUpdate
+from app.schemas.user import UserOut, UserAdminUpdate, UserProfileUpdate
 from app.model.user import User
 
 router = APIRouter()
 
 @router.get("/me", response_model=UserOut)
 def read_current_user(current_user: User = Depends(get_current_user)):
+    return current_user
+
+@router.put("/me", response_model=UserOut)
+def update_my_profile(
+    data: UserProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Permite a cualquier usuario autenticado actualizar su propio perfil
+    (nombre, teléfono, dirección, preferencia de notificaciones).
+    No incluye rol ni estatus: esos solo los cambia un administrador vía
+    PUT /user/{user_id}.
+    """
+    update_data = data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
+
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 @router.get("/", response_model=list[UserOut])

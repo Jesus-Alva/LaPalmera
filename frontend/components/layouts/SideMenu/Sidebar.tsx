@@ -1,17 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutGrid, 
   Calendar, 
   MapPin, 
   Users, 
-  Image, 
-  HelpCircle, 
+  Image,
+  HelpCircle,
   Package,
-  LogOut,
   Menu,
   X,
   ChevronLeft,
@@ -32,7 +30,6 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user }: SidebarProps) {
-  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -59,19 +56,9 @@ export default function Sidebar({ user }: SidebarProps) {
     ...(user?.role === 'admin'
       ? [
           { href: '/users', icon: <UserCog size={22} />, label: 'Usuarios' },
-          { href: '/settings', icon: <Settings size={22} />, label: 'Configuración' },
         ]
       : []),
   ];
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
 
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
   const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
@@ -123,20 +110,8 @@ export default function Sidebar({ user }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Usuario y Logout */}
-      <div className="border-t border-gray-200 p-4 flex-shrink-0">
-        {user && <SidebarUser user={user} isCollapsed={isCollapsed} />}
-        <button
-          onClick={handleLogout}
-          className={`
-            w-full flex items-center gap-3 px-4 py-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors
-            ${isCollapsed ? 'justify-center' : ''}
-          `}
-        >
-          <LogOut size={20} />
-          {!isCollapsed && <span className="text-sm font-medium">Cerrar sesión</span>}
-        </button>
-      </div>
+      {/* Usuario: dropdown con configuración y cerrar sesión */}
+      {user && <SidebarUser user={user} isCollapsed={isCollapsed} />}
     </div>
   );
 
