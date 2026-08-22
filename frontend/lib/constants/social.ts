@@ -36,7 +36,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   {
     key: "whatsapp",
     label: "WhatsApp",
-    href: "https://wa.me/525646133614?text=" + encodeURIComponent("Hola, me gustaría más información sobre La Palmera."),
+    href: "https://wa.me/525520221427?text=" + encodeURIComponent("Hola, me gustaría más información sobre La Palmera."),
     Icon: FaWhatsapp,
     hoverColor: "#25D366",
     bgClass: "bg-[#25D366]",

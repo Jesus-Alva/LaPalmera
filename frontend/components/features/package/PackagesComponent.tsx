@@ -8,6 +8,8 @@ import { Package } from "@/src/types/package";
 
 interface ComponentProps {
   packages: Package[];
+  /** Número de WhatsApp (solo dígitos) al que se envían las solicitudes de información. */
+  whatsappPhone?: string;
 }
 
 const DEFAULT_IMAGE = "/images/package/default_package.jpeg";
@@ -18,7 +20,7 @@ const getPackageImages = (pkg: Package): string[] =>
     ? pkg.images_url
     : (pkg.image_url ? [pkg.image_url] : []);
 
-const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
+const PackagesComponent: React.FC<ComponentProps> = ({ packages, whatsappPhone }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -342,7 +344,7 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages }) => {
             </div>
 
             <div className="px-5 md:px-8 pb-6 flex justify-end">
-              <WhatsAppButton message={WhatsAppMessage} className="bg-secondary hover:bg-secondary/90 text-white font-noto-serif py-2 px-5 md:py-2.5 md:px-7 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm md:text-base">
+              <WhatsAppButton phone={whatsappPhone} message={WhatsAppMessage} className="bg-secondary hover:bg-secondary/90 text-white font-noto-serif py-2 px-5 md:py-2.5 md:px-7 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm md:text-base">
                 <span>Solicitar más información sobre este paquete</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />

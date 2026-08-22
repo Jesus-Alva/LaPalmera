@@ -1,5 +1,6 @@
 // components/WhatsAppButton.tsx
 import React from 'react';
+import { FALLBACK_WHATSAPP_PHONE } from '@/lib/constants/contact';
 
 interface WhatsAppButtonProps {
   phone?: string;        // Código país + número, sin '+' ni espacios. Ej: "521234567890"
@@ -8,9 +9,9 @@ interface WhatsAppButtonProps {
   className?: string;
 }
 
-const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({ 
-  phone = "525646133614", 
-  message, 
+const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
+  phone = FALLBACK_WHATSAPP_PHONE,
+  message,
   children, 
   className = "inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition" 
 }) => {

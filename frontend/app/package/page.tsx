@@ -5,8 +5,9 @@ import QuestionsComponent from "../../components/features/package/QuestionsCompo
 import JsonLd from "@/components/seo/JsonLd";
 
 import { ROUTES_IMAGES } from "../constants/routes";
-import { getPublicPackages, getPublicBanners } from "../../lib/api/public";
+import { getPublicPackages, getPublicBanners, getPublicSetting } from "../../lib/api/public";
 import { buildPageMetadata, SITE_URL } from "../../lib/seo";
+import { extractWhatsAppPhone } from "../../lib/whatsapp";
 
 const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
 
@@ -19,10 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-    const [packages, banners] = await Promise.all([
+    const [packages, banners, socialNetworks] = await Promise.all([
         getPublicPackages({ limit: 200 }),
         getPublicBanners({ page: "paquetes" }),
+        getPublicSetting('social_networks').catch(() => undefined),
     ]);
+    const whatsappPhone = extractWhatsAppPhone(socialNetworks?.whatsapp);
 
     return (
         <div className="min-h-screen">
@@ -46,7 +49,7 @@ export default async function Page() {
 
             <BannerComponent banner={banners[0] ?? null} fallbackSrc={ROUTES_IMAGES.paquetes.src_banner} />
 
-            <PackagesComponent packages={packages} />
+            <PackagesComponent packages={packages} whatsappPhone={whatsappPhone} />
 
             <QuestionsComponent />
         </div>

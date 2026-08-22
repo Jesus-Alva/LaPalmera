@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { reservation } from "@/src/types/contact";
 
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import { getPublicSetting } from "@/lib/api/public";
+import { extractWhatsAppPhone } from "@/lib/whatsapp";
 
 interface ComponentProps {
     data: reservation
@@ -19,6 +21,22 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
         guests: 0,
         message: ""
     });
+
+    // Número de WhatsApp al que se envía la reserva, tomado de site_settings
+    // (Redes sociales → WhatsApp, editable desde /settings). Mientras carga o si
+    // falla, WhatsAppButton usa su propio número de respaldo.
+    const [whatsappPhone, setWhatsappPhone] = useState<string | undefined>(undefined);
+    useEffect(() => {
+        let isMounted = true;
+        getPublicSetting('social_networks')
+            .then((social) => {
+                if (isMounted) setWhatsappPhone(extractWhatsAppPhone(social.whatsapp));
+            })
+            .catch(() => {});
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const WhatsAppMessage = useMemo(() => {
         const {name, phone, eventType, fecha, guests, message} = formData;
@@ -134,6 +152,7 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
                         </div>
 
                         <WhatsAppButton
+                            phone={whatsappPhone}
                             message={WhatsAppMessage}
                             className="col-span-2 text-center w-1/2 text-white bg-secondary hover:scale-105 active:scale-100 transform duration-300 rounded box-border border border-transparent font-noto-serif font-extralight tracking-widest uppercase hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
                         >
