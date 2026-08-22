@@ -4,6 +4,7 @@ export interface Space {
   description: string | null;
   is_active: boolean;
   image_url?: string | null;
+  images_url?: string[];
 }
 
 export interface SpaceCreate {

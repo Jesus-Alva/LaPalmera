@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 
 class SpaceBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=100)
@@ -17,6 +17,7 @@ class SpaceUpdate(BaseModel):
 class SpaceOut(SpaceBase):
     id: int
     image_url: Optional[str] = None
+    images_url: Optional[List[str]] = []
 
     class Config:
         from_attributes = True

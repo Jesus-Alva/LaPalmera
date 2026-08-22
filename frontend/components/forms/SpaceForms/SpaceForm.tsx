@@ -1,63 +1,82 @@
+// components/forms/SpaceForms/SpaceForm.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Trash2 } from 'lucide-react';
 import { Space, SpaceCreate } from '@/src/types/space';
 import { createSpace, updateSpace } from '@/lib/api/spaces';
-import { getOrCreateCatalog, uploadImage } from '@/lib/api/images';
+import { getCatalogBySpace, getOrCreateCatalog, uploadImage, deleteImage } from '@/lib/api/images';
 
 interface Props {
   initialData?: Space;
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+
 export default function SpaceForm({ initialData }: Props) {
   const router = useRouter();
+  const isEditing = !!initialData?.id;
+
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [error, setError] = useState('');
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [dragActive, setDragActive] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Manejar selección de imágenes
+  // Imágenes ya guardadas en el espacio (solo aplica al editar)
+  const [existingImages, setExistingImages] = useState<{ id: number; url: string; alt: string }[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+  const [imagesToDelete, setImagesToDelete] = useState<number[]>([]);
+
+  // Imágenes nuevas seleccionadas desde el input, pendientes de subir
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
+
+  // Cargar imágenes existentes al editar
+  useEffect(() => {
+    if (!isEditing || !initialData?.id) return;
+    const fetchImages = async () => {
+      setLoadingImages(true);
+      try {
+        const catalog = await getCatalogBySpace(initialData.id);
+        if (catalog && catalog.images) {
+          setExistingImages(
+            catalog.images.map((img) => ({
+              id: img.id,
+              url: `${baseUrl}${img.image_path}`,
+              alt: img.alt_text || 'Imagen del espacio',
+            }))
+          );
+        }
+      } catch (err) {
+        console.error('Error cargando imágenes:', err);
+      } finally {
+        setLoadingImages(false);
+      }
+    };
+    fetchImages();
+  }, [isEditing, initialData?.id]);
+
   const handleImageSelect = (files: FileList | null) => {
     if (!files) return;
     const newFiles = Array.from(files);
     const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
-    setImages((prev) => [...prev, ...newFiles]);
-    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    setNewImages((prev) => [...prev, ...newFiles]);
+    setNewImagePreviews((prev) => [...prev, ...newPreviews]);
   };
 
-  // Eliminar imagen seleccionada
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => {
-      const newPreviews = prev.filter((_, i) => i !== index);
-      return newPreviews;
-    });
+  const removeNewImage = (index: number) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
+    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Drag & Drop
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    handleImageSelect(e.dataTransfer.files);
+  const markImageForDeletion = (imageId: number) => {
+    if (!confirm('¿Eliminar esta imagen permanentemente?')) return;
+    setImagesToDelete((prev) => [...prev, imageId]);
+    setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
   };
 
   // Submit
@@ -65,10 +84,9 @@ export default function SpaceForm({ initialData }: Props) {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setUploadProgress(0);
 
     try {
-      // 1. Crear el espacio
+      // 1. Crear/actualizar el espacio (los campos básicos, sin tocar imágenes)
       const spaceData: SpaceCreate = {
         title,
         description: description || undefined,
@@ -82,21 +100,24 @@ export default function SpaceForm({ initialData }: Props) {
         space = await createSpace(spaceData);
       }
 
-      // 2. Si hay imágenes, subirlas
-      if (images.length > 0) {
-        // Crear/obtener catálogo para el espacio
-        const catalog = await getOrCreateCatalog(space.id);
-        
-        // Subir cada imagen
-        let uploaded = 0;
-        for (const file of images) {
-          await uploadImage(catalog.id, file, file.name);
-          uploaded++;
-          setUploadProgress(Math.round((uploaded / images.length) * 100));
+      // 2. Eliminar imágenes marcadas (solo en edición). Si no se marcó ninguna, no se toca nada.
+      if (isEditing && imagesToDelete.length > 0) {
+        for (const imageId of imagesToDelete) {
+          await deleteImage(imageId);
         }
       }
 
-      // 3. Redirigir
+      // 3. Subir imágenes nuevas, si las hay
+      if (newImages.length > 0) {
+        setUploadingImages(true);
+        const catalog = await getOrCreateCatalog(space.id);
+        for (const file of newImages) {
+          await uploadImage(catalog.id, file, file.name);
+        }
+        setUploadingImages(false);
+      }
+
+      // 4. Redirigir
       router.push('/spaces');
       router.refresh();
     } catch (err: any) {
@@ -153,22 +174,50 @@ export default function SpaceForm({ initialData }: Props) {
           </label>
         </div>
 
-        {/* Área de subida de imágenes */}
+        {/* Gestión de imágenes */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Imágenes (opcional)
+            Imágenes del espacio
           </label>
-          <div
-            className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-              dragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
+
+          {/* Imágenes existentes (solo en edición) */}
+          {isEditing && (
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">Imágenes actuales</h4>
+              {loadingImages ? (
+                <div className="flex items-center gap-2 text-gray-500 text-sm">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-transparent" />
+                  Cargando imágenes...
+                </div>
+              ) : existingImages.length === 0 ? (
+                <p className="text-sm text-gray-400">No hay imágenes registradas</p>
+              ) : (
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                  {existingImages.map((img) => (
+                    <div
+                      key={img.id}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group"
+                    >
+                      <img src={img.url} alt={img.alt} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => markImageForDeletion(img.id)}
+                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Subida de nuevas imágenes */}
+          <h4 className="text-sm font-medium text-gray-600 mb-2">
+            {isEditing ? 'Agregar nuevas imágenes' : 'Seleccionar imágenes'}
+          </h4>
+          <div className="relative border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg p-6 text-center transition-colors">
             <input
               type="file"
               multiple
@@ -178,20 +227,16 @@ export default function SpaceForm({ initialData }: Props) {
             />
             <div className="flex flex-col items-center justify-center space-y-2">
               <Upload className="w-10 h-10 text-gray-400" />
-              <p className="text-gray-600 text-sm">
-                Arrastra imágenes o haz clic para seleccionar
-              </p>
-              <p className="text-xs text-gray-400">
-                JPG, PNG, WEBP, GIF (máx 5MB)
-              </p>
+              <p className="text-gray-600 text-sm">Arrastra imágenes o haz clic para seleccionar</p>
+              <p className="text-xs text-gray-400">JPG, PNG, WEBP, GIF (máx 5MB)</p>
             </div>
           </div>
 
-          {/* Previsualización de imágenes seleccionadas */}
-          {imagePreviews.length > 0 && (
+          {/* Previsualización de imágenes nuevas */}
+          {newImagePreviews.length > 0 && (
             <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mt-4">
               <AnimatePresence>
-                {imagePreviews.map((preview, index) => (
+                {newImagePreviews.map((preview, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -200,14 +245,10 @@ export default function SpaceForm({ initialData }: Props) {
                     transition={{ duration: 0.2 }}
                     className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
                   >
-                    <img
-                      src={preview}
-                      alt={`Imagen ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={preview} alt={`Imagen ${index + 1}`} className="w-full h-full object-cover" />
                     <button
                       type="button"
-                      onClick={() => removeImage(index)}
+                      onClick={() => removeNewImage(index)}
                       className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                     >
                       <X className="w-3 h-3" />
@@ -218,18 +259,10 @@ export default function SpaceForm({ initialData }: Props) {
             </div>
           )}
 
-          {/* Barra de progreso (solo cuando se suben en el submit) */}
-          {loading && uploadProgress > 0 && uploadProgress < 100 && (
-            <div className="mt-4">
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1 text-center">
-                Subiendo imágenes... {uploadProgress}%
-              </p>
+          {uploadingImages && (
+            <div className="flex items-center gap-2 text-blue-600 text-sm mt-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent" />
+              Subiendo imágenes...
             </div>
           )}
         </div>

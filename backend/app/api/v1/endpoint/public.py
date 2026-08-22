@@ -111,8 +111,11 @@ def list_public_spaces(
         .filter(ImagesCatalog.space_id.in_(space_ids))
         .subquery()
     )
-    first_images = db.query(subq).filter(subq.c.rn == 1).all()
-    image_map = {row.space_id: row.image_path for row in first_images}
+    images_map, first_image_map = {}, {}
+    for row in db.query(subq).all():
+        images_map.setdefault(row.space_id, []).append(row.image_path)
+        if row.rn == 1:
+            first_image_map[row.space_id] = row.image_path
 
     return [
         SpaceOut(
@@ -120,7 +123,8 @@ def list_public_spaces(
             title=s.title,
             description=s.description,
             is_active=s.is_active,
-            image_url=image_map.get(s.id),
+            image_url=first_image_map.get(s.id),
+            images_url=images_map.get(s.id, []),
         )
         for s in spaces
     ]
