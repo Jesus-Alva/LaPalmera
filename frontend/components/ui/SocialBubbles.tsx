@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { SOCIAL_LINKS } from "../../lib/constants/social";
+import { buildSocialLinks } from "../../lib/constants/social";
+import { SocialNetworks } from "@/src/types/siteSettings";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -14,8 +15,14 @@ const bubbleVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const SocialBubbles: React.FC = () => {
+interface SocialBubblesProps {
+  /** Enlaces reales tomados de site_settings.social_networks (ver app/layout.tsx). */
+  socialNetworks?: Partial<SocialNetworks>;
+}
+
+const SocialBubbles: React.FC<SocialBubblesProps> = ({ socialNetworks }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const socialLinks = useMemo(() => buildSocialLinks(socialNetworks), [socialNetworks]);
 
   return (
     <div
@@ -44,7 +51,7 @@ const SocialBubbles: React.FC = () => {
           animate={isOpen ? "visible" : "hidden"}
           className="flex w-14 sm:w-16 flex-col gap-2 p-1.5 sm:p-2"
         >
-          {SOCIAL_LINKS.map((social, index) => (
+          {socialLinks.map((social, index) => (
             <motion.a
               key={social.key}
               variants={bubbleVariants}

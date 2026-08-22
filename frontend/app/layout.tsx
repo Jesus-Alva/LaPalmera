@@ -10,6 +10,7 @@ import LoadingScreen from '../components/ui/LoadingScreen';
 import { ROUTES_IMAGES } from './constants/routes';
 import AuthCheck from '@/components/ui/AuthCheck';
 import { buildPageMetadata, SITE_URL } from '../lib/seo';
+import { getPublicSetting } from '../lib/api/public';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
@@ -37,11 +38,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Enlaces reales de redes sociales (site_settings → Redes sociales, editable
+  // desde /settings). Si el fetch falla, SocialBubbles usa su respaldo hardcodeado.
+  const socialNetworks = await getPublicSetting('social_networks').catch(() => undefined);
+
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
@@ -54,7 +59,7 @@ export default function RootLayout({
             <NavbarComponent logo={ROUTES_IMAGES.logo} />
           </AuthCheck>
           <AuthCheck>
-            <SocialBubbles />
+            <SocialBubbles socialNetworks={socialNetworks} />
           </AuthCheck>
           {children}
           <AuthCheck>
