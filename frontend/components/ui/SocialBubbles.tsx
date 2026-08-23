@@ -31,17 +31,30 @@ const SocialBubbles: React.FC<SocialBubblesProps> = ({ socialNetworks }) => {
       onMouseLeave={() => setIsOpen(false)}
     >
       {/* Pestaña: siempre visible, alterna el panel con hover (desktop) o click (móvil) */}
-      <button
+      <motion.button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-label={isOpen ? "Ocultar redes sociales" : "Mostrar redes sociales"}
+        animate={isOpen ? { scale: 1 } : { scale: [1, 1.06, 1] }}
+        transition={{ duration: 1.8, repeat: isOpen ? 0 : Infinity, ease: "easeInOut" }}
+        whileHover={{ scale: 1.12 }}
+        whileTap={{ scale: 0.95 }}
         className="relative z-10 flex items-center justify-center w-6 sm:w-7 py-4 sm:py-5 shrink-0 rounded-r-lg bg-black/30 backdrop-blur-md shadow-xl ring-1 ring-white/10 text-white"
       >
-        <span className="whitespace-nowrap text-[10px] sm:text-xs font-semibold tracking-wide uppercase [writing-mode:vertical-rl] rotate-180">
+        {/* Anillo pulsante ("ping"), pausado mientras el panel está abierto */}
+        {!isOpen && (
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-r-lg bg-white/40"
+            animate={{ opacity: [0.45, 0], scale: [1, 1.35] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+          />
+        )}
+        <span className="relative z-10 whitespace-nowrap text-[10px] sm:text-xs font-semibold tracking-wide uppercase [writing-mode:vertical-rl] rotate-180">
           Ver redes sociales
         </span>
-      </button>
+      </motion.button>
 
       {/* Panel de burbujas: colapsa su ancho a 0 (oculto) o se expande para mostrarse */}
       <div className={`overflow-hidden transition-[width] duration-300 ease-in-out ${isOpen ? "w-14 sm:w-16" : "w-0"}`}>

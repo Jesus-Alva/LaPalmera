@@ -7,7 +7,12 @@ import { useTranslation } from "../../lib/hooks/useTranslation";
 import { FaMapMarkerAlt, FaFacebook, FaInstagram, FaWhatsapp, FaTiktok } from "react-icons/fa";
 import { FaUser, FaUserPlus } from "react-icons/fa";
 
-const FooterComponent: React.FC = () => {
+interface ComponentProps {
+  /** Oculta los botones de "Iniciar sesión"/"Registrarme" cuando ya hay sesión iniciada. */
+  isLoggedIn?: boolean;
+}
+
+const FooterComponent: React.FC<ComponentProps> = ({ isLoggedIn = false }) => {
   const { t } = useTranslation();
 
   return (
@@ -105,28 +110,30 @@ const FooterComponent: React.FC = () => {
                 {t("footer.social.follow")}
               </p>
             </div>
-            <div className="space-y-4 flex flex-col items-center md:items-start">
-              <h3 className="text-lg font-semibold font-noto-serif uppercase tracking-wider text-primary relative inline-block">
-                {t("footer.account.title") || "Cuenta"}
-                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 md:left-0 md:translate-x-0 w-8 h-0.5 bg-primary rounded-full"></span>
-              </h3>
+            {!isLoggedIn && (
+              <div className="space-y-4 flex flex-col items-center md:items-start">
+                <h3 className="text-lg font-semibold font-noto-serif uppercase tracking-wider text-primary relative inline-block">
+                  {t("footer.account.title") || "Cuenta"}
+                  <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 md:left-0 md:translate-x-0 w-8 h-0.5 bg-primary rounded-full"></span>
+                </h3>
 
-              <Link
-                href="/login"
-                className="group w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wider rounded-full border-2 border-primary text-white hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-300"
-              >
-                <FaUser className="text-base group-hover:rotate-6 transition-transform" />
-                {t("footer.account.login") || "Iniciar Sesión"}
-              </Link>
+                <Link
+                  href="/login"
+                  className="group w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wider rounded-full border-2 border-primary text-white hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-300"
+                >
+                  <FaUser className="text-base group-hover:rotate-6 transition-transform" />
+                  {t("footer.account.login") || "Iniciar Sesión"}
+                </Link>
 
-              <Link
-                href="/register"
-                className="group w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wider rounded-full border-2 border-primary text-white hover:bg-primary hover:text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
-              >
-                <FaUserPlus className="text-base group-hover:rotate-6 transition-transform" />
-                {t("footer.account.register") || "Registrarse"}
-              </Link>
-            </div>
+                <Link
+                  href="/register"
+                  className="group w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium uppercase tracking-wider rounded-full border-2 border-primary text-white hover:bg-primary hover:text-white hover:scale-105 hover:shadow-lg transition-all duration-300"
+                >
+                  <FaUserPlus className="text-base group-hover:rotate-6 transition-transform" />
+                  {t("footer.account.register") || "Registrarse"}
+                </Link>
+              </div>
+            )}
 
           </div>
           <div className="border-t border-gray-700 mt-8 p-6 text-center text-xs text-gray-400">

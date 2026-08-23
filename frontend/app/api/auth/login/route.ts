@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getApiBaseUrl } from '@/lib/api/client';
+import { decodeJwtPayload } from '@/lib/jwt';
 
 const API_URL = getApiBaseUrl();
 
@@ -43,8 +44,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Éxito: guardar token en cookie
-    const response = NextResponse.json({ success: true });
+    // Éxito: guardar token en cookie. Se devuelve el rol (no el token, que va en
+    // una cookie httpOnly) para que el cliente sepa a dónde redirigir sin rebotar
+    // primero por el panel de administración.
+    const role = decodeJwtPayload<{ role?: string }>(data.access_token)?.role;
+    const response = NextResponse.json({ success: true, role });
     response.cookies.set('access_token', data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

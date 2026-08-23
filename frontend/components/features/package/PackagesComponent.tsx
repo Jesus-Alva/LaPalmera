@@ -10,6 +10,8 @@ interface ComponentProps {
   packages: Package[];
   /** Número de WhatsApp (solo dígitos) al que se envían las solicitudes de información. */
   whatsappPhone?: string;
+  /** Id del paquete a preseleccionar y desplazar a la vista (ej. al llegar desde ?paquete=<id>). */
+  initialSelectedId?: number;
 }
 
 const DEFAULT_IMAGE = "/images/package/default_package.jpeg";
@@ -20,14 +22,29 @@ const getPackageImages = (pkg: Package): string[] =>
     ? pkg.images_url
     : (pkg.image_url ? [pkg.image_url] : []);
 
-const PackagesComponent: React.FC<ComponentProps> = ({ packages, whatsappPhone }) => {
+const PackagesComponent: React.FC<ComponentProps> = ({ packages, whatsappPhone, initialSelectedId }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [itemsPerView, setItemsPerView] = useState(3);
   const trackRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Preselecciona y desplaza al detalle del paquete recibido por query (?paquete=<id>),
+  // por ejemplo al llegar desde el botón "Ver detalles del paquete" del modal de promociones.
+  useEffect(() => {
+    if (initialSelectedId === undefined) return;
+    const idx = packages.findIndex((pkg) => pkg.id === initialSelectedId);
+    if (idx < 0) return;
+    setSelectedIdx(idx);
+    requestAnimationFrame(() => {
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    // Solo debe ejecutarse una vez al llegar con el id inicial, no en cada selección manual posterior.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSelectedId]);
 
   // Estados para swipe táctil
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -280,7 +297,7 @@ const PackagesComponent: React.FC<ComponentProps> = ({ packages, whatsappPhone }
       </div>
 
       {selectedPackage && (
-        <div className="mt-12 md:mt-16 overflow-hidden transition-all duration-300">
+        <div ref={detailRef} className="mt-12 md:mt-16 overflow-hidden transition-all duration-300">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             {/* Encabezado */}
             <div className="flex justify-between items-center p-5 md:p-6 border-b-2 border-secondary/20 bg-linear-to-r from-secondary/5 to-transparent">

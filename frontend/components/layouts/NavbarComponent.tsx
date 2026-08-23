@@ -3,14 +3,16 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { User, LogOut } from "lucide-react";
 import { useTranslation } from "../../lib/hooks/useTranslation";
-import { useLang } from "../../lib/i18n/LanguageProvider";
 import { ROUTES_PAGE } from "../../app/constants/routes";
 
 interface ComponentProps {
   logo: string;
+  /** Usuario con sesión iniciada (si la hay); se muestra en vez del selector de idioma. */
+  user?: { displayName: string } | null;
 }
 
 interface NavLink {
@@ -29,13 +31,24 @@ const menuItemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
+const NavbarComponent: React.FC<ComponentProps> = ({ logo, user }) => {
   const { t } = useTranslation();
-  const { locale, setLocale } = useLang();
   const pathname = usePathname();
+  const router = useRouter();
   const [currentHash, setCurrentHash] = useState<string>("");
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      router.push("/");
+      router.refresh();
+    }
+  };
 
   // Reducir la navbar al hacer scroll
   useEffect(() => {
@@ -158,26 +171,24 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo }) => {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-            <div className="relative">
-              <select
-                aria-label="Select language"
-                value={locale}
-                onChange={(e) => setLocale(e.target.value as "es" | "en")}
-                className="appearance-none bg-black/80 backdrop-blur-sm border border-white/30 rounded-lg px-3 py-1.5 pr-7 text-sm text-white font-noto-serif cursor-pointer hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-              >
-                <option className="text-white" value="es">
-                  ES
-                </option>
-                <option className="text-white" value="en">
-                  EN
-                </option>
-              </select>
-              <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
-                <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+            {user && (
+              <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg pl-3 pr-1.5 py-1.5 text-sm text-white font-noto-serif">
+                <User className="w-4 h-4 shrink-0 text-primary" />
+                <span className="max-w-40 sm:max-w-56 truncate">
+                  Bienvenido, {user.displayName}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  aria-label="Cerrar sesión"
+                  title="Cerrar sesión"
+                  className="flex items-center justify-center w-6 h-6 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
               </div>
-            </div>
+            )}
 
             <motion.button
               whileTap={{ scale: 0.9 }}

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getServerToken, fetchProtectedData } from '@/app/lib/auth-server';
+import { decodeJwtPayload } from '@/lib/jwt';
 import Sidebar from '@/components/layouts/SideMenu/Sidebar';
 
 // Función que decodifica el token para obtener los datos del usuario (solo email y rol)
@@ -7,24 +8,14 @@ async function getUserFromToken() {
   const token = await getServerToken();
   if (!token) return undefined;
 
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    const payload = JSON.parse(jsonPayload);
-    return {
-      email: payload.sub || 'usuario',
-      display_name: payload.display_name || payload.sub,
-      role: payload.role || 'read',
-    };
-  } catch {
-    return undefined;
-  }
+  const payload = decodeJwtPayload<{ sub?: string; display_name?: string; role?: string }>(token);
+  if (!payload) return undefined;
+
+  return {
+    email: payload.sub || 'usuario',
+    display_name: payload.display_name || payload.sub,
+    role: payload.role || 'read',
+  };
 }
 
 export default async function DashboardLayout({
@@ -36,6 +27,9 @@ export default async function DashboardLayout({
   if (!token) redirect('/login');
 
   const user = await getUserFromToken();
+  // Todo usuario recién registrado inicia con rol de solo lectura y no debe
+  // acceder al panel de administración, únicamente al sitio público.
+  if (user?.role === 'read') redirect('/');
 
   return (
     <div className="flex h-screen overflow-hidden">

@@ -2,7 +2,6 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Serif, Manrope } from 'next/font/google';
 import './globals.css';
-import { LanguageProvider } from '../lib/i18n/LanguageProvider';
 import NavbarComponent from '../components/layouts/NavbarComponent';
 import FooterComponent from '../components/layouts/FooterComponent';
 import SocialBubbles from '../components/ui/SocialBubbles';
@@ -12,6 +11,8 @@ import { ROUTES_IMAGES } from './constants/routes';
 import AuthCheck from '@/components/ui/AuthCheck';
 import { buildPageMetadata, SITE_URL } from '../lib/seo';
 import { getPublicSetting, getPublicPackages } from '../lib/api/public';
+import { getServerToken, fetchProtectedData } from './lib/auth-server';
+import { User } from '../src/types/user';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSerif = Noto_Serif({ 
@@ -46,36 +47,49 @@ export default async function RootLayout({
 }) {
   // Enlaces reales de redes sociales (site_settings → Redes sociales, editable
   // desde /settings). Si el fetch falla, SocialBubbles usa su respaldo hardcodeado.
-  const [socialNetworks, packages] = await Promise.all([
+  const [socialNetworks, packages, token] = await Promise.all([
     getPublicSetting('social_networks').catch(() => undefined),
     getPublicPackages({ limit: 200 }).catch(() => []),
+    getServerToken(),
   ]);
   // "Promociones" = paquetes con fecha de disponibilidad establecida
   // (date_available_start), a diferencia de los paquetes permanentes.
   const promotionalPackages = packages.filter((pkg) => !!pkg.date_available_start);
 
+  // Usuario con sesión iniciada (si la hay): el Navbar público lo muestra en vez
+  // del selector de idioma que ya no existe (el sitio quedó solo en español). Se
+  // pide el perfil completo (no solo lo que trae el JWT, que no incluye display_name)
+  // para poder mostrar su nombre real y no solo el correo.
+  let navbarUser: { displayName: string } | null = null;
+  if (token) {
+    try {
+      const profile = await fetchProtectedData<User>('/user/me');
+      navbarUser = { displayName: profile.display_name || profile.email };
+    } catch {
+      navbarUser = null;
+    }
+  }
+
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
-        <LanguageProvider>
-          {/* Pantalla de carga, Navbar, burbujas de redes sociales y Footer solo visibles en rutas públicas */}
-          <AuthCheck>
-            <LoadingScreen />
-          </AuthCheck>
-          <AuthCheck>
-            <NavbarComponent logo={ROUTES_IMAGES.logo} />
-          </AuthCheck>
-          <AuthCheck>
-            <SocialBubbles socialNetworks={socialNetworks} />
-          </AuthCheck>
-          <AuthCheck>
-            <PromotionsButton packages={promotionalPackages} />
-          </AuthCheck>
-          {children}
-          <AuthCheck>
-            <FooterComponent />
-          </AuthCheck>
-        </LanguageProvider>
+        {/* Pantalla de carga, Navbar, burbujas de redes sociales y Footer solo visibles en rutas públicas */}
+        <AuthCheck>
+          <LoadingScreen />
+        </AuthCheck>
+        <AuthCheck>
+          <NavbarComponent logo={ROUTES_IMAGES.logo} user={navbarUser} />
+        </AuthCheck>
+        <AuthCheck>
+          <SocialBubbles socialNetworks={socialNetworks} />
+        </AuthCheck>
+        <AuthCheck>
+          <PromotionsButton packages={promotionalPackages} />
+        </AuthCheck>
+        {children}
+        <AuthCheck>
+          <FooterComponent isLoggedIn={!!navbarUser} />
+        </AuthCheck>
       </body>
     </html>
   )

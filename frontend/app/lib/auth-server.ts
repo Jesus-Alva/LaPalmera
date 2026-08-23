@@ -1,5 +1,6 @@
 // lib/auth-server.ts
 import { cookies } from 'next/headers';
+import { getApiBaseUrl } from '@/lib/api/client';
 
 // ✅ Solo para Server Components (páginas, layouts, middleware)
 export async function getServerToken() {
@@ -11,7 +12,10 @@ export async function fetchProtectedData<T = any>(url: string): Promise<T> {
   const token = await getServerToken();
   if (!token) throw new Error('No autorizado');
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
+  // `getApiBaseUrl()` usa la URL interna de Docker (API_URL_INTERNAL) al ejecutarse
+  // en el servidor; `NEXT_PUBLIC_API_URL` (localhost) solo es alcanzable desde el
+  // navegador, nunca desde dentro del contenedor del frontend.
+  const response = await fetch(`${getApiBaseUrl()}${url}`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',

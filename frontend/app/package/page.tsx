@@ -19,13 +19,20 @@ export async function generateMetadata(): Promise<Metadata> {
     });
 }
 
-export default async function Page() {
-    const [packages, banners, socialNetworks] = await Promise.all([
+export default async function Page({
+    searchParams,
+}: {
+    searchParams: Promise<{ paquete?: string }>;
+}) {
+    const [{ paquete }, packages, banners, socialNetworks] = await Promise.all([
+        searchParams,
         getPublicPackages({ limit: 200 }),
         getPublicBanners({ page: "paquetes" }),
         getPublicSetting('social_networks').catch(() => undefined),
     ]);
     const whatsappPhone = extractWhatsAppPhone(socialNetworks?.whatsapp);
+    // Preselecciona el paquete al llegar desde ?paquete=<id> (ej. "Ver detalles del paquete" del modal de promociones)
+    const initialSelectedId = paquete ? Number(paquete) : undefined;
 
     return (
         <div className="min-h-screen">
@@ -49,7 +56,7 @@ export default async function Page() {
 
             <BannerComponent banner={banners[0] ?? null} fallbackSrc={ROUTES_IMAGES.paquetes.src_banner} />
 
-            <PackagesComponent packages={packages} whatsappPhone={whatsappPhone} />
+            <PackagesComponent packages={packages} whatsappPhone={whatsappPhone} initialSelectedId={initialSelectedId} />
 
             <QuestionsComponent />
         </div>

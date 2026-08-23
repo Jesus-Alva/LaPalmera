@@ -2,8 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 
 const Page: React.FC = () => {
@@ -12,7 +11,6 @@ const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +36,13 @@ const Page: React.FC = () => {
         throw new Error(data.detail || `Error ${res.status}`);
       }
 
-      router.push('/spaces');
+      // Un rol de solo lectura (todo usuario recién registrado) no debe entrar
+      // al panel de administración, solo al sitio público. Se usa una navegación
+      // completa (no router.push) para forzar la recarga de toda la página: el
+      // layout raíz calcula el usuario logueado en el servidor y, con una
+      // navegación del lado del cliente, Next.js puede servir la versión en
+      // caché de la ruta (sin sesión) en vez de recalcularla con la cookie nueva.
+      window.location.href = data.role === 'read' ? '/' : '/spaces';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
@@ -58,7 +62,7 @@ const Page: React.FC = () => {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,

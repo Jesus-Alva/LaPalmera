@@ -179,3 +179,11 @@ database_dumps/
 .cache/
 .temp/
 
+# =============================================
+# DOCUMENTACIÓN GENERADA (docs/)
+# =============================================
+
+# Carpeta de documentación de cambios (generada automáticamente por sesión)
+docs/
+docs/**/*.md
+
