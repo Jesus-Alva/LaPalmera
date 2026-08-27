@@ -3,6 +3,7 @@ import EspaciosComponent from "../../components/features/dashboard/EspaciosCompo
 import CelebrationsComponent from "../../components/features/dashboard/CelebrationsComponent";
 import ServiceComponent from "../../components/features/dashboard/ServiceComponent";
 import PartyPackageComponent from "../../components/features/dashboard/PartyPackageComponent";
+import ReviewsComponent from "../../components/features/dashboard/ReviewsComponent";
 import LocationComponent from "../../components/features/dashboard/LocationComponent";
 
 import {
@@ -23,7 +24,7 @@ export default async function Page() {
     ]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br ">
+        <div className="min-h-screen bg-linear-to-br ">
             {/* Seccion: Banner */}
             <BannerComponent banner={banners[0] ?? null} />
 
@@ -36,6 +37,8 @@ export default async function Page() {
             <ServiceComponent />
 
             <PartyPackageComponent packages={packages} />
+
+            <ReviewsComponent />
 
             <LocationComponent location={locations[0] ?? null} />
         </div>
