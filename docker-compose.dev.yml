@@ -3,7 +3,7 @@ services:
   web:
     build:
       context: ./backend
-      dockerfile: Dockerfile   # Puedes usar el mismo Dockerfile (ya tiene --reload)
+      dockerfile: Dockerfile.dev
     container_name: fastapi-la-palmera-dev
     env_file: .env.dev   # Opcional: archivo específico para desarrollo
     ports:

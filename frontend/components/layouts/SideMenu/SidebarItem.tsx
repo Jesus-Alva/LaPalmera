@@ -14,7 +14,7 @@ interface SidebarItemProps {
 
 export default function SidebarItem({ href, icon, label, isCollapsed = false }: SidebarItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = pathname === href || !!pathname?.startsWith(`${href}/`);
 
   return (
     <Link href={href} className="relative block">

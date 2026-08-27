@@ -13,7 +13,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000"],  # En producción cambiar a dominios específicos
+    allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

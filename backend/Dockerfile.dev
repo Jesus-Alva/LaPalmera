@@ -1,0 +1,25 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements e instalar dependencias
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# El código real llega por bind mount (ver docker-compose.dev.yml), así que esta
+# copia solo sirve para poder levantar el contenedor la primera vez sin el mount.
+COPY . .
+
+EXPOSE 8000
+
+# Sin migraciones automáticas ni usuario no root aquí: en desarrollo se corren
+# los `alembic upgrade`/`revision` a mano, y el bind mount necesita permisos de
+# escritura simples. El Dockerfile de producción (`Dockerfile`) sí los aplica.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

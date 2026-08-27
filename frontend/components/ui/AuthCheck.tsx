@@ -27,7 +27,7 @@ export default function AuthCheck({ children, fallback = null }: AuthCheckProps)
   ];
 
   // Verificar si la ruta actual es una ruta protegida
-  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+  const isProtected = protectedPaths.some((path) => pathname?.startsWith(path));
 
   // Si es una ruta protegida, NO mostrar el Navbar
   if (isProtected) {

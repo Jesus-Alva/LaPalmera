@@ -13,7 +13,7 @@ const backgroundImages: Record<string, string> = {
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const bgImage = backgroundImages[pathname] || 'frontend/public/images/auth/default-bg.jpg';
+  const bgImage = (pathname && backgroundImages[pathname]) || 'frontend/public/images/auth/default-bg.jpg';
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
