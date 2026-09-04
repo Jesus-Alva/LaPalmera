@@ -5,7 +5,7 @@ import QuestionsComponent from "../../components/features/package/QuestionsCompo
 import JsonLd from "@/components/seo/JsonLd";
 
 import { ROUTES_IMAGES } from "../constants/routes";
-import { getPublicPackages, getPublicBanners, getPublicSetting } from "../../lib/api/public";
+import { getPublicPackages, getPublicBanners, getPublicSetting, getPublicFaqs } from "../../lib/api/public";
 import { buildPageMetadata, SITE_URL } from "../../lib/seo";
 import { extractWhatsAppPhone } from "../../lib/whatsapp";
 
@@ -24,11 +24,12 @@ export default async function Page({
 }: {
     searchParams: Promise<{ paquete?: string }>;
 }) {
-    const [{ paquete }, packages, banners, socialNetworks] = await Promise.all([
+    const [{ paquete }, packages, banners, socialNetworks, faqs] = await Promise.all([
         searchParams,
         getPublicPackages({ limit: 200 }),
         getPublicBanners({ page: "paquetes" }),
         getPublicSetting('social_networks').catch(() => undefined),
+        getPublicFaqs().catch(() => undefined)
     ]);
     const whatsappPhone = extractWhatsAppPhone(socialNetworks?.whatsapp);
     // Preselecciona el paquete al llegar desde ?paquete=<id> (ej. "Ver detalles del paquete" del modal de promociones)
@@ -58,7 +59,7 @@ export default async function Page({
 
             <PackagesComponent packages={packages} whatsappPhone={whatsappPhone} initialSelectedId={initialSelectedId} />
 
-            <QuestionsComponent />
+            <QuestionsComponent faqs={faqs} />
         </div>
     )
 }

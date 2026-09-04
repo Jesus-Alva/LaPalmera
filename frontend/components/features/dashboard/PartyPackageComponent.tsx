@@ -138,7 +138,7 @@ const PartyPackageComponent: React.FC<ComponentProps> = ({ packages }) => {
                     ))}
                   </ul>
 
-                  <a href="/package#description" className="w-full text-center mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
+                  <a href={`/package?paquete=${pkg.id}`} className="w-full text-center mt-6 font-noto-serif uppercase py-3 md:py-5 px-4 border border-secondary text-secondary hover:bg-secondary hover:text-primary transition-colors duration-300 rounded-lg text-sm md:text-base">
                     Más Detalles
                   </a>
                 </div>
