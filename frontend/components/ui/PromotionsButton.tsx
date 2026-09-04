@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import PromotionsModal from "../features/package/PromotionsModal";
 import { Package } from "@/src/types/package";
+import { getValidPromotions } from "../../lib/promotions";
 
 interface Props {
   /** Paquetes con fecha de disponibilidad establecida (ver app/layout.tsx). */
@@ -13,8 +14,9 @@ interface Props {
 
 const PromotionsButton: React.FC<Props> = ({ packages }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const validPromotions = getValidPromotions(packages);
 
-  if (packages.length === 0) return null;
+  if (validPromotions.length === 0) return null;
 
   return (
     <>
@@ -52,7 +54,7 @@ const PromotionsButton: React.FC<Props> = ({ packages }) => {
         </motion.button>
       </div>
 
-      <PromotionsModal packages={packages} isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <PromotionsModal packages={validPromotions} isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 };
