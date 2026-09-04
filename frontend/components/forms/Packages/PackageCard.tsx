@@ -18,6 +18,19 @@ interface Props {
   onDelete?: (id: number) => void;
 }
 
+const getToday = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatDate = (date: string) => {
+  const [year, month, day] = date.slice(0, 10).split('-');
+  return `${day}/${month}/${year}`;
+};
+
 export default function PackageCard({ packageItem, onDelete }: Props) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -67,7 +80,7 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
       await deletePackage(packageItem.id);
       if (onDelete) onDelete(packageItem.id);
       router.refresh();
-    } catch (error) {
+    } catch {
       showErrorAlert('Error al eliminar el paquete');
     } finally {
       setIsDeleting(false);
@@ -78,20 +91,16 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
     setIsExpanded(!isExpanded);
   };
 
-  // Determinar si el paquete está disponible
-  const isAvailable = () => {
-    if (!packageItem.date_available_start && !packageItem.date_available_end) {
-      return true;
-    }
-    const today = new Date();
-    const start = packageItem.date_available_start ? new Date(packageItem.date_available_start) : null;
-    const end = packageItem.date_available_end ? new Date(packageItem.date_available_end) : null;
-    if (start && start > today) return false;
-    if (end && end < today) return false;
-    return true;
-  };
-
-  const available = isAvailable();
+  const today = getToday();
+  const start = packageItem.date_available_start?.slice(0, 10);
+  const end = packageItem.date_available_end?.slice(0, 10);
+  const status = end && end < today
+    ? 'expired'
+    : start && start > today
+      ? 'upcoming'
+      : packageItem.is_active
+        ? 'active'
+        : 'inactive';
 
   // Construir URL base para imágenes
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
@@ -168,15 +177,20 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
 
         {/* Badge de estado */}
         <div className="absolute top-3 right-3 flex gap-2">
-          {packageItem.is_active && available ? (
+          {status === 'active' ? (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
               <CheckCircle className="w-3 h-3 mr-1" />
               Activo
             </span>
-          ) : packageItem.is_active && !available ? (
+          ) : status === 'upcoming' ? (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
               <Calendar className="w-3 h-3 mr-1" />
               Próximo
+            </span>
+          ) : status === 'expired' ? (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+              <XCircle className="w-3 h-3 mr-1" />
+              Caducado
             </span>
           ) : (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -202,10 +216,10 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
           <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
             <Calendar className="w-4 h-4" />
             {packageItem.date_available_start && (
-              <span>Desde: {new Date(packageItem.date_available_start).toLocaleDateString('es-ES')}</span>
+              <span>Desde: {formatDate(packageItem.date_available_start)}</span>
             )}
             {packageItem.date_available_end && (
-              <span>Hasta: {new Date(packageItem.date_available_end).toLocaleDateString('es-ES')}</span>
+              <span>Hasta: {formatDate(packageItem.date_available_end)}</span>
             )}
           </div>
         )}

@@ -11,6 +11,17 @@ interface ComponentProps {
     data: reservation
 }
 
+const getMinimumReservationDate = () => {
+    const minimumDate = new Date();
+    minimumDate.setDate(minimumDate.getDate() + 14);
+
+    const year = minimumDate.getFullYear();
+    const month = String(minimumDate.getMonth() + 1).padStart(2, "0");
+    const day = String(minimumDate.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+};
+
 const FormComponent: React.FC<ComponentProps> = ({ data }) => {
 
     const [formData, setFormData] = useState({
@@ -22,12 +33,15 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
         message: ""
     });
 
+    const minReservationDate = getMinimumReservationDate();
+
     // Número de WhatsApp al que se envía la reserva, tomado de site_settings
     // (Redes sociales → WhatsApp, editable desde /settings). Mientras carga o si
     // falla, WhatsAppButton usa su propio número de respaldo.
     const [whatsappPhone, setWhatsappPhone] = useState<string | undefined>(undefined);
     useEffect(() => {
         let isMounted = true;
+
         getPublicSetting('social_networks')
             .then((social) => {
                 if (isMounted) setWhatsappPhone(extractWhatsAppPhone(social.whatsapp));
@@ -57,73 +71,76 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
     }, [formData]);
 
     return (
-        <section id="formulario" className="bg-gray-100 py-12 md:py-16 mt-8 md:mt-16">
-            <div className="container mx-auto px-4 flex align-middle gap-4">
-                <div className="h-full my-auto w-1/4 space-y-5">
-                    <span className="flex flex-col w-2/3 text-4xl text-secondary font-noto-serif">
+        <section id="formulario" className="mt-10 bg-gray-100 py-12 md:mt-16 md:py-20">
+            <div className="container mx-auto grid max-w-6xl gap-10 px-4 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.6fr)] lg:items-center lg:gap-16">
+                <div className="space-y-4 text-center lg:text-left">
+                    <p className="font-manrope text-xs font-bold uppercase tracking-[0.22em] text-yellow-800">
+                        Reserva tu fecha
+                    </p>
+                    <h2 className="font-noto-serif text-3xl font-normal leading-tight text-secondary sm:text-4xl">
                         {data.title}
-                    </span>
-                    <span className="font-manrope">
+                    </h2>
+                    <p className="font-manrope text-sm leading-7 text-gray-700 sm:text-base">
                         {data.description}
-                    </span>
+                    </p>
                 </div>
-                <div className="w-3/4">
-                    <form className="w-2/3 grid grid-cols-2 gap-4 mx-auto">
-                        <div className="relative z-0 w-full mb-5 group">
+                <div className="rounded-md bg-white p-5 shadow-lg sm:p-8">
+                    <form className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+                        <div className="w-full">
+                            <label htmlFor="floating_name" className="mb-2 block font-manrope text-xs font-bold uppercase tracking-wider text-secondary">
+                                Nombre Completo
+                            </label>
                             <input
                                 type="text"
                                 name="floating_name"
                                 id="floating_name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="block text-secondary py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer" placeholder=" " required />
-                            <label htmlFor="floating_name" className="font-manrope font-semibold text-secondary uppercase absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:inset-s-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto">
-                                Nombre Completo
-                            </label>
+                                className="block w-full rounded border border-gray-300 bg-gray-50 px-4 py-3 font-manrope text-sm text-secondary outline-none transition placeholder:text-gray-400 focus:border-secondary focus:bg-white focus:ring-2 focus:ring-primary/40" placeholder="Tu nombre" required />
                         </div>
-                        <div className="relative z-0 w-full mb-5 group">
+                        <div className="w-full">
+                            <label htmlFor="floating_phone" className="mb-2 block font-manrope text-xs font-bold uppercase tracking-wider text-secondary">
+                                Número de Contacto (+52)
+                            </label>
                             <input
                                 type="text"
                                 name="floating_phone"
                                 id="floating_phone"
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                className="block text-secondary py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer" placeholder=" " required />
-                            <label htmlFor="floating_phone" className="font-manrope font-semibold text-secondary uppercase absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:inset-s-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto">
-                                Número de Contacto (+52)
-                            </label>
+                                className="block w-full rounded border border-gray-300 bg-gray-50 px-4 py-3 font-manrope text-sm text-secondary outline-none transition placeholder:text-gray-400 focus:border-secondary focus:bg-white focus:ring-2 focus:ring-primary/40" placeholder="55 0000 0000" required />
                         </div>
-                        <div className="relative z-0 w-full mb-5 group">
+                        <div className="w-full">
+                            <label htmlFor="floating_event" className="mb-2 block font-manrope text-xs font-bold uppercase tracking-wider text-secondary">
+                                Tipo de Evento
+                            </label>
                             <input
                                 type="text"
                                 name="floating_event"
                                 id="floating_event"
                                 value={formData.eventType}
                                 onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-                                className="block text-secondary py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer" placeholder=" " required />
-                            <label htmlFor="floating_event" className="font-manrope font-semibold text-secondary uppercase absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:inset-s-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto">
-                                Tipo de Evento
-                            </label>
+                                className="block w-full rounded border border-gray-300 bg-gray-50 px-4 py-3 font-manrope text-sm text-secondary outline-none transition placeholder:text-gray-400 focus:border-secondary focus:bg-white focus:ring-2 focus:ring-primary/40" placeholder="Boda, cumpleaños..." required />
                         </div>
-                        <div className="relative z-0 w-full mb-5 group">
+                        <div className="w-full">
+                            <label htmlFor="floating_date" className="mb-2 block font-manrope text-xs font-bold uppercase tracking-wider text-secondary">
+                                Fecha Estimada
+                            </label>
                             <input
                                 type="date"
                                 name="fecha_estimada"
                                 id="floating_date"
                                 value={formData.fecha}
+                                min={minReservationDate}
                                 onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
-                                className="block text-secondary py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                                placeholder=" "
+                                className="block w-full rounded border border-gray-300 bg-gray-50 px-4 py-3 font-manrope text-sm text-secondary outline-none transition focus:border-secondary focus:bg-white focus:ring-2 focus:ring-primary/40"
                                 required
                             />
-                            <label
-                                htmlFor="floating_date"
-                                className="font-manrope font-semibold text-secondary uppercase absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:inset-s-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
-                            >
-                                Fecha Estimada
-                            </label>
                         </div>
-                        <div className="relative z-0 w-full mb-5 group">
+                        <div className="w-full">
+                            <label htmlFor="floating_clients" className="mb-2 block font-manrope text-xs font-bold uppercase tracking-wider text-secondary">
+                                Numero de Invitados
+                            </label>
                             <input
                                 type="number"
                                 max={600}
@@ -132,29 +149,26 @@ const FormComponent: React.FC<ComponentProps> = ({ data }) => {
                                 id="floating_clients"
                                 value={formData.guests}
                                 onChange={(e) => setFormData({ ...formData, guests: Number(e.target.value) })}
-                                className="block text-secondary py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer" placeholder=" " required />
-                            <label htmlFor="floating_clients" className="font-manrope font-semibold text-secondary uppercase absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:inset-s-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto">
-                                Numero de Invitados
-                            </label>
+                                className="block w-full rounded border border-gray-300 bg-gray-50 px-4 py-3 font-manrope text-sm text-secondary outline-none transition placeholder:text-gray-400 focus:border-secondary focus:bg-white focus:ring-2 focus:ring-primary/40" placeholder="50" required />
                         </div>
-                        <div className="relative z-0 w-full mb-5 group col-span-2">
+                        <div className="w-full sm:col-span-2">
+                            <label htmlFor="floating_dudes" className="mb-2 block font-manrope text-xs font-bold uppercase tracking-wider text-secondary">
+                                Mensaje o dudas
+                            </label>
                             <textarea 
                                 name="floating_dudes" id="floating_dudes" 
-                                className="block text-secondary py-2.5 px-0 w-full text-sm text-heading bg-transparent border-0 border-b-2 border-default-medium appearance-none focus:outline-none focus:ring-0 focus:border-brand peer" 
-                                placeholder=" " 
+                                className="block min-h-32 w-full resize-y rounded border border-gray-300 bg-gray-50 px-4 py-3 font-manrope text-sm text-secondary outline-none transition placeholder:text-gray-400 focus:border-secondary focus:bg-white focus:ring-2 focus:ring-primary/40" 
+                                placeholder="Cuéntanos cómo podemos ayudarte" 
                                 required 
                                 value={formData.message}
                                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                             />
-                            <label htmlFor="floating_dudes" className="font-manrope font-semibold text-secondary uppercase absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-left peer-focus:inset-s-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto">
-                                Mensaje o dudas
-                            </label>
                         </div>
 
                         <WhatsAppButton
                             phone={whatsappPhone}
                             message={WhatsAppMessage}
-                            className="col-span-2 text-center w-1/2 text-white bg-secondary hover:scale-105 active:scale-100 transform duration-300 rounded box-border border border-transparent font-noto-serif font-extralight tracking-widest uppercase hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
+                            className="w-full text-center text-white bg-secondary hover:scale-[1.02] active:scale-100 transform duration-300 rounded border border-transparent px-4 py-3 font-manrope text-sm font-bold uppercase tracking-widest shadow-md transition hover:bg-green-900 focus:outline-none focus:ring-4 focus:ring-primary/50 sm:col-span-2"
                         >
                             Enviar WhatsApp
                         </WhatsAppButton>

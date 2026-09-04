@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, CalendarDays, Sparkles, ArrowRight } from "lucide-react";
 import { Package } from "@/src/types/package";
+import { getValidPromotions } from "@/lib/promotions";
 
 interface Props {
   packages: Package[];
@@ -43,12 +44,13 @@ const formatDate = (dateStr: string) => {
 };
 
 const PromotionsModal: React.FC<Props> = ({ packages, isOpen, onClose }) => {
+  const validPromotions = getValidPromotions(packages);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   // Alto (relación con el ancho) medido de la imagen real de cada paquete, para que
   // una infografía horizontal no se recorte al forzarla a una relación fija.
   const [aspectRatios, setAspectRatios] = useState<Record<number, number>>({});
-  const hasMultiple = packages.length > 1;
+  const hasMultiple = validPromotions.length > 1;
 
   const handleImageLoad = (pkgId: number) => (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = e.currentTarget;
@@ -65,15 +67,15 @@ const PromotionsModal: React.FC<Props> = ({ packages, isOpen, onClose }) => {
   useEffect(() => {
     if (!isOpen || !hasMultiple || !isAutoPlaying) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % packages.length);
+      setCurrentIndex((prev) => (prev + 1) % validPromotions.length);
     }, AUTO_ADVANCE_MS);
     return () => clearInterval(interval);
-  }, [isOpen, hasMultiple, isAutoPlaying, packages.length]);
+  }, [isOpen, hasMultiple, isAutoPlaying, validPromotions.length]);
 
-  const goPrev = () => setCurrentIndex((prev) => (prev - 1 + packages.length) % packages.length);
-  const goNext = () => setCurrentIndex((prev) => (prev + 1) % packages.length);
+  const goPrev = () => setCurrentIndex((prev) => (prev - 1 + validPromotions.length) % validPromotions.length);
+  const goNext = () => setCurrentIndex((prev) => (prev + 1) % validPromotions.length);
 
-  const currentPackage = packages[currentIndex];
+  const currentPackage = validPromotions[currentIndex];
 
   return (
     <AnimatePresence>
@@ -92,7 +94,7 @@ const PromotionsModal: React.FC<Props> = ({ packages, isOpen, onClose }) => {
             className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {packages.length === 0 ? (
+            {validPromotions.length === 0 ? (
               <>
                 <div className="flex justify-between items-center p-5 md:p-6 border-b-2 border-secondary/20">
                   <h2 className="flex items-center gap-3 text-xl md:text-2xl font-noto-serif font-bold text-secondary">
@@ -202,7 +204,7 @@ const PromotionsModal: React.FC<Props> = ({ packages, isOpen, onClose }) => {
                 {/* Indicadores del carrusel (solo si hay más de una promoción) */}
                 {hasMultiple && (
                   <div className="flex justify-center gap-2 pt-4">
-                    {packages.map((pkg, idx) => (
+                    {validPromotions.map((pkg, idx) => (
                       <button
                         key={pkg.id}
                         onClick={() => setCurrentIndex(idx)}
