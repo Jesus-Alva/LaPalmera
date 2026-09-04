@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, ShieldCheck, BellRing, BellOff, Loader2 } from 'lucide-react';
 import { User, UserRole, UserStatus } from '@/src/types/user';
 import { getUsers, updateUser } from '@/lib/api/users';
+import { confirmAction } from '@/lib/alerts';
 
 interface Props {
   initialUsers: User[];
@@ -77,6 +78,7 @@ export default function UsersTable({ initialUsers }: Props) {
   }, [search]);
 
   const handleUpdate = async (userId: number, data: { role?: UserRole; status?: UserStatus }) => {
+    if (!(await confirmAction({ text: `¿Desea actualizar este usuario al rol ${ROLE_LABELS[data.role || users.find(u => u.id === userId)?.role || 'read']}?` }))) return;
     const previous = users;
     setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...data } : u)));
     setSavingId(userId);
