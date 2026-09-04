@@ -42,7 +42,7 @@ const Page: React.FC = () => {
       // layout raíz calcula el usuario logueado en el servidor y, con una
       // navegación del lado del cliente, Next.js puede servir la versión en
       // caché de la ruta (sin sesión) en vez de recalcularla con la cookie nueva.
-      window.location.href = data.role === 'read' ? '/' : '/spaces';
+      window.location.href = data.role === 'read' ? '/' : '/banners';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
