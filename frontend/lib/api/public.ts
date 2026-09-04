@@ -6,6 +6,7 @@ import { Location } from '@/src/types/location';
 import { TeamMember } from '@/src/types/teamMember';
 import { GalleryCategory, GalleryImage } from '@/src/types/gallery';
 import { SettingKey, SettingValueMap } from '@/src/types/siteSettings';
+import { Faq } from '@/src/types/faq';
 import { getApiBaseUrl } from './client';
 
 const API_URL = getApiBaseUrl();
@@ -14,6 +15,12 @@ const API_URL = getApiBaseUrl();
  * Funciones de solo lectura para el sitio público (home, etc).
  * Consumen los endpoints /public/* del backend, que no requieren autenticación.
  */
+
+export async function getPublicFaqs(): Promise<Faq[]> {
+  const res = await fetch(`${API_URL}/public/faqs`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Error al cargar FAQs');
+  return res.json();
+}
 
 export async function getPublicBanners(params?: { page?: string }): Promise<Banner[]> {
   const query = new URLSearchParams();

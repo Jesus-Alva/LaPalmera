@@ -17,6 +17,7 @@ from app.model.gallery_image import GalleryImage
 from app.model.images_catalog import ImagesCatalog
 from app.model.image import Image
 from app.model.site_setting import SiteSetting
+from app.model.faq import Faq
 
 from app.schemas.banner import BannerOut
 from app.schemas.space import SpaceOut
@@ -25,6 +26,7 @@ from app.schemas.package import PackageOut
 from app.schemas.location import LocationOut
 from app.schemas.team_members import TeamMemberOut
 from app.schemas.gallery import GalleryCategoryOut, GalleryImageOut
+from app.schemas.faq import FaqOut
 
 router = APIRouter()
 
@@ -220,6 +222,19 @@ def list_public_team_members(
         db.query(TeamMember)
         .filter(TeamMember.is_active == True)
         .order_by(TeamMember.sort_order, TeamMember.id)
+        .limit(limit)
+        .all()
+    )
+
+@router.get("/faqs", response_model=list[FaqOut])
+def list_public_faqs(
+    db: Session = Depends(get_db),
+    limit: int = Query(50, ge=1, le=100),
+):
+    return (
+        db.query(Faq)
+        .filter(Faq.is_active == True)
+        .order_by(Faq.id)
         .limit(limit)
         .all()
     )
