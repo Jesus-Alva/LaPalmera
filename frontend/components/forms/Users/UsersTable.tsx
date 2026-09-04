@@ -8,6 +8,7 @@ import { confirmAction } from '@/lib/alerts';
 
 interface Props {
   initialUsers: User[];
+  currentUserEmail?: string;
 }
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -42,7 +43,7 @@ const formatLastLogin = (value: string | null) => {
   });
 };
 
-export default function UsersTable({ initialUsers }: Props) {
+export default function UsersTable({ initialUsers, currentUserEmail }: Props) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,6 +79,12 @@ export default function UsersTable({ initialUsers }: Props) {
   }, [search]);
 
   const handleUpdate = async (userId: number, data: { role?: UserRole; status?: UserStatus }) => {
+    const user = users.find(u => u.id === userId);
+    if (user && currentUserEmail && user.email.toLowerCase() === currentUserEmail.toLowerCase()) {
+      setError('No puedes modificar tu propio rol o estatus.');
+      return;
+    }
+
     if (!(await confirmAction({ text: `¿Desea actualizar este usuario al rol ${ROLE_LABELS[data.role || users.find(u => u.id === userId)?.role || 'read']}?` }))) return;
     const previous = users;
     setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...data } : u)));
@@ -137,7 +144,12 @@ export default function UsersTable({ initialUsers }: Props) {
                 </td>
               </tr>
             ) : (
-              users.map((u) => (
+              users.map((u) => {
+                const isCurrentUser = Boolean(
+                  currentUserEmail && u.email.toLowerCase() === currentUserEmail.toLowerCase()
+                );
+
+                return (
                 <tr key={u.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-800">{u.display_name || '—'}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">{u.email}</td>
@@ -161,7 +173,7 @@ export default function UsersTable({ initialUsers }: Props) {
                       <select
                         value={u.role}
                         onChange={(e) => handleUpdate(u.id, { role: e.target.value as UserRole })}
-                        disabled={savingId === u.id}
+                        disabled={savingId === u.id || isCurrentUser}
                         className="text-xs border border-gray-300 rounded-md px-1.5 py-1 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="admin">Administrador</option>
@@ -178,7 +190,7 @@ export default function UsersTable({ initialUsers }: Props) {
                       <select
                         value={u.status}
                         onChange={(e) => handleUpdate(u.id, { status: e.target.value as UserStatus })}
-                        disabled={savingId === u.id}
+                        disabled={savingId === u.id || isCurrentUser}
                         className="text-xs border border-gray-300 rounded-md px-1.5 py-1 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="active">Activo</option>
@@ -189,7 +201,8 @@ export default function UsersTable({ initialUsers }: Props) {
                     {savingId === u.id && <Loader2 className="inline h-3.5 w-3.5 animate-spin ml-2 text-gray-400" />}
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

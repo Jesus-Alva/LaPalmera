@@ -2,10 +2,12 @@ import { redirect } from 'next/navigation';
 import { getServerToken } from '@/app/lib/auth-server';
 import { getUsers } from '@/lib/api/users';
 import UsersTable from '@/components/forms/Users/UsersTable';
+import { decodeJwtPayload } from '@/lib/jwt';
 
 export default async function UsersPage() {
   const token = await getServerToken();
   if (!token) redirect('/login');
+  const currentUserEmail = decodeJwtPayload<{ sub?: string }>(token)?.sub;
 
   let users;
   try {
@@ -26,7 +28,7 @@ export default async function UsersPage() {
         </h1>
       </div>
 
-      <UsersTable initialUsers={users} />
+      <UsersTable initialUsers={users} currentUserEmail={currentUserEmail} />
     </div>
   );
 }
