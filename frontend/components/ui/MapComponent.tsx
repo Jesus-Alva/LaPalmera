@@ -3,15 +3,25 @@
 
 interface MapComponentProps {
   zoom?: number;
+  lat?: number;
+  lng?: number;
 }
 
-const MapComponent = ({ zoom = 15 }: MapComponentProps) => {
+const DEFAULT_EMBED_SRC = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d19830.211817387943!2d-99.09388497074438!3d19.626179497465653!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1f50002077d9d%3A0x11d220b479a0566d!2sLa%20Palmera%20-%20Jard%C3%ADn%20de%20eventos%20Coacalco!5e1!3m2!1ses!2smx!4v1781149946695!5m2!1ses!2smx";
+
+const MapComponent = ({ zoom = 15, lat, lng }: MapComponentProps) => {
+  // Si se reciben coordenadas (p.ej. de la ubicación activa en BD), se arma un embed
+  // sin necesidad de API key; si no, se usa el embed fijo por defecto.
+  const embedSrc = lat != null && lng != null
+    ? `https://maps.google.com/maps?q=${lat},${lng}&z=${zoom}&output=embed`
+    : DEFAULT_EMBED_SRC;
+
   return (
     <section className="w-full rounded-2xl">
       {/* Contenedor con posición relativa y relación de aspecto 16:9 (aspect-video) */}
       <div className="relative w-full aspect-video">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d19830.211817387943!2d-99.09388497074438!3d19.626179497465653!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d1f50002077d9d%3A0x11d220b479a0566d!2sLa%20Palmera%20-%20Jard%C3%ADn%20de%20eventos%20Coacalco!5e1!3m2!1ses!2smx!4v1781149946695!5m2!1ses!2smx"
+          src={embedSrc}
           className="absolute inset-0 w-full h-full rounded-2xl shadow-2xl"
           style={{ border: 0 }}
           allowFullScreen

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslation } from '../../../lib/hooks/useTranslation';
 
 interface FAQItem {
     id: number;
@@ -9,10 +8,7 @@ interface FAQItem {
     answer: string;
 }
 
-const QuestionsComponent: React.FC = () => {
-const { t } = useTranslation();
-
-    const faqs: FAQItem[] = t('package.question.questions', { returnObjects: true }) as FAQItem[];
+const QuestionsComponent: React.FC<{ faqs: FAQItem[] }> = ({ faqs }) => {
 
     const [openId, setOpenId] = useState<number | null>(null);
 

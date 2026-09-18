@@ -16,6 +16,9 @@ venv.bak/
 .env.local
 .env.*.local
 
+# Archivos estáticos subidos por la app
+backend/static/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -175,3 +178,12 @@ database_dumps/
 *.temp
 .cache/
 .temp/
+
+# =============================================
+# DOCUMENTACIÓN GENERADA (docs/)
+# =============================================
+
+# Carpeta de documentación de cambios (generada automáticamente por sesión)
+docs/
+docs/**/*.md
+

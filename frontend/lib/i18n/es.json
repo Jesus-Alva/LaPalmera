@@ -192,6 +192,10 @@
         }
       }
     },
+    "reviews": {
+      "desc": "Lo que dicen de nosotros",
+      "title": "Reseñas de nuestros clientes"
+    },
     "location": {
       "title": "Nuestra Ubicación",
       "desc": "Encuentranos",
@@ -224,6 +228,49 @@
           "id": 3,
           "question": "¿Son Pet Friendly?",
           "answer": "Claro, en La Palmera Jardín de Eventos creemos que las mascotas son parte de la familia, por lo que son bien recibidas para celebrar en conjunto de sus seres queridos."
+        }
+      ]
+    }
+  },
+  "aboutus": {
+    "banner": {
+      "title": "Sobre Nosotros"
+    },
+    "origin": {
+      "title": "El Origen de la Elegancia",
+      "subtitle": "Herencia & Naturaleza",
+      "description": [
+        "Nacida de la visión de preservar la biodiversidad local mientras se ofrece un escenario de sofisticación inigualable, La Palmera ha evolucionado de un espacio de descanmso privado a la propiedad más distinguida de la región.",
+        "Cada rincón de nuestra finca cuenta una historia de transformación, donde la arquitectura clásica se entrelaza con el crecimiento orgánico de especies centenarias, creando un santuario donde el tiempo parece detenerse."
+      ],
+      "image1": {
+        "src": "/images/aboutus/distribucion-5.jpg",
+        "alt": "Imagen banner"
+      },
+      "image2": {
+        "src": "/images/aboutus/distribucion-5.jpg",
+        "alt": "Imagen banner"
+      }
+    },
+    "team": {
+      "title": "El Alma de la Palmera",
+      "subtitle": "Conocenos",
+      "teamList": [
+        {
+          "name": "Hugo Vega",
+          "rol": "Director de Eventos",
+          "photo": {
+            "src": "/images/aboutus/avatar-man.png",
+            "alt": "Imagen del equipo"
+          }
+        },
+        {
+          "name": "Monica Galvan",
+          "rol": "Director de Eventos",
+          "photo": {
+            "src": "/images/aboutus/avatar-woman.png",
+            "alt": "Imagen del equipo"
+          }
         }
       ]
     }
@@ -304,6 +351,50 @@
       }
     ]
   },
+  "contact": {
+    "banner": {
+      "title": "Contacto",
+      "subtitle": "conectemos"
+    },
+    "information": {
+      "title": "Información",
+      "data": [
+        {
+          "title": "Dirección",
+          "value": "Vicente Guerrero 23, 55700 San Francisco Coacalco, Méx."
+        },
+        {
+          "title": "Telefono",
+          "value": "+52 55 1234 5678"
+        },
+        {
+          "title": "Correo",
+          "value": "lapalmera-jardin@gmail.com"
+        }
+      ],
+      "schedule": {
+        "title": "Horarios",
+        "data": [
+          {
+            "days": "Lunes a viernes",
+            "time": "9:00 - 18:00"
+          },
+          {
+            "days": "Sabados",
+            "time": "10:00 - 14:00"
+          },
+          {
+            "days": "Domingos",
+            "time": "9:00 - 12:00"
+          }
+        ]
+      }
+    },
+    "reservation": {
+      "title": "Comienza tu historia con nosotros",
+      "description": "Completa el formulario y uno de nuestros coordinadores de hospitalidad se pondrá en contacto contigo en menos de 24 horas."
+    }
+  },
   "footer": {
     "copyright": {
       "title": "Derechos Reservados",
@@ -313,7 +404,7 @@
     "location": {
       "title": "Ubicación",
       "link": "Ver en Google Maps",
-      "address":"Vicente Guerrero 23, Coacalco, 55700 San Francisco Coacalco, Méx.",
+      "address": "Vicente Guerrero 23, Coacalco, 55700 San Francisco Coacalco, Méx.",
       "href": "https://www.google.com/maps/place/La+Palmera+-+Jard%C3%ADn+de+eventos+Coacalco/@19.6287575,-99.1061957,117m/data=!3m1!1e3!4m12!1m5!3m4!2zMTnCsDM3JzQzLjgiTiA5OcKwMDYnMjIuOSJX!8m2!3d19.6288221!4d-99.1063486!3m5!1s0x85d1f50002077d9d:0x11d220b479a0566d!8m2!3d19.628645!4d-99.106267!16s%2Fg%2F11w9k1bhlk?entry=ttu&g_ep=EgoyMDI2MDUxMS4wIKXMDSoASAFQAw%3D%3D"
     },
     "social": {
@@ -323,6 +414,11 @@
       "instagram": "https://www.instagram.com/la_palmera_jardin_de_eventos_/",
       "whatsapp": "WhatsApp",
       "tikTok": "https://www.tiktok.com/@vg.eventos_jlpalmera"
+    },
+    "account":{
+      "title": "Cuenta",
+      "login": "Iniciar Sesión",
+      "register": "Registrarse"
     },
     "extra": "Hecho con ❤️ para eventos inolvidables"
   }

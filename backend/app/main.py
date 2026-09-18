@@ -1,12 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
+
+from app.api.route.api import api_router
+from app.core.config import settings
 
 app = FastAPI(title="FastAPI Backend")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción cambiar a dominios específicos
+    allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,3 +35,5 @@ def test_celery():
         return {"task_id": result.id}
     except Exception as e:
         return {"error": str(e)}
+    
+app.include_router(api_router, prefix=settings.API_V1_STR)

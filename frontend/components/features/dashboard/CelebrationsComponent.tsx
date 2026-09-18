@@ -2,14 +2,13 @@
 import Image from "next/image";
 import { useTranslation } from "../../../lib/hooks/useTranslation";
 import { ROUTES_IMAGES } from "../../../app/constants/routes";
-
-type Celebrations = typeof ROUTES_IMAGES.inicio.celebrations;
+import { Celebration } from "../../../src/types/celebration";
 
 interface ComponentProps {
-    src: Celebrations;
+    celebrations: Celebration[];
 }
 
-const CelebrationsComponent: React.FC<ComponentProps> = ({ src }) => {
+const CelebrationsComponent: React.FC<ComponentProps> = ({ celebrations }) => {
     const { t } = useTranslation();
 
     return (
@@ -18,13 +17,13 @@ const CelebrationsComponent: React.FC<ComponentProps> = ({ src }) => {
                 {/* Grid: una columna en móvil, dos en escritorio */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
 
-                    {/* Columna izquierda: imágenes superpuestas */}
+                    {/* Columna izquierda: imágenes superpuestas (decorativas, no dependen de BD) */}
                     <div className="relative flex justify-center items-center py-8 md:py-0">
                         <div className="relative w-full max-w-md mx-auto">
                             {/* Imagen de fondo (segunda imagen, más grande y rotada) */}
                             <div className="relative z-0">
                                 <Image
-                                    src={src.image2}
+                                    src={ROUTES_IMAGES.inicio.celebrations.image2}
                                     alt="Celebration background"
                                     width={1000}
                                     height={800}
@@ -34,7 +33,7 @@ const CelebrationsComponent: React.FC<ComponentProps> = ({ src }) => {
                             {/* Imagen superpuesta (primera imagen, más pequeña y rotada al revés) */}
                             <div className="absolute bottom-0 right-0 z-10 w-1/2 md:w-2/5 translate-x-2 md:translate-x-4 translate-y-2 md:translate-y-4">
                                 <Image
-                                    src={src.image1}
+                                    src={ROUTES_IMAGES.inicio.celebrations.image1}
                                     alt="Celebration overlay"
                                     width={1000}
                                     height={800}
@@ -54,13 +53,13 @@ const CelebrationsComponent: React.FC<ComponentProps> = ({ src }) => {
                             </h3>
                         </div>
 
-                        {[1, 2, 3].map((num) => (
-                            <div key={num} className="text-center lg:text-left">
+                        {celebrations.map((celebration) => (
+                            <div key={celebration.id} className="text-center lg:text-left">
                                 <h3 className="font-noto-serif text-2xl md:text-3xl mb-2 text-black">
-                                    {t(`inicio.celebrations.examples.example${num}.title`)}
+                                    {celebration.title}
                                 </h3>
                                 <p className="text-gray-600 text-base md:text-lg">
-                                    {t(`inicio.celebrations.examples.example${num}.desc`)}
+                                    {celebration.description}
                                 </p>
                             </div>
                         ))}

@@ -21,7 +21,12 @@ export const ROUTES_IMAGES = {
     },
     paquetes: {
         url: "/package",
-        src_banner: "/images/package/banner-mesas.png"
+        src_banner: [
+            "/images/package/banner-mesas.png"
+        ]
+    },
+    nosotros: {
+        src_banner: "/images/identidad/inicios.jpg"
     }
     
 } as const;
@@ -30,5 +35,6 @@ export const ROUTES_PAGE = {
     inicio: "/",
     paquetes: "/package",
     galeria: "/gallery",
-    nosotros: "/aboutus"
+    nosotros: "/aboutus",
+    contacto: "/contact"
 } as const;

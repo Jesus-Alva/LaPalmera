@@ -1,3 +1,8 @@
+# Compose de referencia para correr la app en modo producción (imágenes
+# construidas, sin bind mounts ni auto-reload) — por ejemplo para autohospedarla
+# en un VPS. Railway NO usa este archivo: cada servicio (backend/, frontend/)
+# se despliega ahí directamente desde su propio Dockerfile + railway.toml.
+# Ver .env.example para las variables que espera este archivo.
 services:
   # Backend Services
   web:
@@ -9,15 +14,18 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Sin `command:` ni bind mount de código: se usa la imagen ya construida,
+    # cuyo ENTRYPOINT aplica las migraciones de Alembic antes de arrancar.
     volumes:
-      - ./backend:/app
+      - static_data:/app/static
     restart: unless-stopped
     networks:
       - app-network
@@ -72,7 +80,7 @@ services:
   #   container_name: apscheduler
   #   depends_on:
   #     - postgres
-  #   environment:      
+  #   environment:
   #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dbname
   #   command: python -m app.schedulers.main
   #   volumes:
@@ -84,19 +92,23 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      # Variables NEXT_PUBLIC_* que Next.js necesita "inlinear" en el bundle del
+      # navegador durante `npm run build` (ver comentario en frontend/Dockerfile).
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
     container_name: frontend-la-palmera
     ports:
       - "3000:3000"
     environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-      - FAST_REFRESH=true
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev -- --webpack
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      # URL interna para las peticiones que el propio servidor de Next.js (Server
+      # Components, route handlers) le hace al backend dentro de la red de Docker.
+      - API_URL_INTERNAL=http://web:8000/api/v1
+    depends_on:
+      - web
     restart: unless-stopped
     networks:
       - app-network
@@ -155,6 +167,10 @@ services:
 
 volumes:
   postgres_data:
+  # Imágenes subidas (galería, banners, espacios, etc.). Sin este volumen, cada
+  # `docker compose up --build` empieza con /app/static vacío y las imágenes
+  # previamente subidas dejan de servirse aunque la BD siga referenciándolas.
+  static_data:
 
 networks:
   app-network:

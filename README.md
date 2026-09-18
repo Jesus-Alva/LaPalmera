@@ -16,190 +16,6 @@
 - [📦 Instalación local](#📦-instalación-local)
 - [📁 Estructura de Carpetas Recomendada](#📁-estructura-de-carpetas-recomendada)
 
-## 🏗️ 1. Componente de Página (App Router)
-
-Archivo: app/page.tsx o app/[ruta]/page.tsx
-
-
-```bash
-import React from 'react';
-import Head from 'next/head';
-
-// Tipos para las props
-interface PageProps {
-  params?: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-// Componente principal
-export default function PageName({ params, searchParams }: PageProps) {
-  const title = "Mi Página";
-
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content="Descripción" />
-      </Head>
-
-      <main className="min-h-screen p-4">
-        <h1 className="text-3xl font-bold">{title}</h1>
-        <section>
-          <p>Contenido aquí</p>
-        </section>
-      </main>
-    </>
-  );
-}
-
-// Metadata dinámica (opcional)
-export async function generateMetadata({ params }: PageProps) {
-  return {
-    title: 'Título dinámico',
-  };
-}
-
-// Generación estática de rutas (opcional)
-export async function generateStaticParams() {
-  return [{ id: '1' }, { id: '2' }];
-}
-```
-
-## 🔧 2. Componente Reutilizable
-
-Archivo: components/ComponentName.tsx
-
-```bash
-import React, { useState, useEffect } from 'react';
-
-interface ComponentProps {
-  title: string;
-  count?: number;
-  onAction?: () => void;
-}
-
-const ComponentName: React.FC<ComponentProps> = ({ 
-  title, 
-  count = 0,
-  onAction 
-}) => {
-  const [state, setState] = useState<string>('');
-
-  useEffect(() => {
-    // Lógica de efecto
-  }, []);
-
-  const handleClick = () => {
-    onAction?.();
-  };
-
-  return (
-    <div className="container mx-auto p-4">
-      <h2>{title}</h2>
-      <button onClick={handleClick}>
-        Click me (Count: {count})
-      </button>
-    </div>
-  );
-};
-
-export default ComponentName;
-```
-
-## 📦 3. Estructura Completa con Data Fetching
-
-```bash
-// Importaciones organizadas
-import React from 'react';
-import type { Metadata } from 'next';
-import { GetServerSideProps, GetStaticProps } from 'next';
-
-// Componentes y utilidades
-import ComponentA from '@/components/ComponentA';
-import { formatDate } from '@/lib/utils';
-import { User } from '@/types/user';
-
-// Tipos
-interface PageProps {
-  users: User[];
-  timestamp: string;
-}
-
-// Componente principal
-export default async function Page({ users, timestamp }: PageProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  
-  if (isLoading) return <div>Loading...</div>;
-
-  return (
-    <div className="layout">
-      <ComponentA data={users} />
-      {users.map((user) => (
-        <div key={user.id}>{user.name}</div>
-      ))}
-    </div>
-  );
-}
-
-// Data Fetching (ISR - Incremental Static Regeneration)
-export const getStaticProps: GetStaticProps = async () => {
-  const res = await fetch('https://api.example.com/data');
-  const data = await res.json();
-
-  return {
-    props: {
-      users: data,
-      timestamp: new Date().toISOString(),
-    },
-    revalidate: 60, // Regenera cada 60 segundos
-  };
-};
-
-// O Server-Side Rendering
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  return {
-    props: { /* datos del servidor */ },
-  };
-};
-```
-
-## 🎯 4. Client Component con Contexto
-
-```bash
-'use client'; // Marcador para Client Components en App Router
-
-import React, { createContext, useContext, useState } from 'react';
-
-interface ContextType {
-  theme: string;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ContextType | undefined>(undefined);
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState('light');
-
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
-}
-```
-
 ## 📋 Consejos de Estructuración
 ```
 Sección	        Orden Recomendada
@@ -233,11 +49,11 @@ docker compose up --build
 # Levantar el proyecto para Desarrollo
 
 ### 1. Levantar el entorno
-```
+```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 ### 2. Ver logs en tiempo real
-```
+```bash
 docker compose -f docker-compose.dev.yml logs -f
 ```
 
@@ -245,18 +61,70 @@ docker compose -f docker-compose.dev.yml logs -f
 ### El navegador recargará automáticamente (hot reload)
 
 ### 4. Detener el entorno
-```
+```bash
 docker compose -f docker-compose.dev.yml stop
 ```
 ### 5. Dar de baja los servicios
-```
+```bash
 docker compose -f docker-compose.dev.yml down -v
 ```
 
 ### 6. Construir y levantar servicios
-```
+```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
+
+## Migraciones de Base de Datos
+
+Las migraciones se gestionan con Alembic. Los scripts de migración se encuentran en `backend/migrations/versions/`.
+
+**Nota:** Todos los archivos de migración están versionados en el repositorio, excepto `alembic.ini` (para evitar exponer credenciales). Cada entorno debe configurar su propia URL de base de datos a través de variables de entorno o un archivo `.env`.
+
+> Las migraciones se aplican en raiz
+
+Para generar una nueva migración:
+```bash
+docker compose -f docker-compose.dev.yml exec web python -m alembic revision --autogenerate -m "Descripción del cambio"
+```
+Aplicar migraciones
+```bash
+docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
+```
+
+Despues de un Down ejecuta para levantar de nuevo tu BD
+#### En caso de tener dos Head:
+```bash
+# Ver las cabezas
+docker compose -f docker-compose.dev.yml exec web python -m alembic heads
+
+# Fusionar (reemplaza `head1` y `head2` con los identificadores que obtuviste)
+docker compose -f docker-compose.dev.yml exec web python -m alembic merge <head1> <head2> -m "merge heads"
+# O simplemente:
+docker compose -f docker-compose.dev.yml exec web python -m alembic merge heads -m "merge heads"
+```
+O simplemente:
+```bash
+# Aplica
+docker compose -f docker-compose.dev.yml exec web python -m alembic upgrade head
+```
+
+### Ingresa a PostgresSQL con el comando: docker exec -it postgres-palmera-dev psql -U lapalmera -d lapalmera
+
+# Nota: Despues de ejecutar las migraciones
+> Una vez que ya se ejecutaron las migraciones, recuerda que si aplicas un DOWN y despues reconstruyes todo, tienes que volver a ejecutar las migraciones
+
+## --------------Coneccion a PgAdmin
+``` 
+Host: (POSTGRES_SERVER)
+
+Port: ((pero este es el puerto mapeado en el host, el interno es 5432))
+
+Username: (POSTGRES_USER)
+
+Password: (POSTGRES_PASSWORD)
+
+Database: (POSTGRES_DB)
+``` 
 
 # Nota: Al actualizar o instalar dependencias:
 >Los archivos package se desincronizan por lo que hay que eliminar la carpeta node modules y el archivo package-lock.json, asi como ejecutar dentro de la carpeta /frontend los comandos:
@@ -272,43 +140,13 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-## Errores comunes
-# Error de instalación de next-intl
->En algunos casos, next-intl puede tener error de permisos para su instalacion, debido a que el usuario que creo el proyecto no es el mismo, no cuenta con los mismos permisos de creacion, para solucionarlo, debemos asignar los permisos al usuario actual meidante el comando:
-``` 
-sudo chown -R $(whoami):$(whoami) /home/user/Architecture-FastAPI/frontend
-``` 
-seguido de la instalación de next-intl
-```
-npm install next-intl
-```
+# Configuración (.env)
 
-## 📁 Estructura de Carpetas Recomendada
-
-
+### Asegurate de tener una SECRET_KEY
+Ejecuta en la terminal para generar un token aleatorio
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
-my-next-app/
-├── app/                    # App Router (Next.js 13+)
-│   ├── layout.tsx         # Layout principal
-│   ├── page.tsx           # Homepage
-│   ├── globals.css        # Estilos globales
-│   └── [ruta]/
-│       ├── layout.tsx     # Layout específico
-│       ├── page.tsx       # Página dinámica
-│       └── loading.tsx    # Estado de carga
-│
-├── components/            # Componentes reutilizables
-│   ├── ui/               # Botones, inputs, etc.
-│   ├── layout/           # Componentes de layout
-│   └── features/         # Componentes específicos
-│
-├── lib/                  # Utilidades y configuraciones
-├── hooks/                # Custom hooks
-├── types/                # Tipos TypeScript
-├── styles/               # Estilos adicionales
-└── public/               # Assets estáticos
-```
-
 
 
 

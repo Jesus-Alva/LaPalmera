@@ -7,6 +7,17 @@ RUN npm ci
 
 # Copiar el resto del código y construir
 COPY . .
+
+# Next.js "inlinea" las variables NEXT_PUBLIC_* en el bundle del navegador durante
+# el build, así que deben existir como ARG/ENV *antes* de `npm run build` — no
+# basta con pasarlas como variables de entorno del contenedor en tiempo de
+# ejecución. En Railway, configúralas como variables del servicio: se exponen
+# automáticamente durante el build de una imagen Docker.
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+
 RUN npm run build
 
 # Etapa runner (imagen final ligera)

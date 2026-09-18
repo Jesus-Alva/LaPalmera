@@ -1,27 +1,56 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
-import { useTranslation } from "../../../lib/hooks/useTranslation";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { FaRegCheckCircle, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import PackageImageCarousel from "./PackageImageCarousel";
+import { Package } from "@/src/types/package";
 
-const PackagesComponent: React.FC = () => {
-  const { t } = useTranslation();
+interface ComponentProps {
+  packages: Package[];
+  /** Número de WhatsApp (solo dígitos) al que se envían las solicitudes de información. */
+  whatsappPhone?: string;
+  /** Id del paquete a preseleccionar y desplazar a la vista (ej. al llegar desde ?paquete=<id>). */
+  initialSelectedId?: number;
+}
+
+const DEFAULT_IMAGE = "/images/package/default_package.jpeg";
+
+// Lista de imágenes de un paquete (usa images_url; si no viene, cae a la imagen destacada)
+const getPackageImages = (pkg: Package): string[] =>
+  pkg.images_url && pkg.images_url.length > 0
+    ? pkg.images_url
+    : (pkg.image_url ? [pkg.image_url] : []);
+
+const PackagesComponent: React.FC<ComponentProps> = ({ packages, whatsappPhone, initialSelectedId }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [itemsPerView, setItemsPerView] = useState(3);
   const trackRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Preselecciona y desplaza al detalle del paquete recibido por query (?paquete=<id>),
+  // por ejemplo al llegar desde el botón "Ver detalles del paquete" del modal de promociones.
+  useEffect(() => {
+    if (initialSelectedId === undefined) return;
+    const idx = packages.findIndex((pkg) => pkg.id === initialSelectedId);
+    if (idx < 0) return;
+    setSelectedIdx(idx);
+    requestAnimationFrame(() => {
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    // Solo debe ejecutarse una vez al llegar con el id inicial, no en cada selección manual posterior.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSelectedId]);
 
   // Estados para swipe táctil
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const packageList = t("inicio.partyPackage.packageList", { returnObjects: true });
-  const packages = packageList && typeof packageList === "object" ? Object.values(packageList) : [];
   const totalPackages = packages.length;
 
   const updateItemsPerView = () => {
@@ -137,10 +166,6 @@ const PackagesComponent: React.FC = () => {
     setIsDragging(false);
   };
 
-  if (!packageList || typeof packageList !== "object" || packages.length === 0) {
-    return null;
-  }
-
   const translateX = -safeIndex * itemWidth;
 
   const handleSelect = (idx: number) => {
@@ -153,8 +178,26 @@ const PackagesComponent: React.FC = () => {
   const handleMouseEnter = () => stopAutoPlay();
   const handleMouseLeave = () => startAutoPlay();
 
+  const WhatsAppMessage = useMemo(() => {
+    if (!selectedPackage) return "";
+
+    const lines = [
+      `Hola, estoy interesado en el paquete "${selectedPackage.title}"`,
+      "",
+      "*Detalles del paquete:*",
+      ...selectedPackage.features.map((f) => `${f.feature_key}: ${f.feature_value}`),
+      "",
+      "Quedo atento a su respuesta.",
+    ];
+    return lines.join("\n");
+  }, [selectedPackage]);
+
+  if (packages.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
+    <section id="description" className="container mx-auto px-4 py-12 md:py-16 my-12 md:my-18.75">
       <div
         ref={carouselRef}
         className="relative"
@@ -170,19 +213,14 @@ const PackagesComponent: React.FC = () => {
             className={`flex transition-transform duration-500 ease-in-out ${isDragging ? "duration-0" : ""}`}
             style={{ transform: `translateX(${translateX}px)` }}
           >
-            {packages.map((pkgData, idx) => {
-              const title = pkgData.title;
-              const desc = pkgData.desc;
-              const services = pkgData.services as Record<string, string | string[]>;
-              const srcImage = pkgData.srcImage || "/images/package/default_package.jpeg";
-              const hrs = getStringValue(services.hrs);
-              const food = getStringValue(services.food);
-              const drinks = normalizeArray(services.drinks);
+            {packages.map((pkg, idx) => {
+              const packageImages = getPackageImages(pkg);
               const isSelected = selectedIdx === idx;
+              const previewFeatures = pkg.features.slice(0, 3);
 
               return (
                 <div
-                  key={idx}
+                  key={pkg.id}
                   className="shrink-0 p-3 md:p-4 package-card cursor-pointer"
                   style={{ width: itemWidth ? `${itemWidth}px` : "auto" }}
                   onClick={() => handleSelect(idx)}
@@ -194,63 +232,39 @@ const PackagesComponent: React.FC = () => {
                     `}
                   >
                     <div className="relative w-full pt-[60%] overflow-hidden rounded-t-2xl">
-                      <Image
-                        src={srcImage}
-                        alt={title}
-                        fill
-                        className="object-cover"
+                      <PackageImageCarousel
+                        images={packageImages}
+                        alt={pkg.title}
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        fallbackSrc={DEFAULT_IMAGE}
                       />
                     </div>
                     <div
-                      className={`p-5 md:p-8 lg:p-10 flex flex-col flex-grow ${
-                        isSelected ? "bg-secondary text-white rounded-b-2xl" : ""
-                      }`}
+                      className={`p-5 md:p-8 lg:p-10 flex flex-col flex-grow ${isSelected ? "bg-secondary text-white rounded-b-2xl" : ""
+                        }`}
                     >
                       <h3 className="font-noto-serif font-normal text-2xl md:text-3xl lg:text-4xl mb-2">
-                        {title}
+                        {pkg.title}
                       </h3>
                       <span className="font-noto-serif font-light text-sm md:text-base">
-                        {desc}
+                        {pkg.short_description}
                       </span>
                       <ul className="mt-4 space-y-2 font-manrope text-xs md:text-sm grow">
-                        {hrs && (
-                          <li className="flex items-start gap-2">
+                        {previewFeatures.map((feature) => (
+                          <li key={feature.id} className="flex items-start gap-2">
                             <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${
-                                isSelected ? "text-yellow-500" : "text-gray-700"
-                              }`}
+                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${isSelected ? "text-yellow-500" : "text-gray-700"
+                                }`}
                             />
-                            <span>{hrs}</span>
-                          </li>
-                        )}
-                        {food && (
-                          <li className="flex items-start gap-2">
-                            <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${
-                                isSelected ? "text-yellow-500" : "text-gray-700"
-                              }`}
-                            />
-                            <span>{food}</span>
-                          </li>
-                        )}
-                        {drinks.map((item, i) => (
-                          <li key={`drink-${idx}-${i}`} className="flex items-start gap-2">
-                            <FaRegCheckCircle
-                              className={`w-5 h-5 md:w-6 md:h-6 shrink-0 mt-0.5 ${
-                                isSelected ? "text-yellow-500" : "text-gray-700"
-                              }`}
-                            />
-                            <span>{item}</span>
+                            <span>{feature.feature_value}</span>
                           </li>
                         ))}
                       </ul>
                       <button
-                        className={`w-full mt-6 font-noto-serif uppercase py-2 md:py-3 px-4 border transition-colors duration-300 rounded-lg text-sm md:text-base ${
-                          isSelected
-                            ? "bg-primary text-secondary border-primary hover:bg-opacity-90"
-                            : "border-gray-800 text-gray-800 hover:bg-secondary hover:text-primary"
-                        }`}
+                        className={`w-full mt-6 font-noto-serif uppercase py-2 md:py-3 px-4 border transition-colors duration-300 rounded-lg text-sm md:text-base ${isSelected
+                          ? "bg-primary text-secondary border-primary hover:bg-opacity-90"
+                          : "border-gray-800 text-gray-800 hover:bg-secondary hover:text-primary"
+                          }`}
                       >
                         Más Detalles
                       </button>
@@ -283,10 +297,12 @@ const PackagesComponent: React.FC = () => {
       </div>
 
       {selectedPackage && (
-        <div className="mt-12 md:mt-16 overflow-hidden transition-all duration-300">
-          <div className="bg-gray-50 rounded-2xl shadow-xl border border-gray-100">
-            <div className="flex justify-between items-center p-5 md:p-6 border-b border-yellow-800/20 bg-white rounded-t-2xl">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-noto-serif font-bold text-secondary">
+        <div ref={detailRef} className="mt-12 md:mt-16 overflow-hidden transition-all duration-300">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            {/* Encabezado */}
+            <div className="flex justify-between items-center p-5 md:p-6 border-b-2 border-secondary/20 bg-linear-to-r from-secondary/5 to-transparent">
+              <h2 className="flex items-center gap-3 text-xl md:text-2xl lg:text-3xl font-noto-serif font-bold text-secondary">
+                <span className="w-1.5 h-6 md:h-8 bg-secondary rounded-full inline-block" />
                 Detalles del Servicio
               </h2>
               <button
@@ -300,97 +316,63 @@ const PackagesComponent: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-5 md:p-8">
-              <div className="text-center mb-6">
-                <span className="text-xl md:text-2xl text-yellow-800 font-semibold font-noto-serif tracking-wide">
+            {/* Imagen de portada con título y descripción superpuestos */}
+            <div className="relative w-full pt-[35%] md:pt-[30%] overflow-hidden">
+              <PackageImageCarousel
+                images={getPackageImages(selectedPackage)}
+                alt={selectedPackage.title}
+                sizes="100vw"
+                fallbackSrc={DEFAULT_IMAGE}
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 pointer-events-none">
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-noto-serif font-bold text-white drop-shadow-lg mb-1 md:mb-2">
                   {selectedPackage.title}
-                </span>
+                </h3>
+                <p className="text-white/90 font-manrope text-sm md:text-base max-w-2xl drop-shadow">
+                  {selectedPackage.short_description}
+                </p>
               </div>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <div className="relative w-full pt-[60%] rounded-xl overflow-hidden mb-5 shadow-md">
-                    <Image
-                      src={selectedPackage.srcImage || "/images/package/default_package.jpeg"}
-                      alt={selectedPackage.title}
-                      fill
-                      className="object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                    <p className="text-gray-700 leading-relaxed font-manrope text-sm md:text-base">
-                      {selectedPackage.desc}
-                    </p>
-                  </div>
-                </div>
+            </div>
 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border-separate border-spacing-y-2">
-                    <tbody>
-                      {(() => {
-                        const services = selectedPackage.services as Record<string, string | string[]>;
-                        const items = [
-                          { label: "⏱️ Duración", value: getStringValue(services.hrs) },
-                          { label: "🍽️ Alimentación", value: getStringValue(services.food) },
-                          { label: "🥤 Bebidas", value: services.drinks ? normalizeArray(services.drinks) : [] },
-                          { label: "⛺ Carpa / Techo", value: getStringValue(services.carpa) },
-                          { label: "🪑 Mobiliario", value: services.mobiliario ? normalizeArray(services.mobiliario) : [] },
-                          { label: "👥 Personal", value: services.staff ? normalizeArray(services.staff) : [] },
-                          { label: "🎵 Ambiente", value: getStringValue(services.ambiente) },
-                          { label: "🅿️ Estacionamiento", value: getStringValue(services.parking) },
-                        ];
-                        return items.map((item, idx) => (
-                          <tr key={idx} className="group">
-                            <td className="py-2 md:py-3 pr-3 md:pr-5 font-noto-serif font-semibold text-gray-800 w-1/3 align-top bg-gray-100 rounded-l-xl pl-3 md:pl-4 text-sm md:text-base">
-                              {item.label}
-                            </td>
-                            <td className="py-2 md:py-3 px-3 md:px-4 text-gray-600 bg-white rounded-r-xl border-l-2 border-secondary/20 text-sm md:text-base">
-                              {Array.isArray(item.value) ? (
-                                <ul className="space-y-1">
-                                  {item.value.map((v, i) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                      <span className="text-green-500 mt-0.5 text-xs md:text-sm">✓</span>
-                                      <span className="font-manrope">{v}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <span className="font-light">{item.value || "—"}</span>
-                              )}
-                            </td>
-                          </tr>
-                        ));
-                      })()}
-                    </tbody>
-                  </table>
-                </div>
+            {/* Grid de características */}
+            <div className="p-5 md:p-8">
+              <h4 className="font-noto-serif font-semibold text-secondary text-base md:text-lg uppercase tracking-widest mb-4 md:mb-5">
+                Lo que incluye
+              </h4>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                {selectedPackage.features.map((feature) => (
+                  <div
+                    key={feature.id}
+                    className="flex items-start gap-3 bg-gray-50 hover:bg-secondary/5 border border-gray-100 hover:border-secondary/30 rounded-xl p-4 transition-colors duration-300"
+                  >
+                    <FaRegCheckCircle className="w-5 h-5 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-noto-serif font-semibold text-gray-800 text-sm md:text-base">
+                        {feature.feature_key}
+                      </p>
+                      <p className="font-manrope text-gray-600 text-xs md:text-sm mt-0.5">
+                        {feature.feature_value}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="px-5 md:px-8 pb-6 flex justify-end">
-              <button className="bg-secondary hover:bg-secondary/90 text-white font-noto-serif py-2 px-5 md:py-2.5 md:px-7 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm md:text-base">
-                <span>Solicitar este paquete</span>
+              <WhatsAppButton phone={whatsappPhone} message={WhatsAppMessage} className="bg-secondary hover:bg-secondary/90 text-white font-noto-serif py-2 px-5 md:py-2.5 md:px-7 rounded-full transition-all shadow-md hover:shadow-lg flex items-center gap-2 text-sm md:text-base">
+                <span>Solicitar más información sobre este paquete</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
-              </button>
+              </WhatsAppButton>
             </div>
           </div>
         </div>
       )}
     </section>
   );
-};
-
-const getStringValue = (value: string | string[] | undefined): string => {
-  if (!value) return "";
-  if (Array.isArray(value)) return value.join(", ");
-  return value;
-};
-
-const normalizeArray = (value: string | string[] | undefined): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  return [value];
 };
 
 export default PackagesComponent;

@@ -1,0 +1,27 @@
+# Nunca deben viajar dentro de la imagen: contienen secretos (SECRET_KEY,
+# contraseñas de BD) que quedarían horneados en las capas de la imagen.
+.env
+.env.*
+!.env.example
+
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.venv/
+venv/
+
+# Contenido subido en tiempo de ejecución (no es parte del código fuente; en
+# producción debe vivir en un volumen persistente, no dentro de la imagen).
+# El Dockerfile crea el directorio vacío con `mkdir -p`.
+static
+
+# Documentación y notas locales, no necesarias para correr la app
+Structure-dockerfile.md
+*.log
