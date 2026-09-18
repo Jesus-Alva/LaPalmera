@@ -18,10 +18,11 @@ services:
         condition: service_healthy
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - SECRET_KEY=${SECRET_KEY}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY must be set for production}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:?ALLOWED_ORIGINS must be set for production}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - ENV=container
     # Sin `command:` ni bind mount de código: se usa la imagen ya construida,
     # cuyo ENTRYPOINT aplica las migraciones de Alembic antes de arrancar.
     volumes:
@@ -36,57 +37,6 @@ services:
       retries: 3
       start_period: 40s
 
-  # worker:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: celery-worker
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #     - rabbitmq
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dbname
-  #     - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   command: celery -A app.celery_app worker --loglevel=info
-  #   volumes:
-  #     - ./backend:/app
-  #   restart: unless-stopped
-
-  # flower:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: flower-monitor
-  #   depends_on:
-  #     - redis
-  #     - rabbitmq
-  #     - worker
-  #   environment:
-  #     - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   command: celery -A app.celery_app flower --port=5555
-  #   ports:
-  #     - "5555:5555"
-  #   volumes:
-  #     - ./backend:/app
-  #   restart: unless-stopped
-
-  # scheduler:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: apscheduler
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dbname
-  #   command: python -m app.schedulers.main
-  #   volumes:
-  #     - ./backend:/app
-  #   restart: unless-stopped
-
   # Frontend Service
   frontend:
     build:
@@ -95,20 +45,21 @@ services:
       # Variables NEXT_PUBLIC_* que Next.js necesita "inlinear" en el bundle del
       # navegador durante `npm run build` (ver comentario en frontend/Dockerfile).
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL must be set for production}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL must be set for production}
     container_name: frontend-la-palmera
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL must be set for production}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL must be set for production}
       # URL interna para las peticiones que el propio servidor de Next.js (Server
       # Components, route handlers) le hace al backend dentro de la red de Docker.
       - API_URL_INTERNAL=http://web:8000/api/v1
     depends_on:
-      - web
+      web:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - app-network
@@ -130,40 +81,10 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: redis-cache
-  #   ports:
-  #     - "6379:6379"
-  #   restart: unless-stopped
-  #   networks:
-  #     - app-network
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: rabbitmq-broker
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   restart: unless-stopped
-  #   networks:
-  #     - app-network
-  #   healthcheck:
-  #     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #     start_period: 40s
 
 volumes:
   postgres_data:

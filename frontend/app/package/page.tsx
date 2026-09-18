@@ -29,7 +29,7 @@ export default async function Page({
         getPublicPackages({ limit: 200 }),
         getPublicBanners({ page: "paquetes" }),
         getPublicSetting('social_networks').catch(() => undefined),
-        getPublicFaqs().catch(() => undefined)
+        getPublicFaqs().catch(() => [])
     ]);
     const whatsappPhone = extractWhatsAppPhone(socialNetworks?.whatsapp);
     // Preselecciona el paquete al llegar desde ?paquete=<id> (ej. "Ver detalles del paquete" del modal de promociones)
