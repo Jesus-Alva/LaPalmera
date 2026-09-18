@@ -11,7 +11,7 @@ interface ComponentProps {
     banner: Banner | null;
 }
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
 const BannerComponent: React.FC<ComponentProps> = ({ banner }) => {
     const {t} = useTranslation();

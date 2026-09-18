@@ -28,7 +28,7 @@ interface ComponentProps {
   images: GalleryImage[];
 }
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
 const GalleryImageComponent: React.FC<ComponentProps> = ({ categories, images }) => {
   const imagesByCategory = useMemo(() => {

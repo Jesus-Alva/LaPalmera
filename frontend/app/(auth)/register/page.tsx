@@ -51,7 +51,7 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
     try {
       const res = await fetch(`${baseUrl}/auth/register`, {

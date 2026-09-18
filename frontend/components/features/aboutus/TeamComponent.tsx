@@ -9,7 +9,7 @@ interface ComponentProps {
     teamMembers: TeamMember[];
 }
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
 const TeamComponent: React.FC<ComponentProps> = ({ teamMembers }) => {
     const { t } = useTranslation();

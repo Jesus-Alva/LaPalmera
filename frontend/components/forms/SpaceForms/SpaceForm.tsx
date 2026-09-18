@@ -14,7 +14,7 @@ interface Props {
   initialData?: Space;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function SpaceForm({ initialData }: Props) {
   const router = useRouter();

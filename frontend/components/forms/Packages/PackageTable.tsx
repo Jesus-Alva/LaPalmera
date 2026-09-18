@@ -27,7 +27,7 @@ export default function PackagesTable({ initialPackages }: Props) {
         pkg.image_url ? (
           <div className="relative w-12 h-12 rounded-md overflow-hidden">
             <Image
-              src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${pkg.image_url}`}
+              src={`${process.env.NEXT_PUBLIC_API_URL}${pkg.image_url}`}
               alt={pkg.title}
               fill
               className="object-cover"

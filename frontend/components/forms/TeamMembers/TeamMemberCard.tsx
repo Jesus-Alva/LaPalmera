@@ -19,7 +19,7 @@ export default function TeamMemberCard({ member, onDelete }: Props) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   const handleEdit = () => {
     router.push(`/team-members/${member.id}/edit`);

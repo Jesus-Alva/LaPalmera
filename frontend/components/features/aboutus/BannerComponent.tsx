@@ -12,7 +12,7 @@ interface ComponentProps {
     fallbackSrc: string | readonly string[];
 }
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
 const BannerComponent: React.FC<ComponentProps> = ({ banner, fallbackSrc }) => {
     const { t } = useTranslation();

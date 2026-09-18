@@ -12,7 +12,7 @@ interface Props {
   fallbackSrc: string;
 }
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
 
 const PackageImageCarousel: React.FC<Props> = ({ images, alt, sizes, priority, fallbackSrc }) => {
   const [currentIndex, setCurrentIndex] = useState(0);

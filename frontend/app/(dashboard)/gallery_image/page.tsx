@@ -207,7 +207,7 @@ export default function GalleryPage() {
                   className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100 shadow hover:shadow-lg transition-shadow"
                 >
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}${img.image_path}`}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${img.image_path}`}
                     alt={img.alt_text || 'Imagen de galería'}
                     fill
                     className="object-cover"
