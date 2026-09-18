@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Eye, EyeOff, Check, X as XIcon } from 'lucide-react';
+import { registerUser } from '@/lib/api/auth';
 
 // Reglas de formato exigidas por el backend (app/schemas/user.py) más el
 // mínimo de longitud, validadas también aquí para no depender solo del
@@ -51,27 +52,15 @@ export default function RegisterPage() {
 
     setLoading(true);
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
     try {
-      const res = await fetch(`${baseUrl}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await registerUser({
           email,
           password,
           display_name: displayName || undefined,
           phone: phone || undefined,
           address: address || undefined,
           notifications_enabled: notificationsEnabled,
-        }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || 'Error al registrar usuario');
-      }
 
       setSuccess('Usuario registrado exitosamente. Redirigiendo...');
       setTimeout(() => {

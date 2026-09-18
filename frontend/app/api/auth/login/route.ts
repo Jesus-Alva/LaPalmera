@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getApiBaseUrl } from '@/lib/api/client';
+import { AuthApiError, loginUser } from '@/lib/api/auth';
 import { decodeJwtPayload } from '@/lib/jwt';
-
-const API_URL = getApiBaseUrl();
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,32 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Llamar al backend
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    // Leer la respuesta como texto primero
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      // Si no es JSON, devolver error
-      return NextResponse.json(
-        { detail: text || 'Error del servidor' },
-        { status: res.status || 500 }
-      );
-    }
-
-    if (!res.ok) {
-      return NextResponse.json(
-        { detail: data.detail || 'Credenciales incorrectas' },
-        { status: res.status }
-      );
-    }
+    const data = await loginUser({ email, password });
 
     // Éxito: guardar token en cookie. Se devuelve el rol (no el token, que va en
     // una cookie httpOnly) para que el cliente sepa a dónde redirigir sin rebotar
@@ -57,10 +30,13 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 30, // 30 minutos
     });
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error en API route:', error);
+    if (error instanceof AuthApiError) {
+      return NextResponse.json({ detail: error.message }, { status: error.status });
+    }
     return NextResponse.json(
-      { detail: error.message || 'Error interno del servidor' },
+      { detail: error instanceof Error ? error.message : 'Error interno del servidor' },
       { status: 500 }
     );
   }

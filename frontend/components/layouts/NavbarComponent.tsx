@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User, LogOut } from "lucide-react";
 import { useTranslation } from "../../lib/hooks/useTranslation";
 import { ROUTES_PAGE } from "../../app/constants/routes";
+import { logoutUser } from "@/lib/api/auth";
 
 interface ComponentProps {
   logo: string;
@@ -43,7 +44,7 @@ const NavbarComponent: React.FC<ComponentProps> = ({ logo, user }) => {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await logoutUser();
     } finally {
       router.push("/");
       router.refresh();

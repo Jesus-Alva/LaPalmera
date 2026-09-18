@@ -7,6 +7,7 @@ import { UserCircle, LogOut, Settings, ChevronUp, Pencil, Loader2 } from 'lucide
 import { motion, AnimatePresence } from 'framer-motion';
 import { User } from '@/src/types/user';
 import { getMyProfile } from '@/lib/api/users';
+import { logoutUser } from '@/lib/api/auth';
 import EditProfileModal from '@/components/forms/Users/EditProfileModal';
 
 interface SidebarUserProps {
@@ -39,7 +40,7 @@ export default function SidebarUser({ user, isCollapsed = false }: SidebarUserPr
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await logoutUser();
       router.push('/login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
