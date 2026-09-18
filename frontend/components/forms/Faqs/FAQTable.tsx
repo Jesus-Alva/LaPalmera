@@ -68,9 +68,9 @@ export default function FAQTable({ initialFaqs }: Props) {
       data={initialFaqs}
       columns={columns}
       onDelete={handleDelete}
-      resourceName="FAQ"
+      resourceName="preguntas frecuente"
       newItemLink="/faqs/new"
-      emptyMessage="No hay FAQs creados todavía."
+      emptyMessage="Aún no hay preguntas frecuentes creadas."
       actions={actions}
     />
   );

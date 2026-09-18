@@ -49,7 +49,7 @@ export default function Sidebar({ user }: SidebarProps) {
     { href: '/celebrations', icon: <Calendar size={22} />, label: 'Celebraciones' },
     { href: '/team-members', icon: <Users size={22} />, label: 'Equipo' },
     { href: '/spaces', icon: <LayoutGrid size={22} />, label: 'Espacios' },
-    { href: '/faqs', icon: <HelpCircle size={22} />, label: 'FAQs' },
+    { href: '/faqs', icon: <HelpCircle size={22} />, label: 'Preguntas frecuentes' },
     { href: '/gallery_image', icon: <ImageIcon size={22} />, label: 'Galería' },
     { href: '/packages', icon: <Package size={22} />, label: 'Paquetes' },
     { href: '/locations', icon: <MapPin size={22} />, label: 'Ubicaciones' },

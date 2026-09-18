@@ -99,6 +99,7 @@ export default function GalleryPage() {
   };
 
   const selectedCategoryData = categories.find(c => c.id === selectedCategory);
+  const hasRegisteredImages = categories.some(category => (category.image_count ?? 0) > 0);
 
   if (loading) {
     return (
@@ -180,8 +181,18 @@ export default function GalleryPage() {
         ))}
       </div>
 
-      {/* Grid de imágenes */}
-      {selectedCategory && (
+      {!hasRegisteredImages ? (
+        <div className="text-center py-16 bg-white rounded-2xl shadow border border-gray-100">
+          <p className="text-gray-500 text-lg">Aún no hay categorias con imagenes registradas.</p>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Crear las primeras imagenes →
+          </button>
+        </div>
+      ) : selectedCategory ? (
+        /* Grid de imágenes */
         <>
           <h2 className="text-lg font-semibold text-gray-700 mb-4">
             {selectedCategoryData?.name || 'Categoría'} - {images.length} imágenes
@@ -231,7 +242,7 @@ export default function GalleryPage() {
             </div>
           )}
         </>
-      )}
+      ) : null}
 
       <ImageUploadModal
         isOpen={showUploadModal}

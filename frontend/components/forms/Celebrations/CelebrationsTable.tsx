@@ -72,7 +72,7 @@ export default function CelebrationsTable({ initialCelebrations }: Props) {
       onDelete={handleDelete}
       resourceName="celebración"
       newItemLink="/celebrations/new"
-      emptyMessage="No hay celebraciones creadas todavía."
+      emptyMessage="Aún no hay celebraciones creadas."
       actions={actions}
     />
   );

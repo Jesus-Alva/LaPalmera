@@ -91,7 +91,7 @@ export default function LocationsTable({ initialLocations }: Props) {
       onDelete={handleDelete}
       resourceName="ubicación"
       newItemLink="/locations/new"
-      emptyMessage="No hay ubicaciones creadas todavía."
+      emptyMessage="Aún no hay ubicación registrada."
       actions={actions}
     />
   );

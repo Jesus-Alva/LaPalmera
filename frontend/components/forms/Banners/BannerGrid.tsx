@@ -20,7 +20,7 @@ export default function BannerGrid({ initialBanners }: Props) {
   if (items.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-2xl shadow border border-gray-100">
-        <p className="text-gray-500 text-lg">No hay banners creados todavía.</p>
+        <p className="text-gray-500 text-lg">Aún no hay banners creados.</p>
         <a
           href="/banners/new"
           className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"

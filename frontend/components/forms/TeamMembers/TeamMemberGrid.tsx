@@ -20,7 +20,7 @@ export default function TeamMemberGrid({ initialTeamMembers }: Props) {
   if (items.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-2xl shadow border border-gray-100">
-        <p className="text-gray-500 text-lg">No hay miembros del equipo creados todavía.</p>
+        <p className="text-gray-500 text-lg">Aún no hay miembros del equipo creados.</p>
         <a
           href="/team-members/new"
           className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"

@@ -22,7 +22,7 @@ export default function PackageGrid({ packages, onPackageDelete }: Props) {
   if (items.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-2xl shadow border border-gray-100">
-        <p className="text-gray-500 text-lg">No hay paquetes creados todavía.</p>
+        <p className="text-gray-500 text-lg">Aún no hay paquetes creados.</p>
         <a
           href="/packages/new"
           className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"

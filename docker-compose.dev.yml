@@ -13,7 +13,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://lapalmera:palmera@postgres:5432/lapalmera
       - ENV=container
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
       - ./backend:/app
     # Sin restart policy en desarrollo para que los errores sean visibles

@@ -79,7 +79,7 @@ export default function PackagesTable({ initialPackages }: Props) {
       onDelete={handleDelete}
       resourceName="paquete"
       newItemLink="/packages/new"
-      emptyMessage="No hay paquetes creados todavía."
+      emptyMessage="Aún no hay paquetes creados."
       actions={actions}
     />
   );
