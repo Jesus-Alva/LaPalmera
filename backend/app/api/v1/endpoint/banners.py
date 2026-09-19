@@ -13,7 +13,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[BannerOut])
+@router.get("", response_model=list[BannerOut])
 def list_banners(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -78,7 +78,7 @@ def list_banners(
 
     return result
 
-@router.post("/", response_model=BannerOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=BannerOut, status_code=status.HTTP_201_CREATED)
 def create_banner(
     banner_data: BannerCreate,
     db: Session = Depends(get_db),

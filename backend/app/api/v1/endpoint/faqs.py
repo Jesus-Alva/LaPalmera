@@ -9,7 +9,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[FaqOut])
+@router.get("", response_model=list[FaqOut])
 def list_faqs(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -25,7 +25,7 @@ def list_faqs(
         query = query.filter(Faq.question.ilike(f"%{search}%"))
     return query.offset(skip).limit(limit).all()
 
-@router.post("/", response_model=FaqOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=FaqOut, status_code=status.HTTP_201_CREATED)
 def create_faq(
     faq_data: FaqCreate,
     db: Session = Depends(get_db),

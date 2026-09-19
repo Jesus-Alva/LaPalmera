@@ -9,7 +9,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[LocationOut])
+@router.get("", response_model=list[LocationOut])
 def list_locations(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -30,7 +30,7 @@ def list_locations(
     items = query.offset(skip).limit(limit).all()
     return items
 
-@router.post("/", response_model=LocationOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=LocationOut, status_code=status.HTTP_201_CREATED)
 def create_location(
     location_data: LocationCreate,
     db: Session = Depends(get_db),

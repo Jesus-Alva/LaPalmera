@@ -18,7 +18,7 @@ router = APIRouter()
 UPLOAD_DIR = "static/team_members"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@router.get("/", response_model=list[TeamMemberOut])
+@router.get("", response_model=list[TeamMemberOut])
 def list_team_members(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -37,7 +37,7 @@ def list_team_members(
     items = query.offset(skip).limit(limit).all()
     return items
 
-@router.post("/", response_model=TeamMemberOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TeamMemberOut, status_code=status.HTTP_201_CREATED)
 def create_team_member(
     data: TeamMemberCreate,
     db: Session = Depends(get_db),

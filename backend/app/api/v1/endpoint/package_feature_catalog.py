@@ -8,7 +8,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[PackageFeatureCatalogOut])
+@router.get("", response_model=list[PackageFeatureCatalogOut])
 def list_feature_catalog(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -18,7 +18,7 @@ def list_feature_catalog(
     """
     return db.query(PackageFeatureCatalog).order_by(PackageFeatureCatalog.name).all()
 
-@router.post("/", response_model=PackageFeatureCatalogOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PackageFeatureCatalogOut, status_code=status.HTTP_201_CREATED)
 def create_feature_catalog_item(
     data: PackageFeatureCatalogCreate,
     db: Session = Depends(get_db),

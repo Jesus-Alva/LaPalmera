@@ -9,7 +9,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[SiteSettingOut])
+@router.get("", response_model=list[SiteSettingOut])
 def list_site_settings(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),

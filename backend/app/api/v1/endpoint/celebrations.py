@@ -9,7 +9,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[CelebrationOut])
+@router.get("", response_model=list[CelebrationOut])
 def list_celebrations(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -32,7 +32,7 @@ def list_celebrations(
     items = query.offset(skip).limit(limit).all()
     return items
 
-@router.post("/", response_model=CelebrationOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CelebrationOut, status_code=status.HTTP_201_CREATED)
 def create_celebration(
     celebration_data: CelebrationCreate,
     db: Session = Depends(get_db),

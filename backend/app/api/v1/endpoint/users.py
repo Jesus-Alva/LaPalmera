@@ -35,7 +35,7 @@ def update_my_profile(
     db.refresh(current_user)
     return current_user
 
-@router.get("/", response_model=list[UserOut])
+@router.get("", response_model=list[UserOut])
 def list_users(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),

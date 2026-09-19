@@ -11,7 +11,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[GalleryCategoryOut])
+@router.get("", response_model=list[GalleryCategoryOut])
 def list_categories(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -24,7 +24,7 @@ def list_categories(
         query = query.filter(GalleryCategory.name.ilike(f"%{search}%"))
     return query.order_by(GalleryCategory.sort_order).offset(skip).limit(limit).all()
 
-@router.post("/", response_model=GalleryCategoryOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=GalleryCategoryOut, status_code=status.HTTP_201_CREATED)
 def create_category(
     data: GalleryCategoryCreate,
     db: Session = Depends(get_db),

@@ -13,7 +13,7 @@ from app.model.images_catalog import ImagesCatalog
 
 router = APIRouter()
 
-@router.get("/", response_model=list[SpaceOut])
+@router.get("", response_model=list[SpaceOut])
 def list_spaces(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -71,7 +71,7 @@ def list_spaces(
         for space in spaces
     ]
 
-@router.post("/", response_model=SpaceOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=SpaceOut, status_code=status.HTTP_201_CREATED)
 def create_space(
     space_data: SpaceCreate,
     db: Session = Depends(get_db),

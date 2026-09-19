@@ -16,7 +16,7 @@ router = APIRouter()
 UPLOAD_DIR = "static/gallery"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-@router.post("/", response_model=GalleryImageOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=GalleryImageOut, status_code=status.HTTP_201_CREATED)
 async def upload_gallery_image(
     category_id: int = Form(...),
     alt_text: Optional[str] = Form(None),

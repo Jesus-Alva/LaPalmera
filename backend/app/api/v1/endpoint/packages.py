@@ -13,7 +13,7 @@ from app.model.user import User
 
 router = APIRouter()
 
-@router.get("/", response_model=list[PackageOut])
+@router.get("", response_model=list[PackageOut])
 def list_packages(
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
@@ -102,7 +102,7 @@ def list_packages(
 
     return result
 
-@router.post("/", response_model=PackageOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PackageOut, status_code=status.HTTP_201_CREATED)
 def create_package(
     package_data: PackageCreate,
     db: Session = Depends(get_db),
