@@ -17,6 +17,7 @@ export async function getLocations(
 
   const res = await fetch(`${API_URL}/locations?${query.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}` },
+    credentials: 'include',
   });
   if (!res.ok) throw new Error('Error al cargar ubicaciones');
   return res.json();
@@ -25,6 +26,7 @@ export async function getLocations(
 export async function getLocation(id: number, token: string): Promise<Location> {
   const res = await fetch(`${API_URL}/locations/${id}`, {
     headers: { 'Authorization': `Bearer ${token}` },
+    credentials: 'include',
   });
   if (!res.ok) throw new Error('Ubicación no encontrada');
   return res.json();

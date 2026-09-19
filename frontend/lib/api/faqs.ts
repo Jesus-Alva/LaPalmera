@@ -16,6 +16,7 @@ export async function getFaqs(
 
   const res = await fetch(`${API_URL}/faqs?${query.toString()}`, {
     headers: { 'Authorization': `Bearer ${token}` },
+    credentials: 'include',
   });
   if (!res.ok) throw new Error('Error al cargar FAQs');
   return res.json();
@@ -24,6 +25,7 @@ export async function getFaqs(
 export async function getFaq(id: number, token: string): Promise<Faq> {
   const res = await fetch(`${API_URL}/faqs/${id}`, {
     headers: { 'Authorization': `Bearer ${token}` },
+    credentials: 'include',
   });
   if (!res.ok) throw new Error('FAQ no encontrado');
   return res.json();

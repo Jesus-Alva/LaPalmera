@@ -29,6 +29,7 @@ export async function getSpaces(
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -51,6 +52,7 @@ export async function getSpace(id: number, token: string): Promise<Space> {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {

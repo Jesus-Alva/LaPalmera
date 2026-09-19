@@ -26,6 +26,7 @@ export async function getPackages(
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
   if (!res.ok) {
     const errorText = await res.text();
@@ -41,6 +42,7 @@ export async function getPackage(id: number, token: string): Promise<Package> {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
   if (!res.ok) {
     const errorText = await res.text();

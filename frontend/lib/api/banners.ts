@@ -20,6 +20,7 @@ export async function getBanners(
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -37,6 +38,7 @@ export async function getBanner(id: number, token: string): Promise<Banner> {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {

@@ -25,6 +25,7 @@ export async function getTeamMembers(
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -42,6 +43,7 @@ export async function getTeamMember(id: number, token: string): Promise<TeamMemb
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {

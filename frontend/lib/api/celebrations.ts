@@ -25,6 +25,7 @@ export async function getCelebrations(
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -42,6 +43,7 @@ export async function getCelebration(id: number, token: string): Promise<Celebra
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
   });
 
   if (!res.ok) {
