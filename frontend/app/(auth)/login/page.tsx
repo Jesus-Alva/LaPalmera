@@ -21,16 +21,19 @@ const Page: React.FC = () => {
 
     try {
       const data = await loginUser({ email, password });
-      const role = decodeJwtPayload<{ role?: string }>(data.access_token)?.role;
+      console.log('1. data completa:', data);
+      console.log('2. access_token:', data.access_token);
 
-      // Un rol de solo lectura (todo usuario recién registrado) no debe entrar
-      // al panel de administración, solo al sitio público. Se usa una navegación
-      // completa (no router.push) para forzar la recarga de toda la página: el
-      // layout raíz calcula el usuario logueado en el servidor y, con una
-      // navegación del lado del cliente, Next.js puede servir la versión en
-      // caché de la ruta (sin sesión) en vez de recalcularla con la cookie nueva.
+      const payload = decodeJwtPayload<{ role?: string }>(data.access_token);
+      console.log('3. payload decodificado:', payload);
+      console.log('4. role:', payload?.role);
+
+      const role = payload?.role;
+      console.log('5. Redirigiendo a:', role === 'read' ? '/' : '/banners');
+
       window.location.href = role === 'read' ? '/' : '/banners';
     } catch (err: unknown) {
+      console.log('6. ERROR:', err);
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
       setLoading(false);
