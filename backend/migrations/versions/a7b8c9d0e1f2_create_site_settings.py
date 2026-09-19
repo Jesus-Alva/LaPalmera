@@ -58,7 +58,7 @@ def upgrade():
             'setting_key': 'contact_info',
             'setting_value': [
                 {'title': 'Dirección', 'value': 'Vicente Guerrero 23...'},
-                {'title': 'Teléfono', 'value': '+52 55 1234 5678'},
+                {'title': 'Teléfono', 'value': '+52 55 2022 1427'},
                 {'title': 'Correo', 'value': 'lapalmera@example.com'},
             ],
         },

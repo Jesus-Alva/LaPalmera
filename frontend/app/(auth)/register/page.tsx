@@ -146,7 +146,7 @@ export default function RegisterPage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
-                placeholder="55 1234 5678"
+                placeholder="55 2022 1427"
               />
             </motion.div>
 

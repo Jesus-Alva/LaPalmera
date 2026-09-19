@@ -96,7 +96,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSuccess }: P
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className={inputClass}
-                  placeholder="55 1234 5678"
+                  placeholder="55 2022 1427"
                 />
               </div>
 
