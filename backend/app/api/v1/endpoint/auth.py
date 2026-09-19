@@ -1,12 +1,13 @@
 # app/api/v1/endpoints/auth.py
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate, UserOut
 from app.schemas.token import Token
 from app.core.auth import authenticate_user, create_access_token, get_password_hash
 from app.db.session import get_db
 from app.model.user import User
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -33,7 +34,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=Token)
-def login(user_data: UserCreate, db: Session = Depends(get_db)):
+def login(user_data: UserCreate, response: Response, db: Session = Depends(get_db)):
     user = authenticate_user(db, user_data.email, user_data.password)
     if not user:
         raise HTTPException(
@@ -51,4 +52,16 @@ def login(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
 
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
+    
+    # Establecer la cookie
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        samesite="none",   # Permite cross-origin
+        secure=True,       # Solo HTTPS (Railway ya lo provee)
+        path="/",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60 # 30 min en segundos
+    )
+    
     return {"access_token": access_token, "token_type": "bearer"}
