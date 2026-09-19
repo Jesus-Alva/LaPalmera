@@ -4,6 +4,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
+import { loginUser } from '@/lib/api/auth';
+import { decodeJwtPayload } from '@/lib/jwt';
 
 const Page: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -18,23 +20,8 @@ const Page: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = { detail: text || 'Error sin mensaje' };
-      }
-
-      if (!res.ok) {
-        throw new Error(data.detail || `Error ${res.status}`);
-      }
+      const data = await loginUser({ email, password });
+      const role = decodeJwtPayload<{ role?: string }>(data.access_token)?.role;
 
       // Un rol de solo lectura (todo usuario recién registrado) no debe entrar
       // al panel de administración, solo al sitio público. Se usa una navegación
@@ -42,7 +29,7 @@ const Page: React.FC = () => {
       // layout raíz calcula el usuario logueado en el servidor y, con una
       // navegación del lado del cliente, Next.js puede servir la versión en
       // caché de la ruta (sin sesión) en vez de recalcularla con la cookie nueva.
-      window.location.href = data.role === 'read' ? '/' : '/banners';
+      window.location.href = role === 'read' ? '/' : '/banners';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
