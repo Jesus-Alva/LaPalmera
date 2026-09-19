@@ -20,20 +20,21 @@ const Page: React.FC = () => {
     setLoading(true);
 
     try {
-      const data = await loginUser({ email, password });
-      console.log('1. data completa:', data);
-      console.log('2. access_token:', data.access_token);
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const payload = decodeJwtPayload<{ role?: string }>(data.access_token);
-      console.log('3. payload decodificado:', payload);
-      console.log('4. role:', payload?.role);
+      const data = await res.json();
 
-      const role = payload?.role;
-      console.log('5. Redirigiendo a:', role === 'read' ? '/' : '/banners');
+      if (!res.ok) {
+        throw new Error(data.detail || 'Error al iniciar sesión');
+      }
 
+      const role = data.role;
       window.location.href = role === 'read' ? '/' : '/banners';
     } catch (err: unknown) {
-      console.log('6. ERROR:', err);
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
       setLoading(false);
