@@ -20,19 +20,33 @@ const Page: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      // 1. Llamar directamente al backend. El navegador guardará la cookie
+      //    del backend automáticamente (SameSite=None; Secure).
+      const backendRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || 'Error al iniciar sesión');
+      if (!backendRes.ok) {
+        const errorData = await backendRes.json();
+        throw new Error(errorData.detail || 'Credenciales incorrectas');
       }
 
-      const role = data.role;
+      const data = await backendRes.json();
+      const role = decodeJwtPayload<{ role?: string }>(data.access_token)?.role;
+
+      // 2. Setear la cookie del frontend (para el middleware) con el token recibido
+      await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: data.access_token }),
+      });
+
       window.location.href = role === 'read' ? '/' : '/banners';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
