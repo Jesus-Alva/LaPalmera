@@ -11,11 +11,12 @@ interface Props {
   onCategoryCreated?: (category: GalleryCategory) => void;
   placeholder?: string;
   className?: string;
+  token: string;
 }
 
 type Mode = 'existing' | 'new';
 
-export default function CategorySelector({ value, onChange, onCategoryCreated, placeholder = 'Seleccionar categoría', className = '' }: Props) {
+export default function CategorySelector({ value, onChange, onCategoryCreated, placeholder = 'Seleccionar categoría', className = '', token }: Props) {
   const [categories, setCategories] = useState<GalleryCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +30,7 @@ export default function CategorySelector({ value, onChange, onCategoryCreated, p
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const data = await getCategories();
+        const data = await getCategories(token);
         if (isMounted) {
           setCategories(data);
           if (data.length === 0) setMode('new');
@@ -50,7 +51,7 @@ export default function CategorySelector({ value, onChange, onCategoryCreated, p
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [token]);
 
   const handleCreateCategory = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -58,7 +59,7 @@ export default function CategorySelector({ value, onChange, onCategoryCreated, p
     setCreating(true);
     setError('');
     try {
-      const newCat = await createCategory({ name: newCategoryName.trim() });
+      const newCat = await createCategory({ name: newCategoryName.trim() }, token);
       setCategories(prev => [...prev, newCat]);
       onChange(newCat.id);
       if (onCategoryCreated) onCategoryCreated(newCat);

@@ -11,6 +11,7 @@ interface Props {
   onClose: () => void;
   onSuccess: () => void;
   defaultCategoryId?: number;
+  token: string;
 }
 
 interface PendingFile {
@@ -18,7 +19,7 @@ interface PendingFile {
   preview: string;
 }
 
-export default function ImageUploadModal({ isOpen, onClose, onSuccess, defaultCategoryId }: Props) {
+export default function ImageUploadModal({ isOpen, onClose, onSuccess, defaultCategoryId, token }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(defaultCategoryId || null);
   const [altText, setAltText] = useState('');
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
@@ -72,7 +73,7 @@ export default function ImageUploadModal({ isOpen, onClose, onSuccess, defaultCa
         formData.append('category_id', String(selectedCategory));
         formData.append('file', file);
         if (altText) formData.append('alt_text', altText);
-        await uploadImage(formData);
+        await uploadImage(formData, token);
         setProgress(prev => ({ ...prev, done: prev.done + 1 }));
       })
     );
@@ -136,6 +137,7 @@ export default function ImageUploadModal({ isOpen, onClose, onSuccess, defaultCa
                   value={selectedCategory}
                   onChange={setSelectedCategory}
                   placeholder="Seleccionar categoría"
+                  token={token}
                 />
               </div>
 
