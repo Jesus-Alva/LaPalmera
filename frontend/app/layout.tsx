@@ -13,18 +13,19 @@ import { buildPageMetadata, SITE_URL } from '../lib/seo';
 import { getPublicSetting, getPublicPackages } from '../lib/api/public';
 import { getServerToken, fetchProtectedData } from './lib/auth-server';
 import { User } from '../src/types/user';
+import JsonLd from '@/components/seo/JsonLd';
 
 const inter = Inter({ subsets: ['latin'] });
-const notoSerif = Noto_Serif({ 
+const notoSerif = Noto_Serif({
   subsets: ['latin'],
-  weight: ["200","300", "400", "500", "600", "700", "800", "900"], 
+  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
   variable: '--font-noto-serif',
   display: 'swap',
 });
 
-const manrope = Manrope({ 
+const manrope = Manrope({
   subsets: ['latin'],
-  weight: ["200","300", "400", "500", "600", "700", "800"], 
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
   variable: '--font-manrope',
   display: 'swap',
 });
@@ -73,6 +74,9 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
+        <head>
+          <JsonLd />
+        </head>
         {/* Pantalla de carga, Navbar, burbujas de redes sociales y Footer solo visibles en rutas públicas */}
         <AuthCheck>
           <LoadingScreen />

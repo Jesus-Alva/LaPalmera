@@ -1,27 +1,18 @@
-"use client";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+import { getPublicFaqs } from "@/lib/api/public";
+import ContactPageClient from "@/components/features/contact/ContactPageClient";
 
-import { useTranslation } from "../../lib/hooks/useTranslation";
-
-import TitleContactComponent from "../../components/features/contact/TitleContactComponent";
-import InformationComponent from "../../components/features/contact/InformationComponent";
-import FormComponent from "../../components/features/contact/FormComponent";
-
-import { contact } from "@/src/types/contact";
-
-const Page: React.FC = () => {
-    const {t} = useTranslation()
-
-    const dataBanner = t('contact', {returnObjects: true}) as contact; 
-
-    return (
-        <div className="min-h-screen">
-            <TitleContactComponent  data={dataBanner} />
-
-            <InformationComponent data={dataBanner.information} />
-
-            <FormComponent data={dataBanner.reservation}/>
-        </div>
-    )
+export async function generateMetadata(): Promise<Metadata> {
+    return buildPageMetadata({
+        title: 'Contacto | La Palmera',
+        description: 'Comunicate con nosotros mediante los datos que te proporcionamos.',
+        path: '/contact',
+    });
 }
 
-export default Page;
+export default async function Page() {
+    const faqs = await getPublicFaqs().catch(() => []);
+
+    return <ContactPageClient faqs={faqs} />;
+}
