@@ -3,7 +3,20 @@ import { getPublicSettings } from '@/lib/api/public';
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-export default async function JsonLd() {
+interface JsonLdProps {
+  data?: Record<string, unknown>;
+}
+
+export default async function JsonLd({ data }: JsonLdProps = {}) {
+  if (data) {
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      />
+    );
+  }
+
   const settings = await getPublicSettings();
 
   const siteName = settings.branding?.site_name || 'La Palmera';
