@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Eye, EyeOff, Check, X as XIcon } from 'lucide-react';
 import { registerUser } from '@/lib/api/auth';
+import DataPolicyNotice from '@/components/features/auth/DataPolicyNotice';
 
 // Reglas de formato exigidas por el backend (app/schemas/user.py) más el
 // mínimo de longitud, validadas también aquí para no depender solo del
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [dataPolicyAccepted, setDataPolicyAccepted] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,10 @@ export default function RegisterPage() {
     }
     if (!passwordsMatch) {
       setError('Las contraseñas no coinciden.');
+      return;
+    }
+    if (!dataPolicyAccepted) {
+      setError('Debes aceptar la política de datos para continuar.');
       return;
     }
 
@@ -144,9 +150,11 @@ export default function RegisterPage() {
                 id="phone"
                 type="tel"
                 value={phone}
+                maxLength={10}
+                minLength={10}
                 onChange={(e) => setPhone(e.target.value)}
                 className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
-                placeholder="55 2022 1427"
+                placeholder="## #### #### (10 Dígitos)"
               />
             </motion.div>
 
@@ -177,7 +185,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300"
-                placeholder="tu@email.com"
+                placeholder="email@email.com"
               />
             </motion.div>
 
@@ -202,7 +210,7 @@ export default function RegisterPage() {
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
                 </button>
               </div>
 
@@ -212,7 +220,7 @@ export default function RegisterPage() {
                   <li
                     key={req.label}
                     className={`flex items-center gap-1.5 text-xs ${
-                      req.valid ? 'text-green-500' : 'text-gray-400 dark:text-gray-500'
+                      req.valid ? 'text-green-500' : 'text-gray-300'
                     }`}
                   >
                     {req.valid ? <Check className="w-3.5 h-3.5 shrink-0" /> : <XIcon className="w-3.5 h-3.5 shrink-0" />}
@@ -243,7 +251,7 @@ export default function RegisterPage() {
                   aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5 text-white" /> : <Eye className="w-5 h-5 text-white" />}
                 </button>
               </div>
               {confirmPassword.length > 0 && (
@@ -266,6 +274,13 @@ export default function RegisterPage() {
               <label htmlFor="notificationsEnabled" className="text-sm text-gray-700 dark:text-gray-200">
                 Quiero recibir notificaciones y promociones a mi correo
               </label>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <DataPolicyNotice
+                accepted={dataPolicyAccepted}
+                onAcceptedChange={setDataPolicyAccepted}
+              />
             </motion.div>
 
             {/* Mensajes de error y éxito con animación */}
@@ -299,7 +314,7 @@ export default function RegisterPage() {
             <motion.div variants={itemVariants}>
               <motion.button
                 type="submit"
-                disabled={loading || !isPasswordValid || !passwordsMatch}
+                disabled={loading || !isPasswordValid || !passwordsMatch || !dataPolicyAccepted}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-medium text-whitefont-noto-serif text-primary bg-secondary hover:bg-primary hover:text-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300"
