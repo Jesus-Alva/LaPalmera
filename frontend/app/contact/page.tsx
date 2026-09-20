@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";
-import { getPublicFaqs } from "@/lib/api/public";
+import { getPublicFaqs, getPublicSetting } from "@/lib/api/public";
 import ContactPageClient from "@/components/features/contact/ContactPageClient";
+import type { ContactInfoItem, ScheduleItem } from "@/src/types/siteSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
     return buildPageMetadata({
@@ -12,7 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
-    const faqs = await getPublicFaqs().catch(() => []);
+    const [faqs, contactInfo, schedule] = await Promise.all([
+        getPublicFaqs().catch(() => []),
+        getPublicSetting('contact_info').catch((): ContactInfoItem[] => []),
+        getPublicSetting('schedule').catch((): ScheduleItem[] => []),
+    ]);
 
-    return <ContactPageClient faqs={faqs} />;
+    return <ContactPageClient faqs={faqs} contactInfo={contactInfo} schedule={schedule} />;
 }

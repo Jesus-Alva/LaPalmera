@@ -74,9 +74,7 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
-        <head>
-          <JsonLd />
-        </head>
+        <JsonLd />
         {/* Pantalla de carga, Navbar, burbujas de redes sociales y Footer solo visibles en rutas públicas */}
         <AuthCheck>
           <LoadingScreen />
