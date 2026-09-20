@@ -30,6 +30,7 @@ export async function buildPageMetadata(options: PageMetadataOptions = {}): Prom
   let seoDescription: string | undefined;
   let seoKeywords: string | undefined;
   let seoImage: string | undefined;
+  let faviconUrl: string | undefined; 
 
   try {
     const settings = await getPublicSettings();
@@ -38,6 +39,7 @@ export async function buildPageMetadata(options: PageMetadataOptions = {}): Prom
     seoDescription = settings.seo?.meta_description;
     seoKeywords = settings.seo?.keywords;
     seoImage = settings.seo?.og_image;
+    faviconUrl = settings.branding?.favicon_url;
   } catch {
     // Si /public/settings no responde, la página sigue funcionando con los valores por defecto.
   }
@@ -52,10 +54,24 @@ export async function buildPageMetadata(options: PageMetadataOptions = {}): Prom
     ? (imagePath.startsWith('http') ? imagePath : `${SITE_URL}${imagePath}`)
     : undefined;
 
+   const faviconResolved = faviconUrl
+    ? (faviconUrl.startsWith('http') ? faviconUrl : `${SITE_URL}${faviconUrl}`)
+    : `${SITE_URL}/favicon.ico`;
+
   return {
     title,
     description,
     keywords: seoKeywords || undefined,
+    icons: {
+      icon: [
+        { url: faviconResolved, sizes: 'any' },
+        { url: '/icon.png', type: 'image/png', sizes: '192x192' },
+      ],
+      apple: [
+        { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+      ],
+      shortcut: ['/favicon.ico'],
+    },
     alternates: {
       canonical: canonicalUrl,
     },
