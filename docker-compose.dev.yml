@@ -34,6 +34,7 @@ services:
       - FAST_REFRESH=true
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
       - API_URL_INTERNAL=http://web:8000/api/v1
       - ENV=container
     volumes:

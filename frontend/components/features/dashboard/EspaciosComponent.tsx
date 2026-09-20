@@ -15,7 +15,7 @@ interface ComponentProps {
 const VISIBLE_COUNT = 3;
 const AUTO_ADVANCE_MS = 4000;
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_BACKEND_URL}${path}`;
 
 const EspaciosComponent: React.FC<ComponentProps> = ({ spaces }) => {
     const { t } = useTranslation();

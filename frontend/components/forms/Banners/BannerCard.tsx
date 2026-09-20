@@ -21,7 +21,7 @@ export default function BannerCard({ banner, onDelete }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
   // Lista de imágenes (usa images_url; si no viene, cae a la imagen destacada)
   const imageList = banner.images_url && banner.images_url.length > 0

@@ -39,7 +39,7 @@ export default function PackageForm({ initialData }: Props) {
   const router = useRouter();
   const isEditing = !!initialData?.id;
   const storageKey = `package_form_${isEditing ? `edit_${initialData.id}` : 'new'}`;
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
   // ============ ESTADOS ============
   const [loading, setLoading] = useState(false);
@@ -138,7 +138,7 @@ export default function PackageForm({ initialData }: Props) {
         try {
           const catalog = await getCatalogByPackageId(initialData.id);
           if (catalog && catalog.images) {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
             const images = catalog.images.map(img => ({
               id: img.id,
               url: `${baseUrl}${img.image_path}`,

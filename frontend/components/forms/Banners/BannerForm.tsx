@@ -182,7 +182,7 @@ export default function BannerForm({ initialData }: Props) {
               {images.map((img) => (
                 <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${img.image_path}`}
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${img.image_path}`}
                     alt={img.alt_text || 'Banner image'}
                     className="w-full h-full object-cover"
                   />

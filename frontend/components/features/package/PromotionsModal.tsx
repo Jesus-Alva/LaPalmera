@@ -23,7 +23,7 @@ const DEFAULT_ASPECT_RATIO = 0.52;
 const MIN_ASPECT_RATIO = 0.35;
 const MAX_ASPECT_RATIO = 0.85;
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_BACKEND_URL}${path}`;
 
 // Imagen protagonista del paquete (la destacada; si no hay, la primera de la galería)
 const getPackageImage = (pkg: Package): string => {

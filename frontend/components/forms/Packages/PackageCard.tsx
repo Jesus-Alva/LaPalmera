@@ -103,7 +103,7 @@ export default function PackageCard({ packageItem, onDelete }: Props) {
         : 'inactive';
 
   // Construir URL base para imágenes
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
   // Obtener características (features)
   const features = packageItem.features || [];

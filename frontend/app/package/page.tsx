@@ -9,7 +9,7 @@ import { getPublicPackages, getPublicBanners, getPublicSetting, getPublicFaqs } 
 import { buildPageMetadata, SITE_URL } from "../../lib/seo";
 import { extractWhatsAppPhone } from "../../lib/whatsapp";
 
-const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_API_URL}${path}`;
+const getImageUrl = (path: string) => `${process.env.NEXT_PUBLIC_BACKEND_URL}${path}`;
 
 export async function generateMetadata(): Promise<Metadata> {
     return buildPageMetadata({

@@ -156,7 +156,7 @@ export default function GalleryPageClient({ token }: GalleryPageClientProps) {
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {images.map((image) => (
                                 <motion.div key={image.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100 shadow hover:shadow-lg transition-shadow">
-                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}${image.image_path}`} alt={image.alt_text || 'Imagen de galería'} fill className="object-cover" unoptimized />
+                                    <Image src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${image.image_path}`} alt={image.alt_text || 'Imagen de galería'} fill className="object-cover" unoptimized />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                         <button onClick={() => void handleDeleteImage(image.id)} className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"><Trash2 className="h-4 w-4" /></button>
                                     </div>

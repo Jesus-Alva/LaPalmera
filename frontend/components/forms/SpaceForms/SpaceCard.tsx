@@ -21,7 +21,7 @@ export default function SpaceCard({ space, onDelete }: Props) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
   // Lista de imágenes del espacio (si hay más de una, se muestran en carrusel)
   const imageList = space.images_url && space.images_url.length > 0
