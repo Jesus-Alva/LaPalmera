@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AuthApiError, loginUser } from '@/lib/api/auth';
 import { decodeJwtPayload } from '@/lib/jwt';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { email, password } = body;
+    const { email, password } = await req.json();
 
-    // Validar que hay email y password
     if (!email || !password) {
       return NextResponse.json(
         { detail: 'Email y contraseña son requeridos' },
@@ -15,28 +12,48 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const data = await loginUser({ email, password });
+    // Llamar directamente al backend
+    const backendRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      }
+    );
 
-    // Éxito: guardar token en cookie. Se devuelve el rol (no el token, que va en
-    // una cookie httpOnly) para que el cliente sepa a dónde redirigir sin rebotar
-    // primero por el panel de administración.
+    const data = await backendRes.json();
+
+    if (!backendRes.ok) {
+      return NextResponse.json(
+        { detail: data.detail || 'Credenciales incorrectas' },
+        { status: backendRes.status }
+      );
+    }
+
     const role = decodeJwtPayload<{ role?: string }>(data.access_token)?.role;
     const response = NextResponse.json({ success: true, role });
+
+    // 1. Cookie para el frontend (para el middleware)
     response.cookies.set('access_token', data.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 30, // 30 minutos
+      maxAge: 60 * 30,
     });
+
+    // 2. Propagar el Set-Cookie del backend (para el dominio del backend)
+    const setCookieHeader = backendRes.headers.get('set-cookie');
+    if (setCookieHeader) {
+      response.headers.append('set-cookie', setCookieHeader);
+    }
+
     return response;
   } catch (error: unknown) {
-    console.error('Error en API route:', error);
-    if (error instanceof AuthApiError) {
-      return NextResponse.json({ detail: error.message }, { status: error.status });
-    }
+    console.error('Error en API route login:', error);
     return NextResponse.json(
-      { detail: error instanceof Error ? error.message : 'Error interno del servidor' },
+      { detail: error instanceof Error ? error.message : 'Error interno' },
       { status: 500 }
     );
   }
