@@ -39,6 +39,20 @@ export async function updateUser(id: number, data: UserAdminUpdate): Promise<Use
   return res.json();
 }
 
+export async function resetUserPassword(id: number): Promise<string> {
+  const res = await fetch(`${API_URL}/user/${id}/reset-password`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al restablecer la contraseña');
+  }
+  const data: { temporary_password: string } = await res.json();
+  return data.temporary_password;
+}
+
 export async function getMyProfile(): Promise<User> {
   const res = await fetch(`${API_URL}/user/me`, { credentials: 'include' });
   if (!res.ok) throw new Error('Error al cargar tu perfil');
@@ -58,4 +72,17 @@ export async function updateMyProfile(data: UserProfileUpdate): Promise<User> {
     throw new Error(error.detail || 'Error al actualizar tu perfil');
   }
   return res.json();
+}
+
+export async function createRecoveryCode(): Promise<string> {
+  const res = await fetch(`${API_URL}/user/me/recovery-code`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'Error al generar el código de recuperación');
+  }
+  const data: { recovery_code: string } = await res.json();
+  return data.recovery_code;
 }

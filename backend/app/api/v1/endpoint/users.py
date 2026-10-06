@@ -3,13 +3,58 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import Optional
+import secrets
+import string
 
 from app.db.session import get_db
 from app.dependencies.auth import get_current_user
 from app.schemas.user import UserOut, UserAdminUpdate, UserProfileUpdate
 from app.model.user import User
+from app.core.auth import get_password_hash
 
 router = APIRouter()
+
+@router.post("/me/recovery-code")
+def create_recovery_code(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Crea un código de recuperación para el usuario autenticado."""
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    recovery_code = "-".join(
+        "".join(secrets.choice(alphabet) for _ in range(5)) for _ in range(4)
+    )
+    current_user.recovery_code_hash = get_password_hash(recovery_code)
+    db.commit()
+    return {"recovery_code": recovery_code}
+
+@router.post("/{user_id}/reset-password")
+def reset_user_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Genera una contraseña temporal para otro usuario. Solo administradores."""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="No tienes permiso para restablecer contraseñas")
+    if current_user.id == user_id:
+        raise HTTPException(status_code=400, detail="No puedes restablecer tu propia contraseña desde esta opción")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    alphabet = string.ascii_letters + string.digits + "!@#$%&*_-"
+    # Garantiza mayúscula y número según la política aplicada al registro.
+    password_chars = [secrets.choice(string.ascii_uppercase), secrets.choice(string.digits)]
+    password_chars.extend(secrets.choice(alphabet) for _ in range(18))
+    secrets.SystemRandom().shuffle(password_chars)
+    temporary_password = "".join(password_chars)
+
+    user.password_hash = get_password_hash(temporary_password)
+    user.recovery_code_hash = None
+    db.commit()
+    return {"temporary_password": temporary_password}
 
 @router.get("/me", response_model=UserOut)
 def read_current_user(current_user: User = Depends(get_current_user)):

@@ -2,14 +2,29 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserOut, PasswordRecoveryRequest
 from app.schemas.token import Token
-from app.core.auth import authenticate_user, create_access_token, get_password_hash
+from app.core.auth import authenticate_user, create_access_token, get_password_hash, verify_password
 from app.db.session import get_db
 from app.model.user import User
 from app.core.config import settings
 
 router = APIRouter()
+
+@router.post("/recover-password")
+def recover_password(data: PasswordRecoveryRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if (
+        not user
+        or not user.recovery_code_hash
+        or not verify_password(data.recovery_code.strip().upper(), user.recovery_code_hash)
+    ):
+        raise HTTPException(status_code=400, detail="Correo o código de recuperación incorrecto")
+
+    user.password_hash = get_password_hash(data.new_password)
+    user.recovery_code_hash = None
+    db.commit()
+    return {"message": "Contraseña actualizada correctamente"}
 
 @router.post("/register", response_model=UserOut)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):

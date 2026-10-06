@@ -2,6 +2,19 @@ import { getApiBaseUrl } from './client';
 
 const API_URL = getApiBaseUrl();
 
+export async function recoverPassword(data: { email: string; recovery_code: string; new_password: string }): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/recover-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || 'No se pudo restablecer la contraseña');
+  }
+}
+
 export interface RegisterUserData {
   email: string;
   password: string;

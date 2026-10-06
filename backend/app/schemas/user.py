@@ -44,3 +44,18 @@ class UserProfileUpdate(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     notifications_enabled: Optional[bool] = None
+
+class PasswordRecoveryRequest(BaseModel):
+    email: EmailStr
+    recovery_code: str
+    new_password: str
+
+    @validator('new_password')
+    def validate_new_password(cls, value):
+        if len(value) < 8:
+            raise ValueError('La contraseña debe tener al menos 8 caracteres')
+        if not any(char.isdigit() for char in value):
+            raise ValueError('La contraseña debe contener al menos un número')
+        if not any(char.isupper() for char in value):
+            raise ValueError('La contraseña debe contener al menos una mayúscula')
+        return value

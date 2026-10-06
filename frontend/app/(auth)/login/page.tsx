@@ -4,19 +4,25 @@
 import { useState } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
-import { loginUser } from '@/lib/api/auth';
+import { recoverPassword } from '@/lib/api/auth';
 import { decodeJwtPayload } from '@/lib/jwt';
 
 const Page: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isRecovering, setIsRecovering] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [recoverySucceeded, setRecoverySucceeded] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setRecoverySucceeded(false);
     setLoading(true);
 
     try {
@@ -50,6 +56,31 @@ const Page: React.FC = () => {
       window.location.href = role === 'read' ? '/' : '/banners';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecoverySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setRecoverySucceeded(false);
+    if (newPassword !== confirmNewPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+    setLoading(true);
+    try {
+      await recoverPassword({ email, recovery_code: recoveryCode, new_password: newPassword });
+      setPassword(newPassword);
+      setRecoveryCode('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setIsRecovering(false);
+      setError('Contraseña actualizada. Ya puedes iniciar sesión con tu nueva contraseña.');
+      setRecoverySucceeded(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'No se pudo restablecer la contraseña');
     } finally {
       setLoading(false);
     }
@@ -97,11 +128,11 @@ const Page: React.FC = () => {
               Bienvenido
             </h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              Inicia sesión para continuar
+              {isRecovering ? 'Recupera tu acceso' : 'Inicia sesión para continuar'}
             </p>
           </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={isRecovering ? handleRecoverySubmit : handleSubmit} className="space-y-6">
             {/* Campo email */}
             <motion.div variants={itemVariants} className="relative">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -119,7 +150,22 @@ const Page: React.FC = () => {
               {/* Línea animada al focus (se puede hacer con pseudo-elementos en CSS, pero aquí no es necesario) */}
             </motion.div>
 
-            {/* Campo contraseña */}
+            {isRecovering ? (
+              <>
+                <motion.div variants={itemVariants} className="relative">
+                  <label htmlFor="recoveryCode" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Código de recuperación</label>
+                  <input id="recoveryCode" type="text" required autoComplete="off" value={recoveryCode} onChange={(e) => setRecoveryCode(e.target.value)} className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" />
+                </motion.div>
+                <motion.div variants={itemVariants} className="relative">
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Nueva contraseña</label>
+                  <input id="newPassword" type="password" required minLength={8} autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder="Mínimo 8 caracteres, una mayúscula y un número" />
+                </motion.div>
+                <motion.div variants={itemVariants} className="relative">
+                  <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Confirma la nueva contraseña</label>
+                  <input id="confirmNewPassword" type="password" required minLength={8} autoComplete="new-password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className="mt-1 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50" />
+                </motion.div>
+              </>
+            ) : (
             <motion.div variants={itemVariants} className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Contraseña
@@ -145,6 +191,7 @@ const Page: React.FC = () => {
                 </button>
               </div>
             </motion.div>
+            )}
 
             {/* Mensaje de error con animación de shake */}
             <AnimatePresence>
@@ -154,7 +201,7 @@ const Page: React.FC = () => {
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: 20, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 10 }}
-                  className="text-red-600 dark:text-red-400 text-sm bg-red-100/50 dark:bg-red-900/30 backdrop-blur-sm p-3 rounded-xl"
+                  className={`${recoverySucceeded ? 'text-green-700 bg-green-100/60 dark:text-green-300 dark:bg-green-900/30' : 'text-red-600 bg-red-100/50 dark:text-red-400 dark:bg-red-900/30'} text-sm backdrop-blur-sm p-3 rounded-xl`}
                 >
                   {error}
                 </motion.p>
@@ -177,19 +224,26 @@ const Page: React.FC = () => {
                     className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                   />
                 ) : (
-                  'Entrar'
+                  isRecovering ? 'Restablecer contraseña' : 'Entrar'
                 )}
               </motion.button>
             </motion.div>
           </form>
 
-          {/* Enlace a registro (opcional) */}
           <motion.div variants={itemVariants} className="text-center text-sm">
+            <button type="button" onClick={() => { setIsRecovering((value) => !value); setError(''); setRecoverySucceeded(false); }} className="font-medium text-primary hover:underline">
+              {isRecovering ? 'Volver a iniciar sesión' : '¿Olvidaste tu contraseña?'}
+            </button>
+            {isRecovering && <p className="mt-2 text-xs text-gray-500 dark:text-gray-300">Necesitas el código que generaste previamente desde tu perfil.</p>}
+          </motion.div>
+
+          {/* Enlace a registro (opcional) */}
+          {!isRecovering && <motion.div variants={itemVariants} className="text-center text-sm">
             <span className="text-gray-600 dark:text-gray-300">¿No tienes cuenta? </span>
             <a href="/register" className="font-medium text-primary hover:underline">
               Regístrate
             </a>
-          </motion.div>
+          </motion.div>}
         </motion.div>
       </motion.div>
     </div>

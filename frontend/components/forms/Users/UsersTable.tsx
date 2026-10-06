@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, ShieldCheck, BellRing, BellOff, Loader2 } from 'lucide-react';
+import { Search, ShieldCheck, BellRing, BellOff, Loader2, KeyRound } from 'lucide-react';
 import { User, UserRole, UserStatus } from '@/src/types/user';
-import { getUsers, updateUser } from '@/lib/api/users';
+import { getUsers, updateUser, resetUserPassword } from '@/lib/api/users';
 import { confirmAction } from '@/lib/alerts';
+import Swal from 'sweetalert2';
 
 interface Props {
   initialUsers: User[];
@@ -48,6 +49,7 @@ export default function UsersTable({ initialUsers, currentUserEmail }: Props) {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<number | null>(null);
+  const [resettingId, setResettingId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRun = useRef(true);
@@ -100,6 +102,31 @@ export default function UsersTable({ initialUsers, currentUserEmail }: Props) {
     }
   };
 
+  const handleResetPassword = async (userId: number, email: string) => {
+    if (!(await confirmAction({
+      title: 'Restablecer contraseña',
+      text: `Se generará una contraseña nueva para ${email}. La contraseña actual dejará de funcionar.`,
+      confirmButtonText: 'Sí, generar contraseña',
+    }))) return;
+
+    setResettingId(userId);
+    setError('');
+    try {
+      const password = await resetUserPassword(userId);
+      await Swal.fire({
+        title: 'Contraseña temporal generada',
+        text: `Usuario: ${email}\nContraseña: ${password}\n\nGuárdala y compártela con el usuario. No volverá a mostrarse.`,
+        icon: 'success',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#166534',
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al restablecer la contraseña');
+    } finally {
+      setResettingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative max-w-sm">
@@ -127,19 +154,20 @@ export default function UsersTable({ initialUsers, currentUserEmail }: Props) {
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Último acceso</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Rol</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Estatus</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Contraseña</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400 text-sm">
                   <Loader2 className="inline h-4 w-4 animate-spin mr-2" />
                   Buscando...
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400 text-sm">
                   No se encontraron usuarios.
                 </td>
               </tr>
@@ -199,6 +227,18 @@ export default function UsersTable({ initialUsers, currentUserEmail }: Props) {
                       </select>
                     </div>
                     {savingId === u.id && <Loader2 className="inline h-3.5 w-3.5 animate-spin ml-2 text-gray-400" />}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() => handleResetPassword(u.id, u.email)}
+                      disabled={isCurrentUser || resettingId === u.id}
+                      title={isCurrentUser ? 'Esta opción solo permite restablecer la contraseña de otros usuarios' : 'Generar contraseña temporal'}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 px-2.5 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {resettingId === u.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <KeyRound className="h-3.5 w-3.5" />}
+                      Generar
+                    </button>
                   </td>
                 </tr>
                 );

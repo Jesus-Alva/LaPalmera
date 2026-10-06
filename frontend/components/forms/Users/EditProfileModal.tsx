@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, KeyRound } from 'lucide-react';
 import { User, UserProfileUpdate } from '@/src/types/user';
-import { updateMyProfile } from '@/lib/api/users';
+import { createRecoveryCode, updateMyProfile } from '@/lib/api/users';
+import Swal from 'sweetalert2';
 
 interface Props {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSuccess }: P
   const [address, setAddress] = useState(user.address || '');
   const [notificationsEnabled, setNotificationsEnabled] = useState(user.notifications_enabled ?? true);
   const [loading, setLoading] = useState(false);
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleClose = () => {
@@ -48,6 +50,43 @@ export default function EditProfileModal({ isOpen, onClose, user, onSuccess }: P
       setError(err instanceof Error ? err.message : 'Error al actualizar tu perfil');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateRecoveryCode = async () => {
+    setRecoveryLoading(true);
+    setError('');
+    try {
+      const code = await createRecoveryCode();
+      const fileContents = [
+        'Código de recuperación de La Palmera',
+        '',
+        `Código: ${code}`,
+        '',
+        'Guárdalo en un lugar seguro. Este código permite restablecer la contraseña.',
+        'Si generas un código nuevo, el anterior dejará de funcionar.',
+      ].join('\n');
+      const file = new Blob([fileContents], { type: 'text/plain;charset=utf-8' });
+      const fileUrl = URL.createObjectURL(file);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = fileUrl;
+      downloadLink.download = 'codigo-recuperacion-la-palmera.txt';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      window.setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
+
+      await Swal.fire({
+        title: 'Guarda tu código de recuperación',
+        text: `Descargamos un archivo TXT con tu código: ${code}\n\nGuárdalo en un lugar seguro. Si generas otro, este dejará de funcionar.`,
+        icon: 'info',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#2563eb',
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al generar el código de recuperación');
+    } finally {
+      setRecoveryLoading(false);
     }
   };
 
@@ -123,6 +162,19 @@ export default function EditProfileModal({ isOpen, onClose, user, onSuccess }: P
                 <label htmlFor="profileNotifications" className="text-sm text-gray-700">
                   Quiero recibir notificaciones
                 </label>
+              </div>
+
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                <p className="text-sm text-blue-900">Prepara la recuperación de tu cuenta para usarla desde el login, sin correo ni WhatsApp.</p>
+                <button
+                  type="button"
+                  onClick={handleCreateRecoveryCode}
+                  disabled={recoveryLoading}
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-900 disabled:opacity-50"
+                >
+                  {recoveryLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+                  {recoveryLoading ? 'Generando...' : 'Generar código de recuperación'}
+                </button>
               </div>
 
               {error && <p className="text-red-600 text-sm">{error}</p>}
