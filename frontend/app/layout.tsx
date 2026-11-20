@@ -1,5 +1,6 @@
 // app/layout.tsx
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Inter, Noto_Serif, Manrope } from 'next/font/google';
 import './globals.css';
 import NavbarComponent from '../components/layouts/NavbarComponent';
@@ -46,6 +47,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
   // Enlaces reales de redes sociales (site_settings → Redes sociales, editable
   // desde /settings). Si el fetch falla, SocialBubbles usa su respaldo hardcodeado.
   const [socialNetworks, packages, token] = await Promise.all([
@@ -73,6 +75,18 @@ export default async function RootLayout({
 
   return (
     <html lang="es" suppressHydrationWarning>
+      {gtmId && (
+        <>
+          <Script id="google-tag-manager-init" strategy="beforeInteractive">
+            {`window.dataLayer = window.dataLayer || []; window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});`}
+          </Script>
+          <Script
+            id="google-tag-manager"
+            src={`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`}
+            strategy="beforeInteractive"
+          />
+        </>
+      )}
       <body className={`${inter.className} ${notoSerif.variable} ${manrope.variable}`} suppressHydrationWarning>
         <JsonLd />
         {/* Pantalla de carga, Navbar, burbujas de redes sociales y Footer solo visibles en rutas públicas */}
